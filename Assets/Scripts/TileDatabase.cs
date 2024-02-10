@@ -3,30 +3,31 @@ using UnityEngine;
 
 public class TileDatabase
 {
-    public Dictionary<uint, GameObject[]> tileDictionary = new Dictionary<uint, GameObject[]>()
+    public Dictionary<uint, string[]> tileDictionary = new Dictionary<uint, string[]>()
 {
     {
-        0, new GameObject[] //Grey can spawn any color
+        0, new string[] // Grey can spawn any color
         {
-            Resources.Load("Tiles/hextest") as GameObject,
-            Resources.Load("Tiles/hextest_yellow") as GameObject,
-            Resources.Load("Tiles/hextest_red") as GameObject
+            "Tiles/hextest",
+            "Tiles/hextest_yellow",
+            "Tiles/hextest_red"
         }
     },
     {
-        1, new GameObject[] //Red can only spawn yellow
+        1, new string[] // Red can only spawn yellow
         {
-            Resources.Load("Tiles/hextest_yellow") as GameObject
+            "Tiles/hextest_yellow"
         }
     },
+    {
+        2, new string[] // Yellow can only spawn red and yellow
         {
-            2, new GameObject[] //Yellow can only spawn red and yellow
-            {
-                Resources.Load("Tiles/hextest_red") as GameObject,
-                Resources.Load("Tiles/hextest_yellow") as GameObject
-            }
+            "Tiles/hextest_red",
+            "Tiles/hextest_yellow"
         }
+    }
 };
+
 
 }
 

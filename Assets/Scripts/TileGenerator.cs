@@ -68,12 +68,13 @@ public class TileGenerator : MonoBehaviour
 
     void FindMatchingTile(Tile t, Connector con)
     {
-        if (tileDatabase.tileDictionary.TryGetValue(con.connectorID, out GameObject[] options))
+        if (tileDatabase.tileDictionary.TryGetValue(con.connectorID, out string[] options))
         {
             Debug.Log(options.Length + " options found for connector id : " + con.connectorID);
+            int optionIndex = Random.Range(0, options.Length);
+            Resources.Load(options[optionIndex]);
+            GameObject result = Resources.Load(options[optionIndex]) as GameObject;
 
-            GameObject result = options[Random.Range(0, options.Length)];
- 
             CreateATile(t, result, con.transform.position);
         }
         else
