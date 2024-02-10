@@ -3,27 +3,48 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
-    [SerializeField]
-    bool shareID = false;
-    [SerializeField]
-    private uint id;
+    [HideInInspector] public List<Connector> connectors = new List<Connector>();
+    [SerializeField] bool overrideID = true;
+    [SerializeField] uint tileID = 0;
 
-    public List<Connector> connectors = new List<Connector>();
-    public Bounds bounds;
+    [Header("wfc test")]
+    ///options
+    bool collapsed = false;
+    int entropy = 0;
+
+    //[HideInInspector] public Bounds bounds;
 
     private void Awake()
     {
         FindMyConnectors();
-        bounds = GetComponent<Collider>().bounds;
 
-        if (shareID)
-            SetIDOnConnectors();
+        if(overrideID)
+        {
+            foreach (Connector connector in connectors)
+            {
+                connector.connectorID = tileID;
+            }
+        }
+    }
 
+    int GetEntropy()
+    {
+        return 0;
+    }
+
+    void UpdateValues()
+    {
+        collapsed = entropy == 1;
+    }
+
+    void TryCollapse()
+    {
+        //Select a tile from available options
+        //Collapse the tile
     }
 
     void FindMyConnectors()
     {
-        Debug.Log("Finding connectors");
         foreach (Transform child in transform)
         {
             if (child.GetComponent<Connector>())
@@ -32,14 +53,4 @@ public class Tile : MonoBehaviour
             }
         }
     }
-
-    void SetIDOnConnectors()
-    {
-        Debug.Log("Setting ID on connectors");
-        foreach (Connector connector in connectors)
-        {
-            connector.setID(id);
-        }
-    }
- 
 }

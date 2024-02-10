@@ -6,7 +6,7 @@ public class TileGenerator : MonoBehaviour
     List<GameObject> tilesToSpawn = new List<GameObject>();
     List<GameObject> tilesNotSpawned = new List<GameObject>();
 
-    const int maxTiles = 100;
+    const int maxTiles = 5;
     int generatedTiles = 0;
     TileDatabase tileDatabase;
 
@@ -40,43 +40,45 @@ public class TileGenerator : MonoBehaviour
 
     void GenerateTiles()
     {
-        Debug.Log("Generating tiles");
-
         foreach (GameObject tileGO in tilesToSpawn)
         {
             Tile tile = tileGO.GetComponent<Tile>();
 
             foreach (Connector connector in tile.connectors)
             {
-                if(connector.isOccupied)
+                if (connector.isOccupied)
                     continue;
 
-                FindMatchingTile(connector);
+                FindMatchingTile(tile, connector);
                 connector.isOccupied = true;
             }
         }
         tilesToSpawn.Clear();
     }
 
-    void CreateATile(Vector3 pos, GameObject tile)
+    void CreateATile(Tile sourceTile, GameObject newTile, Vector3 connectorPosition)
     {
-        GameObject newTile = Instantiate(tile, pos, Quaternion.identity);
+        newTile = Instantiate(newTile, connectorPosition, Quaternion.identity);
         tilesNotSpawned.Add(newTile);
         generatedTiles++;
+
+        Vector3 dir = sourceTile.transform.position - newTile.transform.position;
+        newTile.transform.position -= dir;
     }
 
-    void FindMatchingTile(Connector con)
+    void FindMatchingTile(Tile t, Connector con)
     {
-        if (tileDatabase.tileDictionary.TryGetValue(con.getID(), out GameObject newTilePrefab))
+        if (tileDatabase.tileDictionary.TryGetValue(con.connectorID, out GameObject[] options))
         {
-            Debug.Log("Found tile with ID: " + con.getID());
+            Debug.Log(options.Length + " options found for connector id : " + con.connectorID);
 
-            Vector3 pos = con.transform.position + newTilePrefab.GetComponent<Tile>().bounds.extents;
-            CreateATile(pos, newTilePrefab);
+            GameObject result = options[Random.Range(0, options.Length)];
+ 
+            CreateATile(t, result, con.transform.position);
         }
         else
         {
-            Debug.Log("No tile with given id : " + con.getID());
+            Debug.Log("No tile with given id : " + con.connectorID);
         }
     }
 
