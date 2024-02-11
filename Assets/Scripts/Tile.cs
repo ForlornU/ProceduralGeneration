@@ -12,17 +12,15 @@ public class Tile : MonoBehaviour
     bool collapsed = false;
     int entropy = 0;
 
-    //[HideInInspector] public Bounds bounds;
-
-    private void Awake()
+    public void Init()
     {
-        FindMyConnectors();
-
-        if(overrideID)
+        EnableConnectors();
+        if (overrideID)
         {
             foreach (Connector connector in connectors)
             {
                 connector.connectorID = tileID;
+                connector.parentTile = this;
             }
         }
     }
@@ -43,7 +41,7 @@ public class Tile : MonoBehaviour
         //Collapse the tile
     }
 
-    void FindMyConnectors()
+    void EnableConnectors()
     {
         foreach (Transform child in transform)
         {

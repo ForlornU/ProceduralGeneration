@@ -1,35 +1,36 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 public class TileDatabase
 {
     public Dictionary<uint, string[]> tileDictionary = new Dictionary<uint, string[]>()
-{
     {
-        0, new string[] // Grey can spawn any color
         {
-            "Tiles/hextest",
-            "Tiles/hextest_yellow",
-            "Tiles/hextest_red"
-        }
-    },
-    {
-        1, new string[] // Red can only spawn yellow
+            0, new string[] // Dark
+            {
+                "Tiles/FlatHex",
+                "Tiles/FlatHex_empty"
+            }
+        },
         {
-            "Tiles/hextest_yellow"
-        }
-    },
-    {
-        2, new string[] // Yellow can only spawn red and yellow
+            1, new string[] // Grey can spawn any color
+            {
+                "Tiles/FlatHex",
+                "Tiles/FlatHex_yellow",
+                "Tiles/FlatHex_empty"
+            }
+        },
         {
-            "Tiles/hextest_red",
-            "Tiles/hextest_yellow"
+            2, new string[] // Red can only spawn yellow
+            {
+                "Tiles/FlatHex_red",
+            }
+        },
+        {
+            3, new string[] // Yellow can only spawn red and yellow
+            {
+                "Tiles/FlatHex_red",
+                "Tiles/FlatHex_yellow",
+            }
         }
-    }
-};
-
-
+    };
 }
-
-
-
