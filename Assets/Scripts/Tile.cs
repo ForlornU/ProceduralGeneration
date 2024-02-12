@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using UnityEngine;
 
 public class Tile : MonoBehaviour
@@ -48,6 +49,19 @@ public class Tile : MonoBehaviour
             if (child.GetComponent<Connector>())
             {
                 connectors.Add(child.GetComponent<Connector>());
+            }
+        }
+    }
+
+    public void ForgetConnections()
+    {
+        foreach (Transform child in transform)
+        {
+            if (child.GetComponent<Connector>())
+            {
+                Connector connector = child.GetComponent<Connector>();
+                connector.isOccupied = false;
+                connector.connectedTo = null;
             }
         }
     }

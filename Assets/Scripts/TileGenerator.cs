@@ -1,10 +1,18 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TileGenerator : MonoBehaviour
 {
+    [SerializeField] Slider maxTilesSlider;
+    [SerializeField] Button generateButton;
+    [SerializeField] TMPro.TextMeshProUGUI maxTilesText;
+
     List<Connector> connectorsToSpawn = new List<Connector>();
-    [SerializeField] int maxTiles = 28;
+    List<Tile> spawnedTiles = new List<Tile>();
+    Tile StartingTile;
+
+    [HideInInspector] public int maxTiles = 28;
     int generatedTiles = 0;
     TileDatabase tileDatabase;
     public bool canSpawn { get { return connectorsToSpawn.Count > 0 && generatedTiles < maxTiles; } }
@@ -15,6 +23,24 @@ public class TileGenerator : MonoBehaviour
     {
         tileDatabase = new TileDatabase();
         FindStartingConnectors(); //Only do this once, add rest manually
+    }
+
+    //public void SetCountFromSlider(int value)
+    //{
+    //    maxTiles = value;
+    //}
+
+    private void Update()
+    {
+        maxTiles = (int)maxTilesSlider.value;
+        maxTilesText.text = "Max Tiles: " + maxTiles;
+    }
+
+    public void Generate()
+    {
+        generateButton.interactable = false;
+        FindStartingConnectors();
+
         do
         {
             SortConnectors();
@@ -29,8 +55,27 @@ public class TileGenerator : MonoBehaviour
         }
 
         while (canSpawn);
+    }
 
+    public void ClearOldTiles()
+    {
+        generateButton.interactable = true;
 
+        if (spawnedTiles.Count > 0)
+        {
+            foreach (Tile t in spawnedTiles)
+            {
+                Destroy(t.gameObject);
+            }
+            spawnedTiles.Clear();
+        }
+
+        generatedTiles = 0;
+        connectorsToSpawn.Clear();
+        currentConnector = null;
+
+        if(StartingTile != null)
+            StartingTile.ForgetConnections();
     }
 
     /// <summary>
@@ -43,6 +88,7 @@ public class TileGenerator : MonoBehaviour
         foreach (GameObject tileObject in foundTiles)
         {
             Tile tile = tileObject.GetComponent<Tile>();
+            StartingTile = tile;
             tile.Init();
 
             foreach (Connector connector in tile.connectors)
@@ -70,9 +116,10 @@ public class TileGenerator : MonoBehaviour
         Connector c = connectorsToSpawn[0];
         connectorsToSpawn.RemoveAt(0);
 
+        //This happens thousands of times, so we don't want to log it. But also find a way to handle it better
         if (c == null || c.isOccupied)
         {
-            Debug.Log("Connector is null or occupied");
+            //Debug.Log("Connector is null or occupied");
             return false;
         }
 
@@ -108,11 +155,12 @@ public class TileGenerator : MonoBehaviour
 
     void CreateTile(GameObject newTile)
     {
-        generatedTiles++;
-
         newTile = Instantiate(newTile, currentConnector.transform.position, Quaternion.identity);
         Tile tile = newTile.GetComponent<Tile>();
         tile.Init();
+
+        generatedTiles++;
+        spawnedTiles.Add(tile);
 
         if (tile.connectors.Count == 0)
             return;
@@ -138,8 +186,6 @@ public class TileGenerator : MonoBehaviour
 
             if (Physics.Raycast(pos, Vector3.down, out RaycastHit hit, 10f)) //SphereCast(pos, 1f, Vector3.down, out RaycastHit hit))
             {
-                Debug.Log("Hit something");
-                //connector.isOccupied = true; If we set occupied here, it wont connect to the thing we hit
                 Tile hitTile = hit.collider.GetComponent<Tile>();
                 ConnectClosestConnectorOnNewTile(hitTile, connector);
             }
@@ -199,8 +245,6 @@ public class TileGenerator : MonoBehaviour
 
         x.connectedTo = y;
         y.connectedTo = x;
-
-        Debug.Log("Connected two connectors");
     }
 
 
