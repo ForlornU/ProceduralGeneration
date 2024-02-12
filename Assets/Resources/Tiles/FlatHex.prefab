@@ -424,7 +424,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   connectors: []
   overrideID: 1
-  tileID: 1
+  tileID: 0
 --- !u!64 &-8524837423298602688
 MeshCollider:
   m_ObjectHideFlags: 0

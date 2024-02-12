@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -41,8 +42,31 @@ public class TileGenerator : MonoBehaviour
         generateButton.interactable = false;
         FindStartingConnectors();
 
+        StartCoroutine(GenerateTiles());
+        //do
+        //{
+        //    SortConnectors();
+        //    if (!canProcessConnector())
+        //        continue;
+
+        //    if (hasMatchingTile(out GameObject match))
+        //    {
+        //        CreateTile(match);
+        //    }
+
+        //}
+
+        //while (canSpawn);
+    }
+
+    IEnumerator GenerateTiles()
+    {
+        yield return null;
+
         do
         {
+            yield return null;
+
             SortConnectors();
             if (!canProcessConnector())
                 continue;
@@ -116,7 +140,7 @@ public class TileGenerator : MonoBehaviour
         Connector c = connectorsToSpawn[0];
         connectorsToSpawn.RemoveAt(0);
 
-        //This happens thousands of times, so we don't want to log it. But also find a way to handle it better
+        //This happens thousands of times, so we don't want to log it. But also find a way to avoid it
         if (c == null || c.isOccupied)
         {
             //Debug.Log("Connector is null or occupied");

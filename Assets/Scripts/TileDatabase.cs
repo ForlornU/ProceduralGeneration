@@ -2,34 +2,47 @@ using System.Collections.Generic;
 
 public class TileDatabase
 {
+    //string FlatHex = "Tiles/FlatHex";
+    //string BeachHex = "FlatHex_beach";
+    //string MountainHex = "FlatHex_mountain";
+
+
     public Dictionary<uint, string[]> tileDictionary = new Dictionary<uint, string[]>()
     {
         {
-            0, new string[] // Dark
+            0, new string[] //Default grass
             {
                 "Tiles/FlatHex",
-                "Tiles/FlatHex_empty"
+                "Tiles/FlatHex_mountain",
+                "Tiles/FlatHex_beach"
             }
         },
         {
-            1, new string[] // Grey can spawn any color
+            1, new string[] //Mountain
             {
                 "Tiles/FlatHex",
-                "Tiles/FlatHex_yellow",
-                "Tiles/FlatHex_empty"
+                "Tiles/FlatHex_mountain"
             }
         },
         {
-            2, new string[] // Red can only spawn yellow
+            2, new string[] //Beach
             {
-                "Tiles/FlatHex_red",
+                "Tiles/FlatHex_shallowwater"
             }
         },
         {
-            3, new string[] // Yellow can only spawn red and yellow
+            3, new string[] //Shallow water
             {
-                "Tiles/FlatHex_red",
-                "Tiles/FlatHex_yellow",
+                "Tiles/FlatHex_shallowwater",
+                "Tiles/FlatHex_beach",
+                "Tiles/FlatHex_deepwater"
+            }
+        },
+        {
+            4, new string[] //Deep water
+            {
+                "Tiles/FlatHex_deepwater",
+                "Tiles/FlatHex_shallowwater"
             }
         }
     };
