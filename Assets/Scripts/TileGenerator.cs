@@ -17,7 +17,7 @@ public class TileGenerator : MonoBehaviour
         FindStartingConnectors(); //Only do this once, add rest manually
         do
         {
-            //SortConnectors();
+            SortConnectors();
             if (!canProcessConnector())
                 continue;
 
@@ -56,14 +56,14 @@ public class TileGenerator : MonoBehaviour
         }
     }
 
-    //void SortConnectors()
-    //{
-    //    connectorsToSpawn.Sort((x, y) => x.transform.position.x.CompareTo(y.transform.position.x));
-    //    Possibly spawn the one closest to the player in the future...
+    void SortConnectors()
+    {
+        //connectorsToSpawn.Sort((x, y) => x.transform.position.x.CompareTo(y.transform.position.x));
+        //Possibly spawn the one closest to the player in the future...
 
-    //    Disabled for now
-    //    connectorsToSpawn.Sort((x, y) => tileDatabase.tileDictionary[x.connectorID].Length.CompareTo(tileDatabase.tileDictionary[y.connectorID].Length));
-    //}
+        //Disabled for now
+        //connectorsToSpawn.Sort((x, y) => tileDatabase.tileDictionary[x.connectorID].Length.CompareTo(tileDatabase.tileDictionary[y.connectorID].Length));
+    }
 
     bool canProcessConnector()
     {
