@@ -5,9 +5,17 @@ using UnityEngine.UI;
 
 public class TileGenerator : MonoBehaviour
 {
+    bool simulating = false;
+    [SerializeField] Transform cursor;
+    [SerializeField] Slider timeSlider;
     [SerializeField] Slider maxTilesSlider;
     [SerializeField] Button generateButton;
+
     [SerializeField] TMPro.TextMeshProUGUI maxTilesText;
+    [SerializeField] TMPro.TextMeshProUGUI dataText;
+    [SerializeField] TMPro.TextMeshProUGUI timeText;
+
+    float timeSpent = 0f;
 
     List<Connector> connectorsToSpawn = new List<Connector>();
     List<Tile> spawnedTiles = new List<Tile>();
@@ -26,47 +34,38 @@ public class TileGenerator : MonoBehaviour
         FindStartingConnectors(); //Only do this once, add rest manually
     }
 
-    //public void SetCountFromSlider(int value)
-    //{
-    //    maxTiles = value;
-    //}
-
     private void Update()
     {
         maxTiles = (int)maxTilesSlider.value;
         maxTilesText.text = "Max Tiles: " + maxTiles;
+        timeText.text = "Update Time: " + timeSlider.value;
+
+        if (!simulating)
+            return;
+
+        timeSpent += Time.deltaTime;
+
+        dataText.text = "Open connectors in world: \n" + connectorsToSpawn.Count + "\n" +
+            "Tiles spawned: \n" + generatedTiles + "\n" +
+            "Time spent in simulation: " + timeSpent.ToString("F1");
     }
 
     public void Generate()
     {
+        simulating = true;
+        timeSpent = 0f;
+
         generateButton.interactable = false;
         FindStartingConnectors();
 
         StartCoroutine(GenerateTiles());
-        //do
-        //{
-        //    SortConnectors();
-        //    if (!canProcessConnector())
-        //        continue;
-
-        //    if (hasMatchingTile(out GameObject match))
-        //    {
-        //        CreateTile(match);
-        //    }
-
-        //}
-
-        //while (canSpawn);
     }
 
     IEnumerator GenerateTiles()
     {
-        yield return null;
-
         do
         {
-            yield return null;
-
+            yield return new WaitForSeconds(timeSlider.value);
             SortConnectors();
             if (!canProcessConnector())
                 continue;
@@ -79,11 +78,16 @@ public class TileGenerator : MonoBehaviour
         }
 
         while (canSpawn);
+
+        simulating = false;
     }
 
     public void ClearOldTiles()
     {
         generateButton.interactable = true;
+        dataText.text = "Open connectors in world: \n" + 0 + "\n" +
+    "Tiles spawned: \n" + 0 + "\n" +
+    "Time spent in simulation: " + 0;
 
         if (spawnedTiles.Count > 0)
         {
@@ -100,6 +104,8 @@ public class TileGenerator : MonoBehaviour
 
         if(StartingTile != null)
             StartingTile.ForgetConnections();
+
+        cursor.position = Vector3.zero;
     }
 
     /// <summary>
@@ -121,7 +127,6 @@ public class TileGenerator : MonoBehaviour
                     continue;
 
                 connectorsToSpawn.Add(connector);
-                Debug.Log("Connector found");
             }
         }
     }
@@ -131,8 +136,8 @@ public class TileGenerator : MonoBehaviour
         //connectorsToSpawn.Sort((x, y) => x.transform.position.x.CompareTo(y.transform.position.x));
         //Possibly spawn the one closest to the player in the future...
 
-        //Disabled for now
-        //connectorsToSpawn.Sort((x, y) => tileDatabase.tileDictionary[x.connectorID].Length.CompareTo(tileDatabase.tileDictionary[y.connectorID].Length));
+        //Disabled for now, tiles start to overlap
+        connectorsToSpawn.Sort((x, y) => tileDatabase.tileDictionary[x.connectorID].Length.CompareTo(tileDatabase.tileDictionary[y.connectorID].Length));
     }
 
     bool canProcessConnector()
@@ -183,11 +188,15 @@ public class TileGenerator : MonoBehaviour
         Tile tile = newTile.GetComponent<Tile>();
         tile.Init();
 
+        cursor.position = newTile.transform.position;
+
         generatedTiles++;
         spawnedTiles.Add(tile);
 
         if (tile.connectors.Count == 0)
             return;
+
+        connectorsToSpawn.AddRange(tile.connectors);
 
         MoveTileToPosition(newTile);
         ConnectClosestConnectorOnNewTile(tile, currentConnector);
@@ -239,7 +248,7 @@ public class TileGenerator : MonoBehaviour
             //    continue;
 
             //Take this oppurtunity to add these connectors to the list
-            connectorsToSpawn.Add(connector);
+            //connectorsToSpawn.Add(connector); //If we already created this tile before, we don't want to add the connectors again
 
             float dist = Vector3.Distance(c.transform.position, connector.transform.position);
             if(dist < closestDistance)
@@ -258,7 +267,7 @@ public class TileGenerator : MonoBehaviour
         if(x.isOccupied || y.isOccupied)
         {
             Debug.Log("One or both connectors are occupied");
-            return;
+            //return; temp, occupy anyway
         }
 
         x.isOccupied = true;

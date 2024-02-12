@@ -12,7 +12,7 @@ public class TileDatabase
         {
             0, new string[] //Default grass
             {
-                "Tiles/FlatHex",
+                //"Tiles/FlatHex",
                 "Tiles/FlatHex_mountain",
                 "Tiles/FlatHex_beach"
             }
@@ -21,7 +21,7 @@ public class TileDatabase
             1, new string[] //Mountain
             {
                 "Tiles/FlatHex",
-                "Tiles/FlatHex_mountain"
+                //"Tiles/FlatHex_mountain"
             }
         },
         {
@@ -33,7 +33,7 @@ public class TileDatabase
         {
             3, new string[] //Shallow water
             {
-                "Tiles/FlatHex_shallowwater",
+                //"Tiles/FlatHex_shallowwater",
                 "Tiles/FlatHex_beach",
                 "Tiles/FlatHex_deepwater"
             }
@@ -41,7 +41,7 @@ public class TileDatabase
         {
             4, new string[] //Deep water
             {
-                "Tiles/FlatHex_deepwater",
+                //"Tiles/FlatHex_deepwater",
                 "Tiles/FlatHex_shallowwater"
             }
         }
