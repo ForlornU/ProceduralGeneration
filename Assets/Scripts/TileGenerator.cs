@@ -40,14 +40,14 @@ public class TileGenerator : MonoBehaviour
         maxTilesText.text = "Max Tiles: " + maxTiles;
         timeText.text = "Update Time: " + timeSlider.value;
 
-        if (!simulating)
-            return;
+        if (simulating)
+        {
+            timeSpent += Time.deltaTime;
 
-        timeSpent += Time.deltaTime;
-
-        dataText.text = "Open connectors in world: \n" + connectorsToSpawn.Count + "\n" +
-            "Tiles spawned: \n" + generatedTiles + "\n" +
-            "Time spent in simulation: " + timeSpent.ToString("F1");
+            dataText.text = "Open connectors in world: \n" + connectorsToSpawn.Count + "\n" +
+                "Tiles spawned: \n" + generatedTiles + "\n" +
+                "Time spent in simulation: " + timeSpent.ToString("F1");
+        }
     }
 
     public void Generate()
@@ -65,7 +65,6 @@ public class TileGenerator : MonoBehaviour
     {
         do
         {
-            yield return new WaitForSeconds(timeSlider.value);
             SortConnectors();
             if (!canProcessConnector())
                 continue;
@@ -75,6 +74,7 @@ public class TileGenerator : MonoBehaviour
                 CreateTile(match);
             }
 
+            yield return new WaitForSeconds(timeSlider.value);
         }
 
         while (canSpawn);
