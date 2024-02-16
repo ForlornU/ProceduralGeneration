@@ -1,18 +1,27 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class TileFactory : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+
+    public void CreateTile(GameObject newTile, Connector currentConnector)
     {
-        
+        newTile = Instantiate(newTile, currentConnector.transform.position, Quaternion.identity);
+        Tile tile = newTile.GetComponent<Tile>();
+        tile.Init();
+
+        //cursor.position = newTile.transform.position;
+
+        //generatedTiles++;
+        //spawnedTiles.Add(tile);
+
+        if (tile.connectors.Count == 0)
+            return;
+
+        //connectorsToSpawn.AddRange(tile.connectors);
+
+        //MoveTileToPosition(newTile);
+        //ConnectClosestConnectorOnNewTile(tile, currentConnector);
+        //ConnectToSurroundingTiles(tile);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

@@ -62,7 +62,7 @@ public class TileGenerator : MonoBehaviour
 
             if (RandomWalk)
             {
-                connectorIndex = Random.Range(0, 5); // randomize between the 6 closest options
+                connectorIndex = Random.Range(0, connectorsToSpawn[connectorIndex].parentTile.connectors.Count-1); // randomize between the 6 closest options
             }
 
             //Index to be 0 for sorted
@@ -70,13 +70,6 @@ public class TileGenerator : MonoBehaviour
             {
                 continue;
             }
-
-
-            //else if (randomSimulation)
-            //{ //This kind of does nothing atm
-            //    //DisqualifyConnector(connectorIndex);
-            //}
-
 
             if (hasMatchingTile(out GameObject matchingTile))
             {
@@ -122,7 +115,7 @@ public class TileGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// Finds all the current open connectors in the world
+    /// Finds all the current open connectors in the world, but the starting tile assumes there is only one
     /// </summary>
     void FindStartingConnectors()
     {
