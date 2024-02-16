@@ -415,6 +415,7 @@ GameObject:
   - component: {fileID: 181454304}
   - component: {fileID: 181454303}
   - component: {fileID: 181454305}
+  - component: {fileID: 181454306}
   m_Layer: 0
   m_Name: Generator
   m_TagString: Untagged
@@ -434,9 +435,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d73d18485ec4744785f52cd4d2303c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  randomSimulation: 1
+  randomSimulation: 0
   cursor: {fileID: 1632468241}
-  maxTiles: 100
+  RandomWalk: 1
 --- !u!4 &181454304
 Transform:
   m_ObjectHideFlags: 0
@@ -470,6 +471,18 @@ MonoBehaviour:
   maxTilesText: {fileID: 637569090}
   dataText: {fileID: 519970727}
   timeText: {fileID: 642840186}
+--- !u!114 &181454306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 181454302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ac61bf57f3ccfe419c7011545b81c91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &200368024
 GameObject:
   m_ObjectHideFlags: 0
@@ -700,7 +713,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 10000
-  field of view: 60
+  field of view: 80
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -1933,8 +1946,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -646, y: -309}
-  m_SizeDelta: {x: 160, y: 20}
+  m_AnchoredPosition: {x: -650.40045, y: -309}
+  m_SizeDelta: {x: 172.63, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &955054215
 MonoBehaviour:
@@ -1981,7 +1994,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 561241651}
   m_Direction: 0
   m_MinValue: 0.01
-  m_MaxValue: 2
+  m_MaxValue: 1
   m_WholeNumbers: 0
   m_Value: 0.01
   m_OnValueChanged:
