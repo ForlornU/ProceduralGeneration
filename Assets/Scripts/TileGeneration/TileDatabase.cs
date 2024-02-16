@@ -44,6 +44,12 @@ public class TileDatabase
                 //"Tiles/FlatHex_deepwater",
                 "Tiles/FlatHex_shallowwater"
             }
+        },
+        {
+            10, new string[] //Square test tile
+            {
+                "Tiles/Square/PlaneTile"
+            }
         }
     };
 }
