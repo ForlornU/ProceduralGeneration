@@ -3,19 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(GeneratorUI))]
 public class TileGenerator : MonoBehaviour
 {
-    bool simulating = false;
+    [SerializeField] bool randomSimulation = true;
     [SerializeField] Transform cursor;
-    [SerializeField] Slider timeSlider;
-    [SerializeField] Slider maxTilesSlider;
-    [SerializeField] Button generateButton;
 
-    [SerializeField] TMPro.TextMeshProUGUI maxTilesText;
-    [SerializeField] TMPro.TextMeshProUGUI dataText;
-    [SerializeField] TMPro.TextMeshProUGUI timeText;
-
-    float timeSpent = 0f;
+    GeneratorUI UI;
 
     List<Connector> connectorsToSpawn = new List<Connector>();
     List<Tile> spawnedTiles = new List<Tile>();
@@ -24,38 +18,26 @@ public class TileGenerator : MonoBehaviour
     [HideInInspector] public int maxTiles = 28;
     int generatedTiles = 0;
     TileDatabase tileDatabase;
-    public bool canSpawn { get { return connectorsToSpawn.Count > 0 && generatedTiles < maxTiles; } }
+    public bool canSpawn { get { return connectorsToSpawn.Count > 0 && generatedTiles < UI.maxSliderValue; } }
 
     Connector currentConnector;
 
     private void Start()
     {
+        UI = GetComponent<GeneratorUI>();
         tileDatabase = new TileDatabase();
         FindStartingConnectors(); //Only do this once, add rest manually
     }
 
     private void Update()
     {
-        maxTiles = (int)maxTilesSlider.value;
-        maxTilesText.text = "Max Tiles: " + maxTiles;
-        timeText.text = "Update Time: " + timeSlider.value;
-
-        if (simulating)
-        {
-            timeSpent += Time.deltaTime;
-
-            dataText.text = "Open connectors in world: \n" + connectorsToSpawn.Count + "\n" +
-                "Tiles spawned: \n" + generatedTiles + "\n" +
-                "Time spent in simulation: " + timeSpent.ToString("F1");
-        }
+        UI.WriteToUI(connectorsToSpawn.Count, generatedTiles);
     }
 
     public void Generate()
     {
-        simulating = true;
-        timeSpent = 0f;
+        UI.StartSession();
 
-        generateButton.interactable = false;
         FindStartingConnectors();
 
         StartCoroutine(GenerateTiles());
@@ -63,31 +45,48 @@ public class TileGenerator : MonoBehaviour
 
     IEnumerator GenerateTiles()
     {
+        int connectorIndex = 0;
+
         do
         {
-            SortConnectors();
-            if (!canProcessConnector())
+            if (randomSimulation)
+                connectorIndex = Random.Range(0, connectorsToSpawn.Count-1);
+            else
+                SortConnectors();
+
+            //Index to be 0 for sorted
+            if (!canProcessConnector(connectorIndex))
+            {
                 continue;
+            }
+            else if (randomSimulation && Random.value <= 0.5f)
+            {
+                DisqualifyConnector(connectorIndex);
+            }
+
 
             if (hasMatchingTile(out GameObject match))
             {
                 CreateTile(match);
             }
 
-            yield return new WaitForSeconds(timeSlider.value);
+            yield return new WaitForSeconds(UI.TimeSliderValue);
         }
 
         while (canSpawn);
 
-        simulating = false;
+        UI.StopSession();
+    }
+
+    void DisqualifyConnector(int index)
+    {
+        Connector c = connectorsToSpawn[index];
+        c.isOccupied = true;
     }
 
     public void ClearOldTiles()
     {
-        generateButton.interactable = true;
-        dataText.text = "Open connectors in world: \n" + 0 + "\n" +
-    "Tiles spawned: \n" + 0 + "\n" +
-    "Time spent in simulation: " + 0;
+        UI.ClearSession();
 
         if (spawnedTiles.Count > 0)
         {
@@ -140,10 +139,10 @@ public class TileGenerator : MonoBehaviour
         connectorsToSpawn.Sort((x, y) => tileDatabase.tileDictionary[x.connectorID].Length.CompareTo(tileDatabase.tileDictionary[y.connectorID].Length));
     }
 
-    bool canProcessConnector()
+    bool canProcessConnector(int index)
     {
-        Connector c = connectorsToSpawn[0];
-        connectorsToSpawn.RemoveAt(0);
+        Connector c = connectorsToSpawn[index];
+        connectorsToSpawn.RemoveAt(index);
 
         //This happens thousands of times, so we don't want to log it. But also find a way to avoid it
         if (c == null || c.isOccupied)
