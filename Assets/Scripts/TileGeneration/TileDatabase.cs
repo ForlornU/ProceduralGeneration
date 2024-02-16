@@ -50,6 +50,12 @@ public class TileDatabase
             {
                 "Tiles/Square/PlaneTile"
             }
+        },
+        {
+            20, new string[] // Cube tile
+            {
+                "Tiles/3dTile/Cube"
+            }
         }
     };
 }
