@@ -1,23 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
-[RequireComponent(typeof(GeneratorUI))]
+[RequireComponent(typeof(GeneratorUI), typeof(TileFactory))]
 public class TileGenerator : MonoBehaviour
 {
     [SerializeField] bool randomSimulation = true;
     [SerializeField] Transform cursor;
 
+    [SerializeField] bool RandomWalk = true;
+
     GeneratorUI UI;
+    TileFactory factory;
+    TileDatabase tileDatabase;
 
     List<Connector> connectorsToSpawn = new List<Connector>();
     List<Tile> spawnedTiles = new List<Tile>();
     Tile StartingTile;
 
-    [HideInInspector] public int maxTiles = 28;
     int generatedTiles = 0;
-    TileDatabase tileDatabase;
+
     public bool canSpawn { get { return connectorsToSpawn.Count > 0 && generatedTiles < UI.maxSliderValue; } }
 
     Connector currentConnector;
@@ -26,6 +28,8 @@ public class TileGenerator : MonoBehaviour
     {
         UI = GetComponent<GeneratorUI>();
         tileDatabase = new TileDatabase();
+        factory = GetComponent<TileFactory>();
+
         FindStartingConnectors(); //Only do this once, add rest manually
     }
 
@@ -49,25 +53,35 @@ public class TileGenerator : MonoBehaviour
 
         do
         {
+            yield return null;
+
             if (randomSimulation)
                 connectorIndex = Random.Range(0, connectorsToSpawn.Count-1);
             else
                 SortConnectors();
+
+            if (RandomWalk)
+            {
+                connectorIndex = Random.Range(0, 5); // randomize between the 6 closest options
+            }
 
             //Index to be 0 for sorted
             if (!canProcessConnector(connectorIndex))
             {
                 continue;
             }
-            else if (randomSimulation && Random.value <= 0.5f)
-            {
-                DisqualifyConnector(connectorIndex);
-            }
 
 
-            if (hasMatchingTile(out GameObject match))
+            //else if (randomSimulation)
+            //{ //This kind of does nothing atm
+            //    //DisqualifyConnector(connectorIndex);
+            //}
+
+
+            if (hasMatchingTile(out GameObject matchingTile))
             {
-                CreateTile(match);
+                CreateTile(matchingTile);
+                //factory.CreateTile(match);
             }
 
             yield return new WaitForSeconds(UI.TimeSliderValue);
@@ -136,7 +150,10 @@ public class TileGenerator : MonoBehaviour
         //Possibly spawn the one closest to the player in the future...
 
         //Disabled for now, tiles start to overlap
-        connectorsToSpawn.Sort((x, y) => tileDatabase.tileDictionary[x.connectorID].Length.CompareTo(tileDatabase.tileDictionary[y.connectorID].Length));
+        if(RandomWalk)
+            connectorsToSpawn.Sort((x, y) => Vector3.Distance(x.transform.position, cursor.position).CompareTo(Vector3.Distance(y.transform.position, cursor.position)));
+        else
+            connectorsToSpawn.Sort((x, y) => tileDatabase.tileDictionary[x.connectorID].Length.CompareTo(tileDatabase.tileDictionary[y.connectorID].Length));
     }
 
     bool canProcessConnector(int index)
