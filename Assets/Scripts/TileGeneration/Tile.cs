@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.Xml.Serialization;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Tile : MonoBehaviour
@@ -9,6 +9,7 @@ public class Tile : MonoBehaviour
     [SerializeField] uint tileID = 0;
 
     [Header("wfc test")]
+    [SerializeField] bool randomdlyRotate90DegreesTest = false;
     ///options
     bool collapsed = false;
     int entropy = 0;
@@ -16,14 +17,18 @@ public class Tile : MonoBehaviour
     public void Init()
     {
         EnableConnectors();
-        if (overrideID)
+
+        foreach (Connector connector in connectors)
         {
-            foreach (Connector connector in connectors)
-            {
+            if (overrideID)
                 connector.connectorID = tileID;
-                connector.parentTile = this;
-            }
+            connector.parentTile = this;
         }
+        
+
+        if (randomdlyRotate90DegreesTest && Random.value > 0.5f)
+            transform.Rotate(transform.up, 90f);
+            
     }
 
     int GetEntropy()

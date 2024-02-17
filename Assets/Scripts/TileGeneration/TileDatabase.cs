@@ -56,6 +56,36 @@ public class TileDatabase
             {
                 "Tiles/3dTile/Cube"
             }
+        },
+        {
+            30, new string[] 
+            {
+                "Tiles/3dTile/RectangleVertical",
+                "Tiles/3dTile/QuadConnector"
+            }
+        },
+        {
+            31, new string[]
+            {
+                "Tiles/3dTile/RectangleHorizontal",
+                "Tiles/3dTile/QuadConnector"
+            }
+        },
+        {
+            32, new string[]
+            {
+                "Tiles/3dTile/RectangleVertical",
+                "Tiles/3dTile/TriConnector",
+                "Tiles/3dTile/QuadConnector"
+            }
+        },
+        {
+            33, new string[]
+            {
+                "Tiles/3dTile/RectangleHorizontal",
+                "Tiles/3dTile/TriConnector",
+                "Tiles/3dTile/QuadConnector"
+            }
         }
     };
 }
