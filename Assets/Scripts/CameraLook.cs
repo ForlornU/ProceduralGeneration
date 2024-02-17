@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class CameraLook : MonoBehaviour
 {
+    [SerializeField] int MINFOV = 10;
+    [SerializeField] int MaxFOV = 90;
     [SerializeField] Transform cursor;
 
     //Follower
@@ -53,6 +55,6 @@ public class CameraLook : MonoBehaviour
         if(randomFOVNoise)
             t += Mathf.PerlinNoise(Time.time * speed, 0f) * noiseScale;
 
-        cam.fieldOfView = Mathf.Lerp(90, 10, t);
+        cam.fieldOfView = Mathf.Lerp(MaxFOV, MINFOV, t);
     }
 }

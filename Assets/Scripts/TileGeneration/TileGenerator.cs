@@ -220,13 +220,13 @@ public class TileGenerator : MonoBehaviour
                 continue;
 
             Vector3 pos = tile.transform.position - (tile.transform.position - connector.transform.position) * 2;
-            pos.y += 1f;
+            pos.y += 10f;
 
             //Debug.DrawRay(connector.transform.position, Vector3.down * 10f, Color.yellow, 3f);
             //Debug.DrawLine(connector.transform.position, pos, Color.blue, 3f);
             //Debug.DrawRay(pos, Vector3.down * 10f, Color.green, 3f);
 
-            if (Physics.Raycast(pos, Vector3.down, out RaycastHit hit, 10f)) //SphereCast(pos, 1f, Vector3.down, out RaycastHit hit))
+            if (Physics.Raycast(pos, Vector3.down, out RaycastHit hit, 20f)) //SphereCast(pos, 1f, Vector3.down, out RaycastHit hit))
             {
                 Tile hitTile = hit.collider.GetComponent<Tile>();
                 ConnectClosestConnectorOnNewTile(hitTile, connector);
