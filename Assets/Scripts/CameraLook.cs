@@ -2,27 +2,31 @@ using UnityEngine;
 
 public class CameraLook : MonoBehaviour
 {
+    [Header("FOV")]
     [SerializeField] int MinFOV = 10;
     [SerializeField] int MaxFOV = 90;
+    [SerializeField, Range(0.1f, 1f)] float minZoom = .25f;
+    [SerializeField, Range(1.05f, 5f)] float maxZoom = 3f;
+
+    [Header("Perlin FOV")]
+    [SerializeField] bool randomFOVNoise;
+    public float noiseScale = 0.1f; // Scale of the Perlin noise
+    public float speed = 1f; // Speed of change
+
+    [Header("Camera follow")]
+    [SerializeField] float rotateAroundSpeed = 6f;
+    [SerializeField, Range(0.25f, 1f)] float followingStrictness = 0.6f;
+
+    float startdist;
+    Camera cam;
+
+    [Header("Walker")]
     [SerializeField] Transform cursor;
 
     //Follower
     Vector3 centerposition;
     Transform smoothFollower;
     Vector3 smoothVelocity = Vector3.zero;
-
-    //Perlin noise
-    [SerializeField] bool randomFOVNoise;
-    public float noiseScale = 0.1f; // Scale of the Perlin noise
-    public float speed = 1f; // Speed of change
-    
-    //FOV
-    [SerializeField, Range(0.1f, 1f)] float minZoomDistanceMult = .25f;
-    [SerializeField, Range(1.05f, 5f)] float maxZoomDistanceMult = 3f;
-    [SerializeField, Range(0.25f, 1f)] float followingStrictness = 0.6f;
-
-    float startdist;
-    Camera cam;
 
     private void Start()
     {
@@ -35,14 +39,13 @@ public class CameraLook : MonoBehaviour
 
     void Update()
     {
-
-        centerposition = (Vector3.zero + cursor.position) * 0.75f;
+        centerposition = (Vector3.zero + cursor.position) * followingStrictness;
         smoothFollower.position = Vector3.SmoothDamp(smoothFollower.position, centerposition, ref smoothVelocity, 1.5f);
 
         Quaternion newRotation = Quaternion.LookRotation(smoothFollower.position - transform.position, Vector3.up);
 
         transform.rotation = Quaternion.Slerp(transform.rotation, newRotation, Time.smoothDeltaTime);
-        transform.parent.RotateAround(Vector3.zero, Vector3.up, Time.deltaTime);
+        transform.parent.RotateAround(Vector3.zero, Vector3.up, Time.deltaTime * rotateAroundSpeed);
 
         ZoomView();
     }
@@ -50,7 +53,7 @@ public class CameraLook : MonoBehaviour
     private void ZoomView()
     {
         float dist = Vector3.Distance(transform.position, smoothFollower.position);
-        float t = Mathf.InverseLerp(startdist*minZoomDistanceMult, startdist*maxZoomDistanceMult, dist);
+        float t = Mathf.InverseLerp(startdist*minZoom, startdist*maxZoom, dist);
 
         if(randomFOVNoise)
             t += Mathf.PerlinNoise(Time.time * speed, 0f) * noiseScale;
