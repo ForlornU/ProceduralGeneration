@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(GeneratorUI), typeof(TileFactory))]
+[RequireComponent(typeof(GeneratorUI))]
 public class TileGenerator : MonoBehaviour
 {
     [SerializeField] bool randomSimulation = true;
@@ -11,12 +11,12 @@ public class TileGenerator : MonoBehaviour
     [SerializeField] bool RandomWalk = true;
 
     GeneratorUI UI;
-    TileFactory factory;
     TileDatabase tileDatabase;
 
     List<Connector> connectorsToSpawn = new List<Connector>();
     List<Tile> spawnedTiles = new List<Tile>();
     Tile StartingTile;
+    Tile lastGeneratedTile;
 
     int generatedTiles = 0;
 
@@ -28,7 +28,6 @@ public class TileGenerator : MonoBehaviour
     {
         UI = GetComponent<GeneratorUI>();
         tileDatabase = new TileDatabase();
-        factory = GetComponent<TileFactory>();
 
         FindStartingConnectors(); //Only do this once, add rest manually
     }
@@ -74,7 +73,6 @@ public class TileGenerator : MonoBehaviour
             if (hasMatchingTile(out GameObject matchingTile))
             {
                 CreateTile(matchingTile);
-                //factory.CreateTile(match);
             }
 
             yield return new WaitForSeconds(UI.TimeSliderValue);
@@ -141,10 +139,18 @@ public class TileGenerator : MonoBehaviour
     {
         //connectorsToSpawn.Sort((x, y) => x.transform.position.x.CompareTo(y.transform.position.x));
         //Possibly spawn the one closest to the player in the future...
+        Vector3 rwalkpos = Vector3.zero;
+        if(lastGeneratedTile == null)
+        {
+            rwalkpos = cursor.position;
+        }
+        else
+        {
+            rwalkpos = lastGeneratedTile.transform.position;
+        }
 
-        //Disabled for now, tiles start to overlap
         if(RandomWalk)
-            connectorsToSpawn.Sort((x, y) => Vector3.Distance(x.transform.position, cursor.position).CompareTo(Vector3.Distance(y.transform.position, cursor.position)));
+            connectorsToSpawn.Sort((x, y) => Vector3.Distance(x.transform.position, rwalkpos).CompareTo(Vector3.Distance(y.transform.position, rwalkpos)));
         else
             connectorsToSpawn.Sort((x, y) => tileDatabase.tileDictionary[x.connectorID].Length.CompareTo(tileDatabase.tileDictionary[y.connectorID].Length));
     }
@@ -180,8 +186,6 @@ public class TileGenerator : MonoBehaviour
             int optionIndex = Random.Range(0, options.Length);
             Resources.Load(options[optionIndex]);
             result = Resources.Load(options[optionIndex]) as GameObject;
-
-            //CreateTile(result);
             return true;
         }
         else
@@ -196,8 +200,9 @@ public class TileGenerator : MonoBehaviour
         newTile = Instantiate(newTile, currentConnector.transform.position, Quaternion.identity);
         Tile tile = newTile.GetComponent<Tile>();
         tile.Init();
+        lastGeneratedTile = tile;
 
-        cursor.position = newTile.transform.position;
+        cursor.position = currentConnector.transform.position;
 
         generatedTiles++;
         spawnedTiles.Add(tile);
@@ -242,23 +247,11 @@ public class TileGenerator : MonoBehaviour
 
     void ConnectClosestConnectorOnNewTile(Tile t, Connector c)
     {
-        //if (t == currentConnector.parentTile)
-        //{
-        //    Debug.Log("We hit ourselves, ignore");
-        //    return;
-        //}
-
         float closestDistance = Mathf.Infinity;
         Connector closestConnector = null;
 
         foreach (Connector connector in t.connectors)
         {
-            //if (connector.isOccupied)  //If we ignore an occupied connector, we might end up with a connector further away that is the wrong one
-            //    continue;
-
-            //Take this oppurtunity to add these connectors to the list
-            //connectorsToSpawn.Add(connector); //If we already created this tile before, we don't want to add the connectors again
-
             float dist = Vector3.Distance(c.transform.position, connector.transform.position);
             if(dist < closestDistance)
             {
@@ -276,7 +269,6 @@ public class TileGenerator : MonoBehaviour
         if(x.isOccupied || y.isOccupied)
         {
             Debug.Log("One or both connectors are occupied");
-            //return; temp, occupy anyway
         }
 
         x.isOccupied = true;
