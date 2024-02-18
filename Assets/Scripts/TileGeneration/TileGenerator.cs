@@ -272,6 +272,4 @@ public class TileGenerator : MonoBehaviour
         x.connectedTo = y;
         y.connectedTo = x;
     }
-
-
 }
