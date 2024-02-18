@@ -519,7 +519,7 @@ GameObject:
   - component: {fileID: 237243087}
   - component: {fileID: 237243086}
   m_Layer: 5
-  m_Name: Button
+  m_Name: StartButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -791,14 +791,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MinFOV: 10
   MaxFOV: 80
-  cursor: {fileID: 1632468241}
+  minZoom: 0.25
+  maxZoom: 3
   randomFOVNoise: 1
   noiseScale: 0.1
   speed: 0.25
   rotateAroundSpeed: 6
-  minZoomDistanceMult: 0.15
-  maxZoomDistanceMult: 2
   followingStrictness: 0.6
+  cursor: {fileID: 1632468241}
 --- !u!1 &371677568
 GameObject:
   m_ObjectHideFlags: 0
@@ -1005,7 +1005,7 @@ GameObject:
   - component: {fileID: 502504950}
   - component: {fileID: 502504949}
   m_Layer: 5
-  m_Name: Button (1)
+  m_Name: ClearButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2571,7 +2571,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: (re)Spawn
+  m_text: Start
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

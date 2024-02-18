@@ -27,7 +27,6 @@ public class GeneratorUI : MonoBehaviour
     public void StopSession()
     {
         simulating = false;
-        generateButton.interactable = true;
     }
 
     public void ClearSession()
