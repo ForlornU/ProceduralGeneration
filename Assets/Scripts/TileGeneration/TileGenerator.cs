@@ -5,24 +5,22 @@ using UnityEngine;
 [RequireComponent(typeof(GeneratorUI))]
 public class TileGenerator : MonoBehaviour
 {
-    [SerializeField] bool randomSimulation = true;
-    [SerializeField] Transform cursor;
-
+    [SerializeField] bool randomSimulation = false;
     [SerializeField] bool RandomWalk = true;
 
+    [SerializeField] Transform cursor;
     GeneratorUI UI;
     TileDatabase tileDatabase;
 
     List<Connector> connectorsToSpawn = new List<Connector>();
+    Connector currentConnector;
+
     List<Tile> spawnedTiles = new List<Tile>();
     Tile StartingTile;
     Tile lastGeneratedTile;
-
     int generatedTiles = 0;
 
     public bool canSpawn { get { return connectorsToSpawn.Count > 0 && generatedTiles < UI.maxSliderValue; } }
-
-    Connector currentConnector;
 
     private void Start()
     {
@@ -81,12 +79,6 @@ public class TileGenerator : MonoBehaviour
         while (canSpawn);
 
         UI.StopSession();
-    }
-
-    void DisqualifyConnector(int index)
-    {
-        Connector c = connectorsToSpawn[index];
-        c.isOccupied = true;
     }
 
     public void ClearOldTiles()

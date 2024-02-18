@@ -802,14 +802,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e52691c3af4d714ba918cedf261e910, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MINFOV: 10
+  MINFOV: 5
   MaxFOV: 90
   cursor: {fileID: 1632468241}
   randomFOVNoise: 1
   noiseScale: 0.1
-  speed: 1
-  minZoomDistanceMult: 0.2
-  maxZoomDistanceMult: 2.5
+  speed: 0.25
+  minZoomDistanceMult: 0.15
+  maxZoomDistanceMult: 2
   followingStrictness: 0.6
 --- !u!1 &371677568
 GameObject:
