@@ -58,7 +58,7 @@ public class TileDatabase
             }
         },
         {
-            30, new string[] 
+            30, new string[]  //3d Connectors
             {
                 "Tiles/3dTile/RectangleVertical",
                 "Tiles/3dTile/QuadConnector"
