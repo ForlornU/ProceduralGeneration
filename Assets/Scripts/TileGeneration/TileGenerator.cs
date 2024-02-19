@@ -5,23 +5,26 @@ using UnityEngine;
 [RequireComponent(typeof(GeneratorUI))]
 public class TileGenerator : MonoBehaviour
 {
+    [Header("Options")]
     [SerializeField] bool InstantGeneration = false;
+    [SerializeField] Transform cursor;
     [Header("Types of simulation")]
     [SerializeField] bool randomSimulation = false;
     [SerializeField] bool RandomWalk = true;
 
-    [SerializeField] Transform cursor;
+    //Dependencies
     GeneratorUI UI;
     TileDatabase tileDatabase;
 
+    //Collections
     List<Connector> connectorsToSpawn = new List<Connector>();
-    Connector currentConnector;
-
     List<Tile> spawnedTiles = new List<Tile>();
+
+    //Runtime
+    Connector currentConnector;
     Tile StartingTile;
     Tile lastGeneratedTile;
     int generatedTiles = 0;
-
     public bool canSpawn { get { return connectorsToSpawn.Count > 0 && generatedTiles < UI.maxSliderValue; } }
 
     private void Start()
@@ -39,8 +42,6 @@ public class TileGenerator : MonoBehaviour
 
     public void Generate()
     {
-        UI.StartSession();
-
         FindStartingConnectors();
 
         if (InstantGeneration)
@@ -55,58 +56,49 @@ public class TileGenerator : MonoBehaviour
 
         do
         {
-            if (randomSimulation)
-                connectorIndex = Random.Range(0, connectorsToSpawn.Count - 1);
-            else
-                SortConnectors();
+            connectorIndex = MethodSelection(connectorIndex);
 
             if (RandomWalk)
-            {
-                connectorIndex = Random.Range(0, connectorsToSpawn[connectorIndex].parentTile.connectors.Count - 1); // randomize between the 6 closest options
-            }
+                connectorIndex = Random.Range(0, connectorsToSpawn[connectorIndex].parentTile.connectors.Count - 1); // randomize between the closest options
 
-            //Index to be 0 for sorted
             if (!canProcessConnector(connectorIndex))
-            {
                 continue;
-            }
 
             if (hasMatchingTile(out GameObject matchingTile))
             {
                 CreateTile(matchingTile);
             }
-
-            //yield return new WaitForSeconds(UI.TimeSliderValue);
         }
-
         while (canSpawn);
 
-        UI.StopSession();
+        UI.SetDataText(connectorsToSpawn.Count, generatedTiles);
+    }
+
+    private int MethodSelection(int connectorIndex)
+    {
+        if (randomSimulation)
+            connectorIndex = Random.Range(0, connectorsToSpawn.Count - 1);
+        else
+            SortConnectors();
+        return connectorIndex;
     }
 
     IEnumerator GenerateTiles()
     {
+        UI.StartSession();
         int connectorIndex = 0;
 
         do
         {
-            yield return null;
+            yield return null; // Always wait one frame
 
-            if (randomSimulation)
-                connectorIndex = Random.Range(0, connectorsToSpawn.Count-1);
-            else
-                SortConnectors();
+            connectorIndex = MethodSelection(connectorIndex);
 
             if (RandomWalk)
-            {
-                connectorIndex = Random.Range(0, connectorsToSpawn[connectorIndex].parentTile.connectors.Count-1); // randomize between the 6 closest options
-            }
+                connectorIndex = Random.Range(0, connectorsToSpawn[connectorIndex].parentTile.connectors.Count-1); // randomize between the closest options
 
-            //Index to be 0 for sorted
             if (!canProcessConnector(connectorIndex))
-            {
                 continue;
-            }
 
             if (hasMatchingTile(out GameObject matchingTile))
             {
