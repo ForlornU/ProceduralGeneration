@@ -5,6 +5,8 @@ using UnityEngine;
 [RequireComponent(typeof(GeneratorUI))]
 public class TileGenerator : MonoBehaviour
 {
+    [SerializeField] bool InstantGeneration = false;
+    [Header("Types of simulation")]
     [SerializeField] bool randomSimulation = false;
     [SerializeField] bool RandomWalk = true;
 
@@ -41,7 +43,45 @@ public class TileGenerator : MonoBehaviour
 
         FindStartingConnectors();
 
-        StartCoroutine(GenerateTiles());
+        if (InstantGeneration)
+            GenerateInstantly();
+        else
+            StartCoroutine(GenerateTiles());
+    }
+
+    private void GenerateInstantly()
+    {
+        int connectorIndex = 0;
+
+        do
+        {
+            if (randomSimulation)
+                connectorIndex = Random.Range(0, connectorsToSpawn.Count - 1);
+            else
+                SortConnectors();
+
+            if (RandomWalk)
+            {
+                connectorIndex = Random.Range(0, connectorsToSpawn[connectorIndex].parentTile.connectors.Count - 1); // randomize between the 6 closest options
+            }
+
+            //Index to be 0 for sorted
+            if (!canProcessConnector(connectorIndex))
+            {
+                continue;
+            }
+
+            if (hasMatchingTile(out GameObject matchingTile))
+            {
+                CreateTile(matchingTile);
+            }
+
+            //yield return new WaitForSeconds(UI.TimeSliderValue);
+        }
+
+        while (canSpawn);
+
+        UI.StopSession();
     }
 
     IEnumerator GenerateTiles()
