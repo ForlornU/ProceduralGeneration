@@ -51,4 +51,11 @@ public class GeneratorUI : MonoBehaviour
                 "Time spent in simulation: " + timeSpentSimulating.ToString("F1");
         }
     }
+
+    public void SetDataText(int connectorCount, int tileCount)
+    {
+        dataText.text = "Open connectors in world: \n" + connectorCount + "\n" +
+    "Tiles spawned: \n" + tileCount + "\n" +
+    "Time spent in simulation: " + "Instant Generation";
+    }
 }
