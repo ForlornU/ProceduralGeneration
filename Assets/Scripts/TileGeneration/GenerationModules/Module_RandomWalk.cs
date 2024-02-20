@@ -31,6 +31,7 @@ public class Module_RandomWalk : GenerationModule
 
         int roof =  data.connectors[data.connectorsIndex].parentTile.connectors.Count + randombranches;
         roof = Mathf.Clamp(roof, 0, data.connectors.Count -1);
+
         return Random.Range(0, roof);
         //return 0;
     }

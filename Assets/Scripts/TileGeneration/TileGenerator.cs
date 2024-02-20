@@ -41,6 +41,7 @@ public class TileGenerator : MonoBehaviour
     private void Update()
     {
         UI.WriteToUI(connectorsToSpawn.Count, generatedTiles);
+        automata.ChangeModule(UI.GetCurrentModule);
     }
 
     public void Generate()

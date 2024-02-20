@@ -24,6 +24,9 @@ public class GeneratorAutomota : MonoBehaviour
 
     public void ChangeModule(string moduleName)
     {
+        if(currentModule.name == moduleName)
+            return;
+        
         if(modules.TryGetValue(moduleName, out GenerationModule module))
         {
             currentModule.ExitModule();
