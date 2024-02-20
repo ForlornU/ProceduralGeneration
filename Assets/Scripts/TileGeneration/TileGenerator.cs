@@ -151,6 +151,7 @@ public class TileGenerator : MonoBehaviour
             Tile tile = tileObject.GetComponent<Tile>();
             StartingTile = tile;
             tile.Init();
+            lastGeneratedTile = tile;
 
             foreach (Connector connector in tile.connectors)
             {

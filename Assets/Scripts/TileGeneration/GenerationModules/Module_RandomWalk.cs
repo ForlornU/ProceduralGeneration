@@ -29,8 +29,10 @@ public class Module_RandomWalk : GenerationModule
 
         data.connectors.Sort((x, y) => Vector3.Distance(x.transform.position, pos).CompareTo(Vector3.Distance(y.transform.position, pos)));
 
-        int roof =  data.connectors[data.connectorsIndex].parentTile.connectors.Count + randombranches;
-        roof = Mathf.Clamp(roof, 0, data.connectors.Count -1);
+        int roof = data.connectors[data.connectorsIndex].parentTile.connectors.Count + randombranches;
+        roof = Mathf.Clamp(roof, 0, data.connectors.Count - 1);
+
+        //int roof = data.lastTile.connectors.Count;
 
         return Random.Range(0, roof);
         //return 0;

@@ -10,6 +10,7 @@ public class GeneratorUI : MonoBehaviour
     [SerializeField] Button generateButton;
     [SerializeField] TMP_Dropdown moduleSelector;
     [SerializeField] Toggle instantToggle;
+    [SerializeField] Slider instaBreakpointSlider;
 
     [SerializeField] TextMeshProUGUI maxTilesText;
     [SerializeField] TextMeshProUGUI dataText;
@@ -28,6 +29,23 @@ public class GeneratorUI : MonoBehaviour
         moduleSelector.ClearOptions();
 
         moduleSelector.AddOptions(allModules);
+    }
+
+    public void ModuleChanged()
+    {
+
+    }
+
+    public void InstaToggle()
+    {
+        if(instantToggle.isOn)
+        {
+            instaBreakpointSlider.gameObject.SetActive(true);
+        }
+        else
+        {
+            instaBreakpointSlider.gameObject.SetActive(false);
+        }
     }
 
     public void StartSession()
