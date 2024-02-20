@@ -6,7 +6,7 @@ using UnityEngine;
 public class TileGenerator : MonoBehaviour
 {
     [Header("Options")]
-    [SerializeField] bool InstantGeneration = false;
+    //[SerializeField] bool InstantGeneration = false;
     [SerializeField] Transform cursor;
     [Header("Types of simulation")]
     [SerializeField] bool randomSimulation = false;
@@ -15,6 +15,7 @@ public class TileGenerator : MonoBehaviour
     //Dependencies
     GeneratorUI UI;
     TileDatabase tileDatabase;
+    GeneratorAutomota automata;
 
     //Collections
     List<Connector> connectorsToSpawn = new List<Connector>();
@@ -31,7 +32,9 @@ public class TileGenerator : MonoBehaviour
     {
         UI = GetComponent<GeneratorUI>();
         tileDatabase = new TileDatabase();
-
+        automata = transform.GetChild(0).GetComponent<GeneratorAutomota>();
+        automata.Init();
+        UI.SetGenerationOptions(automata.GetAllModuleNames());
         FindStartingConnectors(); //Only do this once, add rest manually
     }
 
@@ -43,23 +46,32 @@ public class TileGenerator : MonoBehaviour
     public void Generate()
     {
         FindStartingConnectors();
+        automata.ChangeModule(UI.GetCurrentModule);
 
-        if (InstantGeneration)
+        if (UI.isInstant)
             GenerateInstantly();
         else
             StartCoroutine(GenerateTiles());
     }
 
+    private ModuleReferenceData UpdateModuleData(ModuleReferenceData d)
+    {
+        d.walkerPosition = cursor.position;
+        d.lastTile = lastGeneratedTile;
+        d.connectors = connectorsToSpawn;
+        return d;
+    }
+
     private void GenerateInstantly()
     {
         int connectorIndex = 0;
+        ModuleReferenceData newData = new ModuleReferenceData();
+        newData.connectorsIndex = connectorIndex;
 
         do
         {
-            connectorIndex = MethodSelection(connectorIndex);
-
-            if (RandomWalk)
-                connectorIndex = Random.Range(0, connectorsToSpawn[connectorIndex].parentTile.connectors.Count - 1); // randomize between the closest options
+            newData = UpdateModuleData(newData);
+            connectorIndex = automata.currentModule.Sort(newData);
 
             if (!canProcessConnector(connectorIndex))
                 continue;
@@ -74,28 +86,18 @@ public class TileGenerator : MonoBehaviour
         UI.SetDataText(connectorsToSpawn.Count, generatedTiles);
     }
 
-    private int MethodSelection(int connectorIndex)
-    {
-        if (randomSimulation)
-            connectorIndex = Random.Range(0, connectorsToSpawn.Count - 1);
-        else
-            SortConnectors();
-        return connectorIndex;
-    }
-
     IEnumerator GenerateTiles()
     {
         UI.StartSession();
         int connectorIndex = 0;
+        ModuleReferenceData newData = new ModuleReferenceData();
+        newData.connectorsIndex = connectorIndex;
 
         do
         {
             yield return null; // Always wait one frame
-
-            connectorIndex = MethodSelection(connectorIndex);
-
-            if (RandomWalk)
-                connectorIndex = Random.Range(0, connectorsToSpawn[connectorIndex].parentTile.connectors.Count-1); // randomize between the closest options
+            newData = UpdateModuleData(newData);
+            connectorIndex = automata.currentModule.Sort(newData);
 
             if (!canProcessConnector(connectorIndex))
                 continue;

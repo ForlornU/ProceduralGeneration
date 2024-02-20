@@ -1,4 +1,5 @@
-using System;
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,15 +8,27 @@ public class GeneratorUI : MonoBehaviour
     [SerializeField] Slider timeSlider;
     [SerializeField] Slider maxTilesSlider;
     [SerializeField] Button generateButton;
+    [SerializeField] TMP_Dropdown moduleSelector;
+    [SerializeField] Toggle instantToggle;
 
-    [SerializeField] TMPro.TextMeshProUGUI maxTilesText;
-    [SerializeField] TMPro.TextMeshProUGUI dataText;
-    [SerializeField] TMPro.TextMeshProUGUI timeText;
+    [SerializeField] TextMeshProUGUI maxTilesText;
+    [SerializeField] TextMeshProUGUI dataText;
+    [SerializeField] TextMeshProUGUI timeText;
 
     bool simulating = false;
     float timeSpentSimulating = 0;
     public float TimeSliderValue { get { return timeSlider.value; } }
     public int maxSliderValue {  get {  return (int)maxTilesSlider.value; } }
+    public string GetCurrentModule { get { return moduleSelector.options[moduleSelector.value].text; } private set { } }
+
+    public bool isInstant {  get { return instantToggle.isOn; } }
+
+    public void SetGenerationOptions(List<string> allModules)
+    {
+        moduleSelector.ClearOptions();
+
+        moduleSelector.AddOptions(allModules);
+    }
 
     public void StartSession()
     {
