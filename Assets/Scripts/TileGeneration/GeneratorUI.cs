@@ -10,7 +10,9 @@ public class GeneratorUI : MonoBehaviour
     [SerializeField] Button generateButton;
     [SerializeField] TMP_Dropdown moduleSelector;
     [SerializeField] Toggle instantToggle;
-    [SerializeField] Slider instaBreakpointSlider;
+
+    public Toggle breakpointToggle;
+    [SerializeField] Slider breakpointSlider;
 
     [SerializeField] TextMeshProUGUI maxTilesText;
     [SerializeField] TextMeshProUGUI dataText;
@@ -24,6 +26,8 @@ public class GeneratorUI : MonoBehaviour
 
     public bool isInstant {  get { return instantToggle.isOn; } }
 
+    public float breakPointValue {  get {  return breakpointSlider.value; } }
+
     public void SetGenerationOptions(List<string> allModules)
     {
         moduleSelector.ClearOptions();
@@ -34,18 +38,6 @@ public class GeneratorUI : MonoBehaviour
     public void ModuleChanged()
     {
 
-    }
-
-    public void InstaToggle()
-    {
-        if(instantToggle.isOn)
-        {
-            instaBreakpointSlider.gameObject.SetActive(true);
-        }
-        else
-        {
-            instaBreakpointSlider.gameObject.SetActive(false);
-        }
     }
 
     public void StartSession()

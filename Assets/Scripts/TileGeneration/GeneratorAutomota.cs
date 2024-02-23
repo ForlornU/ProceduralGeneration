@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class GeneratorAutomota : MonoBehaviour
@@ -33,6 +34,31 @@ public class GeneratorAutomota : MonoBehaviour
             currentModule = module;
             Debug.Log("Found the matching module, switching to: " + moduleName);
         }
+    }
+
+    public void ChangeModuleRandom()
+    {
+        string randomModule = string.Empty;
+
+        //Always return to randomwalk
+        if(currentModule.name != "RandomWalk")
+        {
+            Debug.Log("Changing back to randomwalk!");
+            ChangeModule("RandomWalk");
+            return;
+        }
+
+        for (int i = 0; i < 10; i++)
+        {
+            randomModule = modules.Values.ElementAt(Random.Range(0, modules.Count - 1)).name;
+            if (randomModule != currentModule.name)
+            {
+                break; // Exit the loop if a different module is found, try at most 10 times
+            }
+        }
+
+        Debug.Log("Randomly changing module to: " + randomModule + " out of " + modules.Count.ToString() + " possibilities");
+        ChangeModule(randomModule);
     }
 
     public List<string> GetAllModuleNames()

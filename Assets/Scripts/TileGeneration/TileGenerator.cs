@@ -8,9 +8,12 @@ public class TileGenerator : MonoBehaviour
     [Header("Options")]
     //[SerializeField] bool InstantGeneration = false;
     [SerializeField] Transform cursor;
-    [Header("Types of simulation")]
-    [SerializeField] bool randomSimulation = false;
-    [SerializeField] bool RandomWalk = true;
+
+    //[Header("Types of simulation")]
+    //[SerializeField] bool randomSimulation = false;
+    //[SerializeField] bool RandomWalk = true;
+
+    float breakpoint = 0f;
 
     //Dependencies
     GeneratorUI UI;
@@ -41,18 +44,19 @@ public class TileGenerator : MonoBehaviour
     private void Update()
     {
         UI.WriteToUI(connectorsToSpawn.Count, generatedTiles);
-        automata.ChangeModule(UI.GetCurrentModule);
+        //automata.ChangeModule(UI.GetCurrentModule);
     }
 
     public void Generate()
     {
         FindStartingConnectors();
         automata.ChangeModule(UI.GetCurrentModule);
+        breakpoint = UI.breakPointValue;
 
         if (UI.isInstant)
             GenerateInstantly();
         else
-            StartCoroutine(GenerateTiles());
+            StartCoroutine(GenerateOverTime());
     }
 
     private ModuleReferenceData UpdateModuleData(ModuleReferenceData d)
@@ -87,7 +91,7 @@ public class TileGenerator : MonoBehaviour
         UI.SetDataText(connectorsToSpawn.Count, generatedTiles);
     }
 
-    IEnumerator GenerateTiles()
+    IEnumerator GenerateOverTime()
     {
         UI.StartSession();
         int connectorIndex = 0;
@@ -106,6 +110,14 @@ public class TileGenerator : MonoBehaviour
             if (hasMatchingTile(out GameObject matchingTile))
             {
                 CreateTile(matchingTile);
+            }
+
+            breakpoint++;
+            if (UI.breakpointToggle.isOn && breakpoint >= UI.maxSliderValue * UI.breakPointValue)
+            {
+                automata.ChangeModuleRandom();
+                breakpoint = 0;
+                //UI.breakpointToggle.isOn = false;
             }
 
             yield return new WaitForSeconds(UI.TimeSliderValue);
@@ -163,25 +175,25 @@ public class TileGenerator : MonoBehaviour
         }
     }
 
-    void SortConnectors()
-    {
-        //connectorsToSpawn.Sort((x, y) => x.transform.position.x.CompareTo(y.transform.position.x));
-        //Possibly spawn the one closest to the player in the future...
-        Vector3 rwalkpos = Vector3.zero;
-        if(lastGeneratedTile == null)
-        {
-            rwalkpos = cursor.position;
-        }
-        else
-        {
-            rwalkpos = lastGeneratedTile.transform.position;
-        }
+    //void SortConnectors()
+    //{
+    //    //connectorsToSpawn.Sort((x, y) => x.transform.position.x.CompareTo(y.transform.position.x));
+    //    //Possibly spawn the one closest to the player in the future...
+    //    Vector3 rwalkpos = Vector3.zero;
+    //    if(lastGeneratedTile == null)
+    //    {
+    //        rwalkpos = cursor.position;
+    //    }
+    //    else
+    //    {
+    //        rwalkpos = lastGeneratedTile.transform.position;
+    //    }
 
-        if(RandomWalk)
-            connectorsToSpawn.Sort((x, y) => Vector3.Distance(x.transform.position, rwalkpos).CompareTo(Vector3.Distance(y.transform.position, rwalkpos)));
-        else
-            connectorsToSpawn.Sort((x, y) => tileDatabase.tileDictionary[x.connectorID].Length.CompareTo(tileDatabase.tileDictionary[y.connectorID].Length));
-    }
+    //    if(RandomWalk)
+    //        connectorsToSpawn.Sort((x, y) => Vector3.Distance(x.transform.position, rwalkpos).CompareTo(Vector3.Distance(y.transform.position, rwalkpos)));
+    //    else
+    //        connectorsToSpawn.Sort((x, y) => tileDatabase.tileDictionary[x.connectorID].Length.CompareTo(tileDatabase.tileDictionary[y.connectorID].Length));
+    //}
 
     bool canProcessConnector(int index)
     {
