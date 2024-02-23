@@ -16,6 +16,10 @@ public class Module_RandomWalk : GenerationModule
         //    Debug.Log("Valid connector");
 
         //return Random.Range(data.connectors.Count -6, data.connectors.Count - 1);//connectorsToSpawn[connectorIndex].parentTile.connectors.Count - 1); // randomize between the closest options
+        int min = data.connectors.Count - data.lastTile.connectors.Count-1;
+        int r = Random.Range(min, data.connectors.Count);
+        return r;
+
         Vector3 pos;
          
         if (data.lastTile == null)
@@ -32,7 +36,7 @@ public class Module_RandomWalk : GenerationModule
         int roof = data.connectors[data.connectorsIndex].parentTile.connectors.Count + randombranches;
         roof = Mathf.Clamp(roof, 0, data.connectors.Count - 1);
 
-        //int roof = data.lastTile.connectors.Count;
+
 
         return Random.Range(0, roof);
         //return 0;
@@ -45,16 +49,16 @@ public class Module_RandomWalk : GenerationModule
     //        connectors.Push(connector);
     //    }
 
-    //}
+        //}
 
-    //bool canProcessConnector(Connector c)
-    //{
-    //    currentConnector = c;
+        //bool canProcessConnector(Connector c)
+        //{
+        //    currentConnector = c;
 
-    //    This happens thousands of times, so we don't want to log it. But also find a way to avoid it
-    //    if (c == null || c.isOccupied)
-    //        return false;
+        //    This happens thousands of times, so we don't want to log it. But also find a way to avoid it
+        //    if (c == null || c.isOccupied)
+        //        return false;
 
-    //    return true;
-    //}
+        //    return true;
+        //}
 }
