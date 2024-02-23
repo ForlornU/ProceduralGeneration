@@ -35,11 +35,6 @@ public class GeneratorUI : MonoBehaviour
         moduleSelector.AddOptions(allModules);
     }
 
-    public void ModuleChanged()
-    {
-
-    }
-
     public void StartSession()
     {
         simulating = true;
