@@ -78,6 +78,7 @@ public class TileGenerator : MonoBehaviour
             {
                 CreateTile(matchingTile);
             }
+            Breakpoint();
         }
         while (canSpawn);
 
@@ -106,7 +107,6 @@ public class TileGenerator : MonoBehaviour
             }
 
             Breakpoint();
-
             yield return new WaitForSeconds(UI.TimeSliderValue);
         }
 
@@ -264,29 +264,20 @@ public class TileGenerator : MonoBehaviour
 
     void ConnectClosestConnectorOnNewTile(Tile t, Connector c)
     {
-        float closestDistance = Mathf.Infinity;
-        Connector closestConnector = null;
+        // Sort connectors based on their distance from c
+        t.connectors.Sort((x, y) => Vector3.Distance(c.transform.position, x.transform.position).CompareTo(Vector3.Distance(c.transform.position, y.transform.position)));
 
-        foreach (Connector connector in t.connectors)
-        {
-            float dist = Vector3.Distance(c.transform.position, connector.transform.position);
-            if(dist < closestDistance)
-            {
-                closestDistance = dist;
-                closestConnector = connector;
-            }
-        }
+        Connector closestConnector = t.connectors[0];
 
         MatchConnectors(c, closestConnector);
-
     }
 
     void MatchConnectors(Connector x, Connector y)
     {
-        if(x.isOccupied || y.isOccupied)
-        {
-            Debug.Log("One or both connectors are occupied");
-        }
+        //if(x.isOccupied || y.isOccupied)
+        //{
+        //    Debug.Log("One or both connectors are occupied");
+        //}
 
         x.isOccupied = true;
         connectorsToSpawn.Remove(x);

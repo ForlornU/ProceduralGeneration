@@ -23,16 +23,16 @@ public class GeneratorAutomota : MonoBehaviour
         currentModule = initialModule;
     }
 
-    public void ChangeModule(string moduleName)
+    public void ChangeModule(string newModuleName)
     {
-        if(currentModule.name == moduleName)
+        if(currentModule.name == newModuleName)
             return;
         
-        if(modules.TryGetValue(moduleName, out GenerationModule module))
+        if(modules.TryGetValue(newModuleName, out GenerationModule module))
         {
             currentModule.ExitModule();
             currentModule = module;
-            Debug.Log("Found the matching module, switching to: " + moduleName);
+            Debug.Log("Found the matching module, switching to: " + newModuleName);
         }
     }
 

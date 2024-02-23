@@ -4563,9 +4563,9 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1732839516}
   m_Direction: 0
   m_MinValue: 80
-  m_MaxValue: 8000
+  m_MaxValue: 30000
   m_WholeNumbers: 1
-  m_Value: 1200
+  m_Value: 1000
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
@@ -4878,7 +4878,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 191b31262a179a246a4cb0dad7ba478e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  invert: 1
+  invert: 0
 --- !u!1 &1668422383
 GameObject:
   m_ObjectHideFlags: 0
