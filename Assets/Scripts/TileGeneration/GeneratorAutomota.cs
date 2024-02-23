@@ -50,7 +50,7 @@ public class GeneratorAutomota : MonoBehaviour
 
         for (int i = 0; i < 10; i++)
         {
-            randomModule = modules.Values.ElementAt(Random.Range(0, modules.Count - 1)).name;
+            randomModule = modules.Values.ElementAt(Random.Range(0, modules.Count)).name;
             if (randomModule != currentModule.name)
             {
                 break; // Exit the loop if a different module is found, try at most 10 times
