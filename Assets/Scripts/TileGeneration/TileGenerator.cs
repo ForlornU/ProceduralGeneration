@@ -6,6 +6,7 @@ using UnityEngine;
 public class TileGenerator : MonoBehaviour
 {
     [SerializeField] Transform cursor;
+    [SerializeField] bool realTimeModuleControl = false;
 
     //Dependencies
     GeneratorUI UI;
@@ -37,7 +38,9 @@ public class TileGenerator : MonoBehaviour
     private void Update()
     {
         UI.WriteToUI(connectorsToSpawn.Count, generatedTiles);
-        //automata.ChangeModule(UI.GetCurrentModule);
+
+        if(realTimeModuleControl)
+            automata.ChangeModule(UI.GetCurrentModule); // allows for real time changing of modules manually, overrides breakpoints
     }
 
     public void Generate()
