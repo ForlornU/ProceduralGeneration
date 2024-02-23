@@ -7,6 +7,8 @@ public class Tile : MonoBehaviour
     [SerializeField] bool overrideID = true;
     [SerializeField] uint tileID = 0;
 
+    public int validTiles {  get { return ValidTiles(); } }
+
     [Header("wfc test")]
     ///options
     bool collapsed = false;
@@ -22,6 +24,19 @@ public class Tile : MonoBehaviour
                 connector.connectorID = tileID;
             connector.parentTile = this;
         }           
+    }
+
+    int ValidTiles()
+    {
+        int x = 0;
+        foreach (Connector connector in connectors)
+        {
+            if(!connector.isOccupied)
+            {
+                x++;
+            }
+        }
+        return x;
     }
 
     int GetEntropy()
