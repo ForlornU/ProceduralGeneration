@@ -8,6 +8,9 @@ public class TileGenerator : MonoBehaviour
     [SerializeField] Transform cursor;
     [SerializeField] bool realTimeModuleControl = false;
 
+    [SerializeField] GenerationSettings settings;
+    int passIndex = 0;
+
     //Dependencies
     GeneratorUI UI;
     TileDatabase tileDatabase;
@@ -22,8 +25,8 @@ public class TileGenerator : MonoBehaviour
     Tile StartingTile;
     Tile lastGeneratedTile;
     int generatedTiles = 0;
-    float breakpoint = 0f;
-    public bool canSpawn { get { return connectorsToSpawn.Count > 0 && generatedTiles < UI.maxSliderValue; } }
+
+    public bool canSpawn { get { return connectorsToSpawn.Count > 0 && generatedTiles < settings.Passes[passIndex].tileCount; } }
 
     private void Start()
     {
@@ -46,13 +49,32 @@ public class TileGenerator : MonoBehaviour
     public void Generate()
     {
         FindStartingConnectors();
-        automata.ChangeModule(UI.GetCurrentModule);
-        breakpoint = UI.breakPointValue;
+        //automata.ChangeModule(UI.GetCurrentModule);
+        //breakpoint = UI.breakPointValue;
 
-        if (UI.isInstant)
-            GenerateInstantly();
-        else
-            StartCoroutine(GenerateOverTime());
+        for (int i = 0; i < settings.Passes.Length; i++)
+        {
+            PassSettings pass = settings.Passes[i];
+            automata.ChangeModule(pass.modulename);
+            generatedTiles = 0;
+
+            if (pass.isInstant)
+                GenerateInstantly();
+            else
+                StartCoroutine(GenerateOverTime());
+            //This can be solved by having Generate be a coroutine and then:
+            // yield return StartCoroutine(GenerateOverTime());
+            //This would wait for the GenerateOverTime to finish
+            //GenerateInstantly();
+            passIndex = i;
+            Debug.Log(passIndex);
+        }
+
+        passIndex = 0;
+        //if (UI.isInstant)
+        //    GenerateInstantly();
+        //else
+        //    StartCoroutine(GenerateOverTime());
     }
 
     private ModuleReferenceData UpdateModuleData(ModuleReferenceData d)
@@ -81,7 +103,7 @@ public class TileGenerator : MonoBehaviour
             {
                 CreateTile(matchingTile);
             }
-            Breakpoint();
+            //Breakpoint();
         }
         while (canSpawn);
 
@@ -109,8 +131,8 @@ public class TileGenerator : MonoBehaviour
                 CreateTile(matchingTile);
             }
 
-            Breakpoint();
-            yield return new WaitForSeconds(UI.TimeSliderValue);
+            //Breakpoint();
+            yield return new WaitForSeconds(settings.Passes[passIndex].creationspeed); //(UI.TimeSliderValue);
         }
 
         while (canSpawn);
@@ -118,15 +140,15 @@ public class TileGenerator : MonoBehaviour
         UI.StopSession();
     }
 
-    private void Breakpoint()
-    {
-        breakpoint++;
-        if (UI.breakpointToggle.isOn && breakpoint >= UI.maxSliderValue * UI.breakPointValue)
-        {
-            automata.ChangeModuleRandom();
-            breakpoint = 0;
-        }
-    }
+    //private void Breakpoint()
+    //{
+    //    breakpoint++;
+    //    if (UI.breakpointToggle.isOn && breakpoint >= UI.maxSliderValue * UI.breakPointValue)
+    //    {
+    //        automata.ChangeModuleRandom();
+    //        breakpoint = 0;
+    //    }
+    //}
 
     public void ClearOldTiles()
     {
