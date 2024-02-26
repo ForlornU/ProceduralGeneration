@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class GenerationSettings : ScriptableObject
 {
+    public GameObject startTile;
     public PassSettings[] Passes;
 }
 
