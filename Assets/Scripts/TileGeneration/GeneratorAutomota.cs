@@ -25,8 +25,11 @@ public class GeneratorAutomota : MonoBehaviour
 
     public void ChangeModule(string newModuleName)
     {
-        if(currentModule.name == newModuleName)
+        if (currentModule.name == newModuleName)
+        {
+            Debug.Log("Module already selected");
             return;
+        }
         
         if(modules.TryGetValue(newModuleName, out GenerationModule module))
         {

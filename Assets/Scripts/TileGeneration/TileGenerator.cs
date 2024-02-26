@@ -40,30 +40,29 @@ public class TileGenerator : MonoBehaviour
     {
         UI.WriteToUI(connectorsToSpawn.Count, generatedTiles);
 
-        if(realTimeModuleControl)
-            automata.ChangeModule(UI.GetCurrentModule); // allows for real time changing of modules manually, overrides breakpoints
+        //if(realTimeModuleControl)
+        //    automata.ChangeModule(UI.GetCurrentModule); // allows for real time changing of modules manually, overrides breakpoints
     }
 
-    public void Generate()
+    public void StartGeneration()
     {
         InitStart();
+        StartCoroutine(Generate());
+    }
 
+    public IEnumerator Generate()
+    {
         for (int i = 0; i < settings.Passes.Length; i++)
         {
             PassSettings pass = settings.Passes[i];
             automata.ChangeModule(pass.modulename);
             generatedTiles = 0;
+            passIndex = i;
 
             if (pass.isInstant)
                 GenerateInstantly();
             else
-                StartCoroutine(GenerateOverTime());
-            //This can be solved by having Generate be a coroutine and then:
-            // yield return StartCoroutine(GenerateOverTime());
-            //This would wait for the GenerateOverTime to finish
-            //GenerateInstantly();
-            passIndex = i;
-            Debug.Log(passIndex);
+                yield return StartCoroutine(GenerateOverTime());
         }
 
         passIndex = 0;
