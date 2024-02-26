@@ -9,10 +9,6 @@ public class GeneratorUI : MonoBehaviour
     [SerializeField] Slider maxTilesSlider;
     [SerializeField] Button generateButton;
     [SerializeField] TMP_Dropdown moduleSelector;
-    [SerializeField] Toggle instantToggle;
-
-    public Toggle breakpointToggle;
-    [SerializeField] Slider breakpointSlider;
 
     [SerializeField] TextMeshProUGUI maxTilesText;
     [SerializeField] TextMeshProUGUI dataText;
@@ -23,10 +19,6 @@ public class GeneratorUI : MonoBehaviour
     public float TimeSliderValue { get { return timeSlider.value; } }
     public int maxSliderValue {  get {  return (int)maxTilesSlider.value; } }
     public string GetCurrentModule { get { return moduleSelector.options[moduleSelector.value].text; } private set { } }
-
-    public bool isInstant {  get { return instantToggle.isOn; } }
-
-    public float breakPointValue {  get {  return breakpointSlider.value; } }
 
     public void SetGenerationOptions(List<string> allModules)
     {
