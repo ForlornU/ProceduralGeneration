@@ -14,6 +14,7 @@ public class GeneratorUI : MonoBehaviour
     [SerializeField] TextMeshProUGUI dataText;
     [SerializeField] TextMeshProUGUI timeText;
 
+    bool paused = false;
     bool simulating = false;
     float timeSpentSimulating = 0;
     public float TimeSliderValue { get { return timeSlider.value; } }
@@ -25,6 +26,16 @@ public class GeneratorUI : MonoBehaviour
         moduleSelector.ClearOptions();
 
         moduleSelector.AddOptions(allModules);
+    }
+
+    public void PauseSession()
+    {
+        paused = !paused;
+
+        if (paused)
+            Time.timeScale = 0f;
+        else
+            Time.timeScale = 1f;
     }
 
     public void StartSession()
