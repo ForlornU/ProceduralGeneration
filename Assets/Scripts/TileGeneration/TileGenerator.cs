@@ -22,7 +22,6 @@ public class TileGenerator : MonoBehaviour
 
     //Runtime
     Connector currentConnector;
-    Tile StartingTile;
     Tile lastGeneratedTile;
     int generatedTiles = 0;
 
@@ -35,7 +34,6 @@ public class TileGenerator : MonoBehaviour
         automata = transform.GetChild(0).GetComponent<GeneratorAutomota>();
         automata.Init();
         UI.SetGenerationOptions(automata.GetAllModuleNames());
-        FindStartingConnectors(); //Only do this once, add rest manually
     }
 
     private void Update()
@@ -48,9 +46,7 @@ public class TileGenerator : MonoBehaviour
 
     public void Generate()
     {
-        FindStartingConnectors();
-        //automata.ChangeModule(UI.GetCurrentModule);
-        //breakpoint = UI.breakPointValue;
+        InitStart();
 
         for (int i = 0; i < settings.Passes.Length; i++)
         {
@@ -71,10 +67,14 @@ public class TileGenerator : MonoBehaviour
         }
 
         passIndex = 0;
-        //if (UI.isInstant)
-        //    GenerateInstantly();
-        //else
-        //    StartCoroutine(GenerateOverTime());
+    }
+
+    private void InitStart()
+    {
+        GameObject firstTile = Instantiate(settings.startTile);
+        lastGeneratedTile = firstTile.GetComponent<Tile>();
+        lastGeneratedTile.Init();
+        connectorsToSpawn.AddRange(lastGeneratedTile.connectors);
     }
 
     private ModuleReferenceData UpdateModuleData(ModuleReferenceData d)
@@ -103,7 +103,6 @@ public class TileGenerator : MonoBehaviour
             {
                 CreateTile(matchingTile);
             }
-            //Breakpoint();
         }
         while (canSpawn);
 
@@ -131,7 +130,6 @@ public class TileGenerator : MonoBehaviour
                 CreateTile(matchingTile);
             }
 
-            //Breakpoint();
             yield return new WaitForSeconds(settings.Passes[passIndex].creationspeed); //(UI.TimeSliderValue);
         }
 
@@ -139,16 +137,6 @@ public class TileGenerator : MonoBehaviour
 
         UI.StopSession();
     }
-
-    //private void Breakpoint()
-    //{
-    //    breakpoint++;
-    //    if (UI.breakpointToggle.isOn && breakpoint >= UI.maxSliderValue * UI.breakPointValue)
-    //    {
-    //        automata.ChangeModuleRandom();
-    //        breakpoint = 0;
-    //    }
-    //}
 
     public void ClearOldTiles()
     {
@@ -167,34 +155,7 @@ public class TileGenerator : MonoBehaviour
         connectorsToSpawn.Clear();
         currentConnector = null;
 
-        if(StartingTile != null)
-            StartingTile.ForgetConnections();
-
         cursor.position = Vector3.zero;
-    }
-
-    /// <summary>
-    /// Finds all the current open connectors in the world, but the starting tile assumes there is only one
-    /// </summary>
-    void FindStartingConnectors()
-    {
-        GameObject[] foundTiles = GameObject.FindGameObjectsWithTag("Tile");
-
-        foreach (GameObject tileObject in foundTiles)
-        {
-            Tile tile = tileObject.GetComponent<Tile>();
-            StartingTile = tile;
-            tile.Init();
-            lastGeneratedTile = tile;
-
-            foreach (Connector connector in tile.connectors)
-            {
-                if (connector.isOccupied)
-                    continue;
-
-                connectorsToSpawn.Add(connector);
-            }
-        }
     }
 
     bool canProcessConnector(int index)
@@ -299,11 +260,6 @@ public class TileGenerator : MonoBehaviour
 
     void MatchConnectors(Connector x, Connector y)
     {
-        //if(x.isOccupied || y.isOccupied)
-        //{
-        //    Debug.Log("One or both connectors are occupied");
-        //}
-
         x.isOccupied = true;
         connectorsToSpawn.Remove(x);
 
