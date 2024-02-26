@@ -16,4 +16,4 @@ MonoBehaviour:
   - modulename: RandomWalk
     tileCount: 3000
     isInstant: 0
-    creationspeed: 0.05
+    creationspeed: 1
