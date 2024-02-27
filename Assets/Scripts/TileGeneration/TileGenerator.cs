@@ -33,15 +33,11 @@ public class TileGenerator : MonoBehaviour
         tileDatabase = new TileDatabase();
         automata = transform.GetChild(0).GetComponent<GeneratorAutomota>();
         automata.Init();
-        UI.SetGenerationOptions(automata.GetAllModuleNames());
     }
 
     private void Update()
     {
         UI.WriteToUI(connectorsToSpawn.Count, generatedTiles);
-
-        //if(realTimeModuleControl)
-        //    automata.ChangeModule(UI.GetCurrentModule); // allows for real time changing of modules manually, overrides breakpoints
     }
 
     public void StartGeneration()
@@ -129,7 +125,7 @@ public class TileGenerator : MonoBehaviour
                 CreateTile(matchingTile);
             }
 
-            yield return new WaitForSeconds(settings.Passes[passIndex].creationspeed); //(UI.TimeSliderValue);
+            yield return new WaitForSeconds(settings.Passes[passIndex].creationspeed);
         }
 
         while (canSpawn);

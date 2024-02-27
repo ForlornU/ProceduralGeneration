@@ -16,10 +16,10 @@ MonoBehaviour:
     type: 3}
   Passes:
   - modulename: RandomWalk
-    tileCount: 150
+    tileCount: 1500
     isInstant: 1
-    creationspeed: 0.1
-  - modulename: Random
-    tileCount: 200
+    creationspeed: 0
+  - modulename: Zero
+    tileCount: 1200
     isInstant: 0
-    creationspeed: 0.04
+    creationspeed: 0.02
