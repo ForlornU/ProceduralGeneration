@@ -21,6 +21,7 @@ public class TileGenerator : MonoBehaviour
     List<Tile> spawnedTiles = new List<Tile>();
 
     //Runtime
+    Grid grid;
     Connector currentConnector;
     Tile lastGeneratedTile;
     int generatedTiles = 0;
@@ -29,6 +30,7 @@ public class TileGenerator : MonoBehaviour
 
     private void Start()
     {
+        grid = new Grid();
         UI = GetComponent<GeneratorUI>();
         tileDatabase = new TileDatabase();
         automata = transform.GetChild(0).GetComponent<GeneratorAutomota>();
@@ -70,6 +72,7 @@ public class TileGenerator : MonoBehaviour
         lastGeneratedTile = firstTile.GetComponent<Tile>();
         lastGeneratedTile.Init();
         connectorsToSpawn.AddRange(lastGeneratedTile.connectors);
+        grid.InitGrid(firstTile.GetComponent<Collider>().bounds.extents.x);
     }
 
     private ModuleReferenceData UpdateModuleData(ModuleReferenceData d)
@@ -133,7 +136,7 @@ public class TileGenerator : MonoBehaviour
         UI.StopSession();
     }
 
-    public void ClearOldTiles()
+    public void Clear()
     {
         UI.ClearSession();
 

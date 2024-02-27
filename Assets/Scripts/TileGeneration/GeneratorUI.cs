@@ -6,9 +6,9 @@ public class GeneratorUI : MonoBehaviour
 {
     [SerializeField] Button generateButton;
 
-    [SerializeField] TextMeshProUGUI maxTilesText;
+    //[SerializeField] TextMeshProUGUI maxTilesText;
     [SerializeField] TextMeshProUGUI dataText;
-    [SerializeField] TextMeshProUGUI timeText;
+    //[SerializeField] TextMeshProUGUI timeText;
 
     bool paused = false;
     bool simulating = false;
