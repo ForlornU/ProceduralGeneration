@@ -14,10 +14,11 @@ public class Cell
         occupyingTile = tile;
     }
 
-    public Cell(Vector3 point, int gridX, int gridY)
+    public Cell(Vector3 worldPosition, int gridX, int gridY)
     {
-        this.worldPosition = point;
+        this.worldPosition = worldPosition;
         this.gridX = gridX;
         this.gridY = gridY;
     }
+
 }

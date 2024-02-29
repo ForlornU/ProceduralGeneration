@@ -60,4 +60,21 @@ public class Grid
 
         return neighbours;
     }
+
+    public Cell NodeFromWorldPoint(Vector3 worldPosition)
+    {
+        Vector2 percent = new Vector2(
+            (worldPosition.x + worldSize.x / 2f) / worldSize.x,
+            (worldPosition.z + worldSize.y / 2f) / worldSize.y
+        );
+
+        percent.x = Mathf.Clamp01(percent.x);
+        percent.y = Mathf.Clamp01(percent.y);
+
+        int x = Mathf.RoundToInt((size.x - 1) * percent.x);
+        int y = Mathf.RoundToInt((size.y - 1) * percent.y);
+
+        return cells[x, y];
+    }
+
 }
