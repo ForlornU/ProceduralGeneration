@@ -288,7 +288,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cursor: {fileID: 1632468241}
-  realTimeModuleControl: 1
+  realTimeModuleControl: 0
   settings: {fileID: 11400000, guid: 276aae2cbebe84448a97eeae48618f45, type: 2}
 --- !u!4 &181454304
 Transform:
@@ -318,13 +318,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1593dad4951f6134bad22ae9bec01898, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeSlider: {fileID: 0}
-  maxTilesSlider: {fileID: 0}
   generateButton: {fileID: 237243086}
-  moduleSelector: {fileID: 0}
-  maxTilesText: {fileID: 0}
   dataText: {fileID: 519970727}
-  timeText: {fileID: 0}
 --- !u!1 &237243084
 GameObject:
   m_ObjectHideFlags: 0

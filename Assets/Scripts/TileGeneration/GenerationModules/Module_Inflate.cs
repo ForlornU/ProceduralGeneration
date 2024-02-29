@@ -1,4 +1,4 @@
-public class Module_Zero : GenerationModule
+public class Module_Inflate : GenerationModule
 {
 
     public bool invert = false;
