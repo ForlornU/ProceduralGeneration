@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d406b707740499478a9d7e547ce12d5, type: 3}
   m_Name: Walk
   m_EditorClassIdentifier: 
-  startTile: {fileID: 987487923656824130, guid: a51f57cb9ede14744a7a504ebf81f8ee,
+  startTile: {fileID: 3866203411576743707, guid: 27676a8cf9dab71439da05802b39fa19,
     type: 3}
   Passes:
-  - modulename: RandomWalk
+  - modulename: Walk
     tileCount: 1500
-    isInstant: 1
-    creationspeed: 0
-  - modulename: Zero
-    tileCount: 1200
     isInstant: 0
-    creationspeed: 0.02
+    creationspeed: 0
+  - modulename: Inflate
+    tileCount: 5
+    isInstant: 1
+    creationspeed: 0.03

@@ -86,6 +86,12 @@ public class TileDatabase
                 "Tiles/3dTile/TriConnector",
                 "Tiles/3dTile/QuadConnector"
             }
+        },
+        {
+            99, new string[]
+            {
+                "Tiles/Square/TexturedTile"
+            }
         }
     };
 }

@@ -128,6 +128,9 @@ public class TileGenerator : MonoBehaviour
                 CreateTile(matchingTile);
             }
 
+            Cell c = grid.NodeFromWorldPoint(newData.walkerPosition);
+            Debug.Log($"{c} at pos: {c.gridX}, {c.gridY}");
+
             yield return new WaitForSeconds(settings.Passes[passIndex].creationspeed);
         }
 
@@ -175,7 +178,6 @@ public class TileGenerator : MonoBehaviour
     bool hasMatchingTile(out GameObject result)
     {
         result = null;
-
         if (tileDatabase.tileDictionary.TryGetValue(currentConnector.connectorID, out string[] options))
         {
             if(options.Length == 0)
