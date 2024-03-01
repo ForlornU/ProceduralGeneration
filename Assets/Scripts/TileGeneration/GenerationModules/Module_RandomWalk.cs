@@ -8,12 +8,13 @@ public class Module_RandomWalk : GenerationModule
 
     public override int Sort(ModuleReferenceData data)
     {
-        int range = Random.value < branchChance ? range = 0 : data.connectors.Count - (data.lastTile.validTiles + splitting);
+        //Range is a measure from the last placed tile to 0 which is the first placed tile
+        // if random branch, let the range be 0 which is 'any placed tile'
+        int lastPlacedTilesRange = data.connectors.Count - (data.lastTile.validTiles + splitting);
+        int range = Random.value < branchChance ? 0 : lastPlacedTilesRange;
 
-        int rndIndex = Random.Range(range, data.connectors.Count);
-
-        if (data.lastTile.validTiles <= 0)
-            rndIndex = data.connectors.Count - 1;
+        // If no valid tiles, again return the full lenght of all tiles to randomize
+        int rndIndex = data.lastTile.validTiles <= 0 ? data.connectors.Count - 1 : Random.Range(range, data.connectors.Count);
 
         return rndIndex;
     }
