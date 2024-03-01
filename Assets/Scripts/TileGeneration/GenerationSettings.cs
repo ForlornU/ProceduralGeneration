@@ -1,9 +1,10 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Modifier", menuName = "ScriptableObjects/Generational Modifier", order = 0)]
+[CreateAssetMenu(fileName = "Settings", menuName = "ScriptableObjects/Generational Settings", order = 0)]
 
 public class GenerationSettings : ScriptableObject
 {
+    [Header("Generation Settings")]
     public GameObject startTile;
     public PassSettings[] Passes;
 }
