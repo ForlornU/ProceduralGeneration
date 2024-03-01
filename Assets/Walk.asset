@@ -16,10 +16,18 @@ MonoBehaviour:
     type: 3}
   Passes:
   - modulename: Walk
-    tileCount: 1500
+    tileCount: 2500
     isInstant: 0
     creationspeed: 0
   - modulename: Inflate
-    tileCount: 5
-    isInstant: 1
+    tileCount: 1000
+    isInstant: 0
+    creationspeed: 0.02
+  - modulename: Perlin
+    tileCount: 500
+    isInstant: 0
+    creationspeed: 0.03
+  - modulename: Random
+    tileCount: 250
+    isInstant: 0
     creationspeed: 0.03
