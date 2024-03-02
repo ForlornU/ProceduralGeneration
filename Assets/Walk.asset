@@ -16,7 +16,7 @@ MonoBehaviour:
     type: 3}
   Passes:
   - modulename: Walk
-    tileCount: 2500
+    tileCount: 500
     isInstant: 0
     creationspeed: 0
   - modulename: Inflate

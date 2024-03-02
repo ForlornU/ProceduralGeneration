@@ -84,11 +84,23 @@ public class TileDatabase
             }
         },
         {
+            97, new string[]
+            {
+                "Tiles/Square/FloorTile"
+            }
+        },
+        {
+            98, new string[]
+            {
+                "Tiles/Square/FloorTileHole"
+            }
+        },
+        {
             99, new string[]
             {
-                "Tiles/Square/TexturedTile",
-                "Tiles/Square/TexturedVerticalTile",
-                "Tiles/Square/TexturedVerticalTile_d"
+                "Tiles/Square/FloorTile",
+                "Tiles/Square/LadderUp",
+                "Tiles/Square/LadderDown"
             }
         }
     };
