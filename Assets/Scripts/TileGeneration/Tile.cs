@@ -6,7 +6,7 @@ public class Tile : MonoBehaviour
     [HideInInspector] public List<Connector> connectors = new List<Connector>();
     [SerializeField] bool overrideID = true;
     [SerializeField] uint tileID = 0;
-
+    public Cell parentCell;
     public int validTiles {  get { return ValidTiles(); } }
 
     [Header("wfc test")]

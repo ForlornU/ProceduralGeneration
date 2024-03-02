@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 
 public class DynamicGrid : MonoBehaviour
@@ -81,29 +82,28 @@ public class DynamicGrid : MonoBehaviour
         return pos.x * pos.z != 0 || pos.y * pos.z != 0 || pos.x * pos.y != 0 || (pos.x == 0 && pos.y == 0 && pos.z == 0);
     }
 
+    public List<Cell> GetNeighbours(Cell c)
+    {
+        List<Cell> neighbours = new List<Cell>();
 
-    //public List<Cell> GetNeighbours(Cell c)
-    //{
-    //    List<Cell> neighbours = new List<Cell>();
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int y = -1; y <= 1; y++)
+            {
+                for(int z = -1; z <= 1; z++)
+                {
+                    Vector3 pos = c.worldPosition + new Vector3(x, y, z) * cellDiameter;
 
-    //    for (int x = -1; x <= 1; x++)
-    //    {
-    //        for (int y = -1; y <= 1; y++)
-    //        {
-    //            if (x == 0 && y == 0)
-    //                continue;
+                    if (IsDiagonalOrCenter(new Vector3(x, y, z)) || !cells.ContainsKey(pos))
+                        continue;
 
-    //            Vector2Int check = new Vector2Int(c.gridX + x, c.gridY + y);
+                    neighbours.Add(cells[pos]);
+                }
+            }
+        }
 
-    //            if (check.x >= 0 && check.x < size.x && check.y >= 0 && check.y < size.y)
-    //            {
-    //                neighbours.Add(cells[check.x, check.y]);
-    //            }
-    //        }
-    //    }
-
-    //    return neighbours;
-    //}
+        return neighbours;
+    }
 
     //public Cell CellFromWorldPoint(Vector3 worldPosition)
     //{

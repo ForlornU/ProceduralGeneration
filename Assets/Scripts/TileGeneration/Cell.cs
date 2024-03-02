@@ -13,6 +13,7 @@ public class Cell
     public void PlaceTile(Tile tile)
     {
         occupyingTile = tile;
+        tile.parentCell = this;
     }
 
     public Cell(Vector3 worldPosition)

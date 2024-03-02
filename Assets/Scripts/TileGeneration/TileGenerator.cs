@@ -5,7 +5,8 @@ using UnityEngine;
 [RequireComponent(typeof(GeneratorUI))]
 public class TileGenerator : MonoBehaviour
 {
-    [SerializeField] Transform cursor;
+    [SerializeField] Transform walker;
+    [SerializeField] Transform connectorWalker;
     [SerializeField] bool realTimeModuleControl = false;
 
     [SerializeField] GenerationSettings settings;
@@ -73,23 +74,14 @@ public class TileGenerator : MonoBehaviour
 
         connectorsToSpawn.AddRange(lastGeneratedTile.connectors);
 
-        //int gridsize = settings.Passes[0].tileCount/2;
-        //grid = new Grid(firstTile.GetComponent<Collider>().bounds.extents.x);
-        // grid = new Grid(new Vector2(gridsize, gridsize), firstTile.GetComponent<Collider>().bounds.extents.x);
-        //grid.InitGrid();
-
-        //This cell will not exist yet
-        //Cell newCell;
-        //if (grid.GetCellAtPosition(Vector3.zero, out newCell))
-        //    firstTile.transform.position = newCell.worldPosition;
-
         grid.Init(firstTile.GetComponent<Collider>().bounds.extents.x);
         grid.AddTileToGrid(Vector3.zero, firstTile.GetComponent<Tile>());
     }
 
     private ModuleReferenceData UpdateModuleData(ModuleReferenceData d)
     {
-        d.walkerPosition = cursor.position;
+        //d.walkerPosition = walker.position;
+        d.walkerPosition = connectorWalker.position;
         d.lastTile = lastGeneratedTile;
         d.connectors = connectorsToSpawn;
         return d;
@@ -111,7 +103,6 @@ public class TileGenerator : MonoBehaviour
 
             if (hasMatchingTile(out GameObject matchingTile))
             {
-                //Debug.DrawRay(grid.NodeFromWorldPoint(currentConnector.transform.position).worldPosition, Vector3.up*5f, Color.blue, 5f);
                 CreateTile(matchingTile);
             }
         }
@@ -141,9 +132,6 @@ public class TileGenerator : MonoBehaviour
                 CreateTile(matchingTile);
             }
 
-            //Cell c = grid.CellFromWorldPoint(newData.walkerPosition);
-            //Debug.Log($"{c} at pos: {c.gridX}, {c.gridY}");
-
             yield return new WaitForSeconds(settings.Passes[passIndex].creationspeed);
         }
 
@@ -169,7 +157,7 @@ public class TileGenerator : MonoBehaviour
         connectorsToSpawn.Clear();
         currentConnector = null;
 
-        cursor.position = Vector3.zero;
+        walker.position = Vector3.zero;
     }
 
     bool canProcessConnector(int index)
@@ -205,7 +193,6 @@ public class TileGenerator : MonoBehaviour
             }
 
             int optionIndex = Random.Range(0, options.Length);
-            //Resources.Load(options[optionIndex]);
             result = Resources.Load(options[optionIndex]) as GameObject;
             return true;
         }
@@ -219,13 +206,11 @@ public class TileGenerator : MonoBehaviour
     void CreateTile(GameObject newTile)
     {
         newTile = Instantiate(newTile, currentConnector.transform.position, Quaternion.identity);
-
-        //newTile = Instantiate(newTile, grid.CellFromWorldPoint(currentConnector.transform.position).worldPosition, Quaternion.identity);
         Tile tile = newTile.GetComponent<Tile>();
         tile.Init();
         lastGeneratedTile = tile;
 
-        cursor.position = currentConnector.transform.position;
+        connectorWalker.position = currentConnector.transform.position;
 
         generatedTiles++;
         spawnedTiles.Add(tile);
@@ -236,36 +221,48 @@ public class TileGenerator : MonoBehaviour
         connectorsToSpawn.AddRange(tile.connectors);
 
         MoveTileToPosition(newTile);
-        ConnectClosestConnectorOnNewTile(tile, currentConnector);
-        ConnectToSurroundingTiles(tile);
-
         grid.AddTileToGrid(newTile.transform.position, newTile.GetComponent<Tile>()); //assumes its already been moved into pos
-
-        //Temp debug
-        //GameObject DebugBox = Instantiate(Resources.Load("TextureTileCellBox") as GameObject, newTile.transform.position, Quaternion.identity);
+        ConnectClosestConnectorOnNewTile(tile, currentConnector);
+        //ConnectToSurroundingTiles(tile);
+        ConnectToSurroundingGrid(tile);
+        walker.position = newTile.transform.position;
     }
 
-    private void ConnectToSurroundingTiles(Tile tile)
+    void ConnectToSurroundingGrid(Tile tile)
     {
-        foreach (Connector connector in tile.connectors)
+        if(tile.parentCell == null)
         {
-            if (connector.isOccupied)
-                continue;
-
-            Vector3 pos = tile.transform.position - (tile.transform.position - connector.transform.position) * 2;
-            pos.y += 10f;
-
-            //Debug.DrawRay(connector.transform.position, Vector3.down * 10f, Color.yellow, 3f);
-            //Debug.DrawLine(connector.transform.position, pos, Color.blue, 3f);
-            //Debug.DrawRay(pos, Vector3.down * 10f, Color.green, 3f);
-
-            if (Physics.Raycast(pos, Vector3.down, out RaycastHit hit, 20f)) //SphereCast(pos, 1f, Vector3.down, out RaycastHit hit))
-            {
-                Tile hitTile = hit.collider.GetComponent<Tile>();
-                ConnectClosestConnectorOnNewTile(hitTile, connector);
-            }
+            Debug.Log("TIle has no cell!");
+            return;
+        }
+        List<Cell> neighbors = grid.GetNeighbours(tile.parentCell);
+        foreach (Cell neighbor in neighbors)
+        {
+            //ConnectClosestConnectorOnNewTile(neighbor.occupyingTile, connector);
         }
     }
+
+    //private void ConnectToSurroundingTiles(Tile tile)
+    //{
+    //    foreach (Connector connector in tile.connectors)
+    //    {
+    //        if (connector.isOccupied)
+    //            continue;
+
+    //        Vector3 pos = tile.transform.position - (tile.transform.position - connector.transform.position) * 2;
+    //        pos.y += 10f;
+
+    //        //Debug.DrawRay(connector.transform.position, Vector3.down * 10f, Color.yellow, 3f);
+    //        //Debug.DrawLine(connector.transform.position, pos, Color.blue, 3f);
+    //        //Debug.DrawRay(pos, Vector3.down * 10f, Color.green, 3f);
+
+    //        if (Physics.Raycast(pos, Vector3.down, out RaycastHit hit, 20f)) //SphereCast(pos, 1f, Vector3.down, out RaycastHit hit))
+    //        {
+    //            Tile hitTile = hit.collider.GetComponent<Tile>();
+    //            ConnectClosestConnectorOnNewTile(hitTile, connector);
+    //        }
+    //    }
+    //}
 
     private void MoveTileToPosition(GameObject newTile)
     {
