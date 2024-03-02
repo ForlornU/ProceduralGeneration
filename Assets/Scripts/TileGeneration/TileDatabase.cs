@@ -2,10 +2,6 @@ using System.Collections.Generic;
 
 public class TileDatabase
 {
-    //string FlatHex = "Tiles/FlatHex";
-    //string BeachHex = "FlatHex_beach";
-    //string MountainHex = "FlatHex_mountain";
-
 
     public Dictionary<uint, string[]> tileDictionary = new Dictionary<uint, string[]>()
     {
@@ -90,7 +86,9 @@ public class TileDatabase
         {
             99, new string[]
             {
-                "Tiles/Square/TexturedTile"
+                "Tiles/Square/TexturedTile",
+                "Tiles/Square/TexturedVerticalTile",
+                "Tiles/Square/TexturedVerticalTile_d"
             }
         }
     };

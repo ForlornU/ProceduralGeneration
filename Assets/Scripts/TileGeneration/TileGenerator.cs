@@ -21,7 +21,7 @@ public class TileGenerator : MonoBehaviour
     List<Tile> spawnedTiles = new List<Tile>();
 
     //Runtime
-    Grid grid;
+    [SerializeField] DynamicGrid grid;
     Connector currentConnector;
     Tile lastGeneratedTile;
     int generatedTiles = 0;
@@ -30,7 +30,6 @@ public class TileGenerator : MonoBehaviour
 
     private void Start()
     {
-        grid = new Grid();
         UI = GetComponent<GeneratorUI>();
         tileDatabase = new TileDatabase();
         automata = transform.GetChild(0).GetComponent<GeneratorAutomota>();
@@ -71,8 +70,21 @@ public class TileGenerator : MonoBehaviour
         GameObject firstTile = Instantiate(settings.startTile);
         lastGeneratedTile = firstTile.GetComponent<Tile>();
         lastGeneratedTile.Init();
+
         connectorsToSpawn.AddRange(lastGeneratedTile.connectors);
-        grid.InitGrid(firstTile.GetComponent<Collider>().bounds.extents.x);
+
+        //int gridsize = settings.Passes[0].tileCount/2;
+        //grid = new Grid(firstTile.GetComponent<Collider>().bounds.extents.x);
+        // grid = new Grid(new Vector2(gridsize, gridsize), firstTile.GetComponent<Collider>().bounds.extents.x);
+        //grid.InitGrid();
+
+        //This cell will not exist yet
+        //Cell newCell;
+        //if (grid.GetCellAtPosition(Vector3.zero, out newCell))
+        //    firstTile.transform.position = newCell.worldPosition;
+
+        grid.Init(firstTile.GetComponent<Collider>().bounds.extents.x);
+        grid.AddTileToGrid(Vector3.zero, firstTile.GetComponent<Tile>());
     }
 
     private ModuleReferenceData UpdateModuleData(ModuleReferenceData d)
@@ -99,6 +111,7 @@ public class TileGenerator : MonoBehaviour
 
             if (hasMatchingTile(out GameObject matchingTile))
             {
+                //Debug.DrawRay(grid.NodeFromWorldPoint(currentConnector.transform.position).worldPosition, Vector3.up*5f, Color.blue, 5f);
                 CreateTile(matchingTile);
             }
         }
@@ -128,8 +141,8 @@ public class TileGenerator : MonoBehaviour
                 CreateTile(matchingTile);
             }
 
-            Cell c = grid.NodeFromWorldPoint(newData.walkerPosition);
-            Debug.Log($"{c} at pos: {c.gridX}, {c.gridY}");
+            //Cell c = grid.CellFromWorldPoint(newData.walkerPosition);
+            //Debug.Log($"{c} at pos: {c.gridX}, {c.gridY}");
 
             yield return new WaitForSeconds(settings.Passes[passIndex].creationspeed);
         }
@@ -161,6 +174,11 @@ public class TileGenerator : MonoBehaviour
 
     bool canProcessConnector(int index)
     {
+        if (index <= 0)
+        {
+            Debug.Log("Serious issue, index less than zero");
+            return false;
+        }
         Connector c = connectorsToSpawn[index];
         connectorsToSpawn.RemoveAt(index);
 
@@ -187,7 +205,7 @@ public class TileGenerator : MonoBehaviour
             }
 
             int optionIndex = Random.Range(0, options.Length);
-            Resources.Load(options[optionIndex]);
+            //Resources.Load(options[optionIndex]);
             result = Resources.Load(options[optionIndex]) as GameObject;
             return true;
         }
@@ -201,6 +219,8 @@ public class TileGenerator : MonoBehaviour
     void CreateTile(GameObject newTile)
     {
         newTile = Instantiate(newTile, currentConnector.transform.position, Quaternion.identity);
+
+        //newTile = Instantiate(newTile, grid.CellFromWorldPoint(currentConnector.transform.position).worldPosition, Quaternion.identity);
         Tile tile = newTile.GetComponent<Tile>();
         tile.Init();
         lastGeneratedTile = tile;
@@ -218,6 +238,11 @@ public class TileGenerator : MonoBehaviour
         MoveTileToPosition(newTile);
         ConnectClosestConnectorOnNewTile(tile, currentConnector);
         ConnectToSurroundingTiles(tile);
+
+        grid.AddTileToGrid(newTile.transform.position, newTile.GetComponent<Tile>()); //assumes its already been moved into pos
+
+        //Temp debug
+        //GameObject DebugBox = Instantiate(Resources.Load("TextureTileCellBox") as GameObject, newTile.transform.position, Quaternion.identity);
     }
 
     private void ConnectToSurroundingTiles(Tile tile)

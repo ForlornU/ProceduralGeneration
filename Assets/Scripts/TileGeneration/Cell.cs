@@ -1,12 +1,13 @@
 using UnityEngine;
 
+//public enum CellState { Empty, Occupied}
 public class Cell
 {
+    //public CellState State;
+    public GameObject DebugBox;
     public Tile occupyingTile { get; private set; }
-    public bool isOccupied { get { return occupyingTile != null; }}
+    public bool isOccupied { get { return occupyingTile != null; } }
 
-    public int gridX;
-    public int gridY;
     public Vector3 worldPosition;
 
     public void PlaceTile(Tile tile)
@@ -14,11 +15,9 @@ public class Cell
         occupyingTile = tile;
     }
 
-    public Cell(Vector3 worldPosition, int gridX, int gridY)
+    public Cell(Vector3 worldPosition)
     {
         this.worldPosition = worldPosition;
-        this.gridX = gridX;
-        this.gridY = gridY;
     }
 
 }
