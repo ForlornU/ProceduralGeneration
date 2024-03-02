@@ -67,6 +67,9 @@ public class DynamicGrid : MonoBehaviour
                     if(x == 0 && y == 0 && z == 0) //Ignore centre
                         continue;
 
+                    if (IsDiagonalOrCenter(new Vector3(x, y, z)))
+                        continue;
+
                     Vector3 pos = centre + new Vector3(x, y, z) * cellDiameter;
 
                     if(cells.ContainsKey(pos))
@@ -81,6 +84,12 @@ public class DynamicGrid : MonoBehaviour
             }
         }
     }
+
+    bool IsDiagonalOrCenter(Vector3 pos)
+    {
+        return pos.x * pos.z != 0 || pos.y * pos.z != 0 || pos.x * pos.y != 0 || (pos.x == 0 && pos.y == 0 && pos.z == 0);
+    }
+
 
     //public List<Cell> GetNeighbours(Cell c)
     //{
