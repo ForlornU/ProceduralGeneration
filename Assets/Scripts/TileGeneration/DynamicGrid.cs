@@ -64,19 +64,10 @@ public class DynamicGrid : MonoBehaviour
             {
                 for (int z = -1; z <= 1; z++)
                 {
-                    if(x == 0 && y == 0 && z == 0) //Ignore centre
-                        continue;
-
-                    if (IsDiagonalOrCenter(new Vector3(x, y, z)))
-                        continue;
-
                     Vector3 pos = centre + new Vector3(x, y, z) * cellDiameter;
 
-                    if(cells.ContainsKey(pos))
-                    {
-                        Debug.Log("Already a cell here, skip neighbor");
+                    if (IsDiagonalOrCenter(new Vector3(x, y, z)) || cells.ContainsKey(pos))
                         continue;
-                    }
 
                     AddACellToGrid(pos);
                 }
