@@ -15,19 +15,18 @@ MonoBehaviour:
   startTile: {fileID: 1544157105870496345, guid: d79a4d0f434877c43a63e9f6bf3c5074,
     type: 3}
   Passes:
+  - modulename: Inflate
+    optionalDescription: First pass room
+    tileCount: 75
+    isInstant: 0
+    creationspeed: 0.03
   - modulename: Walk
+    optionalDescription: rnd walk 500 tiles
+    tileCount: 250
+    isInstant: 0
+    creationspeed: 0.02
+  - modulename: Inflate
+    optionalDescription: Inflate the walk
     tileCount: 1000
     isInstant: 0
     creationspeed: 0
-  - modulename: Inflate
-    tileCount: 600
-    isInstant: 1
-    creationspeed: 0.02
-  - modulename: Perlin
-    tileCount: 500
-    isInstant: 1
-    creationspeed: 0.03
-  - modulename: Random
-    tileCount: 250
-    isInstant: 1
-    creationspeed: 0.03

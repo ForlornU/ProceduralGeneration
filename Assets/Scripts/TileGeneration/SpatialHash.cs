@@ -5,7 +5,7 @@ public class SpatialHash : MonoBehaviour
 {
 
     public Dictionary<Vector3, Cell> cells = new Dictionary<Vector3, Cell>();
-    public float cellDiameter;
+    [HideInInspector] public float cellDiameter;
 
     public void Init(float cellRadius)
     {
