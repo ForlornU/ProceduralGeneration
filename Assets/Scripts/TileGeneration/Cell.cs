@@ -1,14 +1,14 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-//public enum CellState { Empty, Occupied}
 public class Cell
 {
-    //public CellState State;
-    public GameObject DebugBox;
     public Tile occupyingTile { get; private set; }
     public bool isOccupied { get { return occupyingTile != null; } }
 
     public Vector3 worldPosition;
+
+    List<Cell> neighbors = new List<Cell>();
 
     public void PlaceTile(Tile tile)
     {
@@ -19,6 +19,14 @@ public class Cell
     public Cell(Vector3 worldPosition)
     {
         this.worldPosition = worldPosition;
+    }
+
+    public void AddNeighbor(Cell cell)
+    {
+        if(neighbors.Contains(cell)) 
+            return;
+
+        neighbors.Add(cell);
     }
 
 }
