@@ -1,19 +1,24 @@
 using System.Collections.Generic;
-using System.Drawing;
 using UnityEngine;
 
-public class DynamicGrid : MonoBehaviour
+public class SpatialHash : MonoBehaviour
 {
 
-    Dictionary<Vector3, Cell> cells = new Dictionary<Vector3, Cell>();
-    //Vector3 startPosition = Vector3.zero; // Use to offset grid correctly?
-    //float cellRadius;
-    float cellDiameter;
+    public Dictionary<Vector3, Cell> cells = new Dictionary<Vector3, Cell>();
+    public float cellDiameter;
 
     public void Init(float cellRadius)
     {
         //this.cellRadius = cellRadius;
         cellDiameter = cellRadius * 2;
+    }
+
+    public Cell GetCellAtPos(Vector3 pos)
+    {
+        if(cells.ContainsKey(pos))
+            return cells[pos];
+        else
+            return null;
     }
 
     public void AddTileToGrid(Vector3 pos, Tile tile)
@@ -27,7 +32,6 @@ public class DynamicGrid : MonoBehaviour
                 return;
             }
 
-            Destroy(foundCell.DebugBox);
             foundCell.PlaceTile(tile);
             CreateNeighbors(pos);
             return;
@@ -53,8 +57,6 @@ public class DynamicGrid : MonoBehaviour
 
         Cell newCell = new Cell(pos);
         cells.Add(pos, newCell);
-        GameObject DebugBox = Instantiate(Resources.Load("TextureTileCellBox") as GameObject, pos, Quaternion.identity);
-        newCell.DebugBox = DebugBox;
     }
 
     void CreateNeighbors(Vector3 centre)
@@ -105,20 +107,8 @@ public class DynamicGrid : MonoBehaviour
         return neighbours;
     }
 
-    //public Cell CellFromWorldPoint(Vector3 worldPosition)
-    //{
-    //    Vector2 percent = new Vector2(
-    //        (worldPosition.x + worldSize.x / 2f) / worldSize.x,
-    //        (worldPosition.z + worldSize.y / 2f) / worldSize.y
-    //    );
-
-    //    percent.x = Mathf.Clamp01(percent.x);
-    //    percent.y = Mathf.Clamp01(percent.y);
-
-    //    int x = Mathf.RoundToInt((size.x - 1) * percent.x);
-    //    int y = Mathf.RoundToInt((size.y - 1) * percent.y);
-
-    //    return cells[x, y];
-    //}
-
+    public void ResetGrid()
+    {
+        cells.Clear();
+    }
 }
