@@ -12,22 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d406b707740499478a9d7e547ce12d5, type: 3}
   m_Name: Walk
   m_EditorClassIdentifier: 
-  startTile: {fileID: 3866203411576743707, guid: 27676a8cf9dab71439da05802b39fa19,
+  startTile: {fileID: 1544157105870496345, guid: d79a4d0f434877c43a63e9f6bf3c5074,
     type: 3}
   Passes:
   - modulename: Walk
-    tileCount: 100
-    isInstant: 0
-    creationspeed: 0.93
-  - modulename: Inflate
     tileCount: 1000
     isInstant: 0
+    creationspeed: 0
+  - modulename: Inflate
+    tileCount: 600
+    isInstant: 1
     creationspeed: 0.02
   - modulename: Perlin
     tileCount: 500
-    isInstant: 0
+    isInstant: 1
     creationspeed: 0.03
   - modulename: Random
     tileCount: 250
-    isInstant: 0
+    isInstant: 1
     creationspeed: 0.03

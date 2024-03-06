@@ -102,6 +102,12 @@ public class TileDatabase
                 "Tiles/Square/LadderUp",
                 "Tiles/Square/LadderDown"
             }
+        },
+        {
+            100, new string[]
+            {
+                "TextureTileCellBox"
+            }
         }
     };
 }
