@@ -13,7 +13,8 @@ public class GenerationSettings : ScriptableObject
 public struct PassSettings
 {
     public string modulename;
-    public int tileCount;
+    public string optionalDescription;
+    [Range(1, 9999)] public int tileCount;
     public bool isInstant;
     [Range(0, 5)] public float creationspeed;
 }

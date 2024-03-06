@@ -24,9 +24,9 @@ public class SpatialHash : MonoBehaviour
     public void AddTileToGrid(Vector3 pos, Tile tile)
     {
         //Place into an existing cell
-        if(cells.TryGetValue(pos, out Cell foundCell))
-        { 
-            if(foundCell.isOccupied)
+        if (cells.TryGetValue(pos, out Cell foundCell))
+        {
+            if (foundCell.isOccupied)
             {
                 Debug.Log("Adding to an occupied tile, continuing");
                 return;
@@ -37,13 +37,14 @@ public class SpatialHash : MonoBehaviour
             return;
         }
 
-        //Create a new cell for this tile, meaning its the first tile
-        //Add to list, occupy
+        CreateFirstCell(pos, tile);
+    }
+
+    private void CreateFirstCell(Vector3 pos, Tile tile)
+    {
         Cell newCell = new Cell(pos);
         cells.Add(pos, newCell);
         newCell.PlaceTile(tile);
-
-        //Create neighbors
         CreateNeighbors(pos);
     }
 
@@ -110,5 +111,13 @@ public class SpatialHash : MonoBehaviour
     public void ResetGrid()
     {
         cells.Clear();
+    }
+
+    public void RemoveAtPos(Vector3 pos)
+    {
+        if (!cells.ContainsKey(pos))
+            return;
+
+        cells.Remove(pos);
     }
 }

@@ -5,6 +5,7 @@ public class Cell
 {
     public Tile occupyingTile { get; private set; }
     public bool isOccupied { get { return occupyingTile != null; } }
+    public bool markedAsVoid = false;
 
     public Vector3 worldPosition;
 

@@ -52,6 +52,7 @@ public class TileGenerator : MonoBehaviour
 
     public IEnumerator Generate()
     {
+        //Grid creation pass?
         for (int i = 0; i < settings.Passes.Length; i++)
         {
             PassSettings pass = settings.Passes[i];
@@ -64,21 +65,37 @@ public class TileGenerator : MonoBehaviour
             else
                 yield return StartCoroutine(GenerateOverTime());
         }
+        passIndex = 0;
 
-        //DebugCubes
-
-        int spawned = 0;
-        Debug.Log($"There are {generatedTiles} generated tiles now and {grid.cells.Count} cells! which means {grid.cells.Keys.Count} nr of keys!");
+        //Everything after this is a test, we remove the inner structure of the generation, the "void"
+        //Removal of inner void
+        Debug.Log($"There are {grid.cells.Count} cells!, lets remove all occupied ones!");
+        List<Vector3> posToRemove = new List<Vector3>();
         foreach (Vector3 pos in grid.cells.Keys)
         {
-            GameObject cube = Instantiate(debugCube, pos, Quaternion.identity);
-            debugCubes.Add(cube);
-            spawned++;
-            if (spawned >= grid.cells.Count)
-                break;
+            if (grid.GetCellAtPos(pos).isOccupied)
+                posToRemove.Add(pos);
+        }
+        foreach (Vector3 pos in posToRemove)
+        {
+            Tile t = grid.GetCellAtPos(pos).occupyingTile;
+            t.parentCell.markedAsVoid = true;
+            Destroy(t.gameObject);
+            grid.RemoveAtPos(pos);
         }
 
-        passIndex = 0;
+        //Outlying walls pass?
+        Debug.Log($"There are {grid.cells.Count} cells left!!");
+        foreach (Vector3 pos in grid.cells.Keys)
+        {
+            Cell c = grid.GetCellAtPos(pos);
+            if (c.isOccupied || c.markedAsVoid)
+                continue;
+            GameObject cube = Instantiate(debugCube, pos, Quaternion.identity);
+            debugCubes.Add(cube);
+        }
+
+
     }
 
     private void InitStart()
