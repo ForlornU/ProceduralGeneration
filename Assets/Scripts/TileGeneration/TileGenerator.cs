@@ -7,8 +7,7 @@ public class TileGenerator : MonoBehaviour
 {
     [SerializeField] Transform walker;
     [SerializeField] Transform connectorWalker;
-    [SerializeField] bool realTimeModuleControl = false;
-
+    [SerializeField] GameObject debugCube;
     [SerializeField] GenerationSettings settings;
     int passIndex = 0;
 
@@ -20,9 +19,12 @@ public class TileGenerator : MonoBehaviour
     //Collections
     List<Connector> connectorsToSpawn = new List<Connector>();
     List<Tile> spawnedTiles = new List<Tile>();
+    //Remove later
+    List<Vector3> cellPositions = new List<Vector3>();
+    List<GameObject> debugCubes = new List<GameObject>();
 
     //Runtime
-    [SerializeField] DynamicGrid grid;
+    [SerializeField] SpatialHash grid;
     Connector currentConnector;
     Tile lastGeneratedTile;
     int generatedTiles = 0;
@@ -63,6 +65,19 @@ public class TileGenerator : MonoBehaviour
                 yield return StartCoroutine(GenerateOverTime());
         }
 
+        //DebugCubes
+
+        int spawned = 0;
+        Debug.Log($"There are {generatedTiles} generated tiles now and {grid.cells.Count} cells! which means {grid.cells.Keys.Count} nr of keys!");
+        foreach (Vector3 pos in grid.cells.Keys)
+        {
+            GameObject cube = Instantiate(debugCube, pos, Quaternion.identity);
+            debugCubes.Add(cube);
+            spawned++;
+            if (spawned >= grid.cells.Count)
+                break;
+        }
+
         passIndex = 0;
     }
 
@@ -92,19 +107,23 @@ public class TileGenerator : MonoBehaviour
         int connectorIndex = 0;
         ModuleReferenceData newData = new ModuleReferenceData();
         newData.connectorsIndex = connectorIndex;
+        GameObject matchingTile = null;
 
         do
         {
             newData = UpdateModuleData(newData);
             connectorIndex = automata.currentModule.Sort(newData);
 
-            if (!canProcessConnector(connectorIndex))
-                continue;
+            if (!canProcessConnector(connectorIndex) || hasMatchingTile(out matchingTile))
+                    continue;
 
-            if (hasMatchingTile(out GameObject matchingTile))
-            {
-                CreateTile(matchingTile);
-            }
+            Tile t = CreateTile(matchingTile);
+            connectorsToSpawn.AddRange(t.connectors);
+
+            MoveTileToPosition(t.gameObject);
+            grid.AddTileToGrid(t.transform.position, t); //assumes its already been moved into pos
+            ConnectToSurroundingGrid(t);
+            PositionWalkers(t);
         }
         while (canSpawn);
 
@@ -120,65 +139,101 @@ public class TileGenerator : MonoBehaviour
 
         do
         {
-            yield return null; // Always wait one frame
             newData = UpdateModuleData(newData);
             connectorIndex = automata.currentModule.Sort(newData);
 
-            if (!canProcessConnector(connectorIndex))
+            if (!canProcessConnector(connectorIndex) || !hasMatchingTile(out GameObject matchingTile))
                 continue;
 
-            if (hasMatchingTile(out GameObject matchingTile))
-            {
-                CreateTile(matchingTile);
-            }
+            Tile t = CreateTile(matchingTile);
+            connectorsToSpawn.AddRange(t.connectors);
+
+            MoveTileToPosition(t.gameObject);
+            grid.AddTileToGrid(t.transform.position, t); //Move first, add second
+            ConnectToSurroundingGrid(t);
+            PositionWalkers(t);
 
             yield return new WaitForSeconds(settings.Passes[passIndex].creationspeed);
         }
-
         while (canSpawn);
 
         UI.StopSession();
     }
 
+    private void PositionWalkers(Tile t)
+    {
+        walker.position = t.transform.position;
+        connectorWalker.position = currentConnector.transform.position;
+    }
+
     public void Clear()
     {
         UI.ClearSession();
+        StopAllCoroutines();
 
         if (spawnedTiles.Count > 0)
         {
             foreach (Tile t in spawnedTiles)
             {
+                if(t.parentCell == null)
+                {
+                    Debug.Log("Tile had no cell to destroy");
+                    continue;
+                }
+
                 Destroy(t.gameObject);
+                grid.ResetGrid();
             }
             spawnedTiles.Clear();
         }
+
+        foreach(GameObject c in debugCubes)
+        {
+            Destroy(c);
+        }
+        debugCubes.Clear();
+        cellPositions.Clear();
 
         generatedTiles = 0;
         connectorsToSpawn.Clear();
         currentConnector = null;
 
         walker.position = Vector3.zero;
+        connectorWalker.position = Vector3.zero;
     }
 
     bool canProcessConnector(int index)
     {
-        if (index <= 0)
+        if (index < 0 || index > connectorsToSpawn.Count-1)
         {
             Debug.Log("Serious issue, index less than zero");
             return false;
         }
-        Connector c = connectorsToSpawn[index];
+
+        Connector foundConnector = connectorsToSpawn[index];
         connectorsToSpawn.RemoveAt(index);
 
-        //This happens thousands of times, so we don't want to log it. But also find a way to avoid it
-        if (c == null || c.isOccupied)
+        Vector3 dir = ConnectorDirToNewCell(foundConnector);
+        Cell cellAtPos = grid.GetCellAtPos(foundConnector.transform.position + dir);
+
+        if (foundConnector == null || foundConnector.isOccupied || cellAtPos == null || cellAtPos.isOccupied)
         {
-            //Debug.Log("Connector is null or occupied");
+            //Debug.Log($"Error = Found connector is at: {foundConnector.transform.position}, dir is: {dir}, new pos is = {foundConnector.transform.position + dir}");
+            //Debug.Log($"connector is null = {foundConnector == null} " +
+            //    $"|| connector is occupied = {foundConnector.isOccupied}" +
+            //    $"|| Pos exists in grid = {grid.GetCellAtPos(foundConnector.transform.position + dir) != null}" +
+            //    $"|| cell is occupied = {grid.GetCellAtPos(foundConnector.transform.position + dir).isOccupied}");
+            //Debug.Break();
             return false;
         }
 
-        currentConnector = c;
+        currentConnector = foundConnector;
         return true;
+    }
+
+    Vector3 ConnectorDirToNewCell(Connector connector)
+    {
+        return (connector.transform.position - connector.parentTile.transform.position).normalized * grid.cellDiameter / 2;
     }
 
     bool hasMatchingTile(out GameObject result)
@@ -203,66 +258,32 @@ public class TileGenerator : MonoBehaviour
         }
     }
 
-    void CreateTile(GameObject newTile)
+    Tile CreateTile(GameObject newTileGO)
     {
-        newTile = Instantiate(newTile, currentConnector.transform.position, Quaternion.identity);
-        Tile tile = newTile.GetComponent<Tile>();
-        tile.Init();
-        lastGeneratedTile = tile;
+        newTileGO = Instantiate(newTileGO, currentConnector.transform.position, Quaternion.identity);
+        Tile newTile = newTileGO.GetComponent<Tile>();
+        newTile.Init();
 
-        connectorWalker.position = currentConnector.transform.position;
-
+        lastGeneratedTile = newTile;
         generatedTiles++;
-        spawnedTiles.Add(tile);
+        spawnedTiles.Add(newTile);
 
-        if (tile.connectors.Count == 0)
-            return;
-
-        connectorsToSpawn.AddRange(tile.connectors);
-
-        MoveTileToPosition(newTile);
-        grid.AddTileToGrid(newTile.transform.position, newTile.GetComponent<Tile>()); //assumes its already been moved into pos
-        ConnectClosestConnectorOnNewTile(tile, currentConnector);
-        //ConnectToSurroundingTiles(tile);
-        ConnectToSurroundingGrid(tile);
-        walker.position = newTile.transform.position;
+        return newTile;
     }
 
     void ConnectToSurroundingGrid(Tile tile)
     {
         if(tile.parentCell == null)
         {
-            Debug.Log("TIle has no cell!");
+            Debug.Log("Tile has no cell!");
             return;
         }
-        List<Cell> neighbors = grid.GetNeighbours(tile.parentCell);
-        foreach (Cell neighbor in neighbors)
+
+        foreach (Cell neighbor in grid.GetNeighbours(tile.parentCell))
         {
-            //ConnectClosestConnectorOnNewTile(neighbor.occupyingTile, connector);
+            //Add as neighbors?
         }
     }
-
-    //private void ConnectToSurroundingTiles(Tile tile)
-    //{
-    //    foreach (Connector connector in tile.connectors)
-    //    {
-    //        if (connector.isOccupied)
-    //            continue;
-
-    //        Vector3 pos = tile.transform.position - (tile.transform.position - connector.transform.position) * 2;
-    //        pos.y += 10f;
-
-    //        //Debug.DrawRay(connector.transform.position, Vector3.down * 10f, Color.yellow, 3f);
-    //        //Debug.DrawLine(connector.transform.position, pos, Color.blue, 3f);
-    //        //Debug.DrawRay(pos, Vector3.down * 10f, Color.green, 3f);
-
-    //        if (Physics.Raycast(pos, Vector3.down, out RaycastHit hit, 20f)) //SphereCast(pos, 1f, Vector3.down, out RaycastHit hit))
-    //        {
-    //            Tile hitTile = hit.collider.GetComponent<Tile>();
-    //            ConnectClosestConnectorOnNewTile(hitTile, connector);
-    //        }
-    //    }
-    //}
 
     private void MoveTileToPosition(GameObject newTile)
     {
@@ -270,25 +291,38 @@ public class TileGenerator : MonoBehaviour
         newTile.transform.position -= dir;
     }
 
-    void ConnectClosestConnectorOnNewTile(Tile t, Connector c)
-    {
-        // Sort connectors based on their distance from c
-        t.connectors.Sort((x, y) => Vector3.Distance(c.transform.position, x.transform.position).CompareTo(Vector3.Distance(c.transform.position, y.transform.position)));
+    //void ConnectClosestConnectorOnNewTile(Tile t, Connector c)
+    //{
+    //    // Sort connectors based on their distance from c
+    //    t.connectors.Sort((x, y) => Vector3.Distance(c.transform.position, x.transform.position).CompareTo(Vector3.Distance(c.transform.position, y.transform.position)));
 
-        Connector closestConnector = t.connectors[0];
+    //    Connector closestConnector = t.connectors[0];
 
-        MatchConnectors(c, closestConnector);
-    }
+    //    MatchConnectors(c, closestConnector);
+    //}
+    //void TempConnectClosestConnectorOnNewTile(Tile neighbor, Tile placedTile)
+    //{
+    //    if(neighbor == null)
+    //        return;
 
-    void MatchConnectors(Connector x, Connector y)
-    {
-        x.isOccupied = true;
-        connectorsToSpawn.Remove(x);
 
-        y.isOccupied = true;
-        connectorsToSpawn.Remove(y);
 
-        x.connectedTo = y;
-        y.connectedTo = x;
-    }
+    //    neighbor.connectors.Sort((x, y) => Vector3.Distance(placedTile.transform.position, x.transform.position).CompareTo(Vector3.Distance(placedTile.transform.position, y.transform.position)));
+
+    //    Connector closestConnector = neighbor.connectors[0];
+
+    //    MatchConnectors(currentConnector, closestConnector);
+    //}
+
+    //void MatchConnectors(Connector x, Connector y)
+    //{
+    //    x.isOccupied = true;
+    //    connectorsToSpawn.Remove(x);
+
+    //    y.isOccupied = true;
+    //    connectorsToSpawn.Remove(y);
+
+    //    x.connectedTo = y;
+    //    y.connectedTo = x;
+    //}
 }
