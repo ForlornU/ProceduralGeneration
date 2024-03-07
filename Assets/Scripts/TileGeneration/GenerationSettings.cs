@@ -6,6 +6,7 @@ public class GenerationSettings : ScriptableObject
 {
     [Header("Generation Settings")]
     public GameObject startTile;
+    public ResultType resultType;
     public PassSettings[] Passes;
 }
 
@@ -18,3 +19,5 @@ public struct PassSettings
     public bool isInstant;
     [Range(0, 5)] public float creationspeed;
 }
+
+public enum ResultType { Inner, Outer };
