@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startTile: {fileID: 1544157105870496345, guid: d79a4d0f434877c43a63e9f6bf3c5074,
     type: 3}
+  resultType: 0
   Passes:
   - modulename: Inflate
     optionalDescription: First pass room
@@ -22,7 +23,7 @@ MonoBehaviour:
     creationspeed: 0.03
   - modulename: Walk
     optionalDescription: rnd walk 500 tiles
-    tileCount: 250
+    tileCount: 400
     isInstant: 0
     creationspeed: 0.02
   - modulename: Inflate
