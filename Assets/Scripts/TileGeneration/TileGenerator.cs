@@ -67,24 +67,29 @@ public class TileGenerator : MonoBehaviour
         }
         passIndex = 0;
 
-        //Everything after this is a test, we remove the inner structure of the generation, the "void"
-        //Removal of inner void
-        Debug.Log($"There are {grid.cells.Count} cells!, lets remove all occupied ones!");
-        List<Vector3> posToRemove = new List<Vector3>();
-        foreach (Vector3 pos in grid.cells.Keys)
+        //Outer
+        if(settings.resultType == ResultType.Outer)
         {
-            if (grid.GetCellAtPos(pos).isOccupied)
-                posToRemove.Add(pos);
+            Debug.Log($"There are {grid.cells.Count} cells!, lets remove all occupied ones!");
+            List<Vector3> posToRemove = new List<Vector3>();
+            foreach (Vector3 pos in grid.cells.Keys)
+            {
+                if (grid.GetCellAtPos(pos).isOccupied)
+                    posToRemove.Add(pos);
+            }
+            foreach (Vector3 pos in posToRemove)
+            {
+                Tile t = grid.GetCellAtPos(pos).occupyingTile;
+                t.parentCell.markedAsVoid = true;
+                Destroy(t.gameObject);
+                grid.RemoveAtPos(pos);
+            }
         }
-        foreach (Vector3 pos in posToRemove)
+        else
         {
-            Tile t = grid.GetCellAtPos(pos).occupyingTile;
-            t.parentCell.markedAsVoid = true;
-            Destroy(t.gameObject);
-            grid.RemoveAtPos(pos);
-        }
 
-        //Outlying walls pass?
+        }
+        //Inner
         Debug.Log($"There are {grid.cells.Count} cells left!!");
         foreach (Vector3 pos in grid.cells.Keys)
         {
