@@ -5,7 +5,7 @@ public class Module_RandomWalk : GenerationModule
     [SerializeField, Range(0, 16)] int splitting = 0;
 
     [SerializeField, Range(0f, 0.1f)] float branchChance = 0f;
-    [SerializeField, Range(1, 999)] int minBranchLength = 10;
+    [SerializeField, Range(1, 999)] int minBranchLength = 20;
     int branchCounter = 0;
 
     public override int Sort(ModuleReferenceData data)

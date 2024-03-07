@@ -20,4 +20,4 @@ public struct PassSettings
     [Range(0, 5)] public float creationspeed;
 }
 
-public enum ResultType { Inner, Outer };
+public enum ResultType { Inner, Outer, Both };
