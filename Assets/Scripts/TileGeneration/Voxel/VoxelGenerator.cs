@@ -48,7 +48,7 @@ public class VoxelGenerator : MonoBehaviour
         AddVoxel(currentVoxel);
         chunk.CreateNeighbors(currentVoxel, 0f, true);
         int failCounter = 0;
-        
+
         while (canSpawn)
         {
             // Perform random walk step
@@ -65,7 +65,7 @@ public class VoxelGenerator : MonoBehaviour
             else
             {
                 failCounter++;
-                if(failCounter >= 5)
+                if (failCounter >= 5)
                 {
                     failCounter = 0;
                     currentVoxel = chunk.GetVoxelAtPos(newPosition);
@@ -76,9 +76,14 @@ public class VoxelGenerator : MonoBehaviour
         }
 
         Inflate();
-        
+
         previousPositions.Clear();
         chunk.DrawVoxels(settings.inwardsNormals, settings.material);
+        Invoke("SetPlayer", 2f);
+    }
+
+    private void SetPlayer()
+    {
         Player.gameObject.SetActive(true);
         Player.position = Vector3.zero;
     }
