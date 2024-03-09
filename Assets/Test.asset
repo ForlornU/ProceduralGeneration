@@ -12,12 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d406b707740499478a9d7e547ce12d5, type: 3}
   m_Name: Test
   m_EditorClassIdentifier: 
-  sizeTile: {fileID: 1544157105870496345, guid: d79a4d0f434877c43a63e9f6bf3c5074,
-    type: 3}
-  type: 0
-  passes:
-  - modulename: Walk
-    optionalDescription: 
-    tileCount: 75
-    isInstant: 1
-    creationspeed: 0.01
+  maxVoxels: 2000
+  creationSpeed: 0
+  inflationPasses: 2
+  inwardsNormals: 1
+  noise: 1
+  material: {fileID: 2100000, guid: 6939530fb7403a743b2d8656cfd810a9, type: 2}
