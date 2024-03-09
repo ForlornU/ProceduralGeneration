@@ -55,7 +55,6 @@ public class VoxelHash : MonoBehaviour
         mesh.uv = uvs.ToArray();
 
         mesh.RecalculateNormals(); // Important for lighting
-        //mesh.norm
 
         meshFilter.mesh = mesh;
         meshCollider.sharedMesh = mesh;
@@ -65,28 +64,47 @@ public class VoxelHash : MonoBehaviour
 
     private void ProcessVoxels()
     {
+        int nrOfFaces = 6;
         foreach (Voxel voxel in voxels.Values)
         {
             if (!voxel.isActive)
                 continue;
 
-            bool[] facesVisible = new bool[6];
-            float x = voxel.position.x;
-            float y = voxel.position.y;
-            float z = voxel.position.z;
-
-            // Check visibility for each face
-            facesVisible[0] = voxels.ContainsKey(new Vector3(x, y + 1, z)); //IsFaceVisible(x, y + 1, z); // Top
-            facesVisible[1] = voxels.ContainsKey(new Vector3(x, y - 1, z)); //IsFaceVisible(x, y - 1, z); // Bottom
-            facesVisible[2] = voxels.ContainsKey(new Vector3(x - 1, y, z)); //IsFaceVisible(x - 1, y, z); // Left
-            facesVisible[3] = voxels.ContainsKey(new Vector3(x + 1, y, z)); //IsFaceVisible(x + 1, y, z); // Right
-            facesVisible[4] = voxels.ContainsKey(new Vector3(x, y, z + 1)); //IsFaceVisible(x, y, z + 1); // Front
-            facesVisible[5] = voxels.ContainsKey(new Vector3(x, y, z - 1)); //IsFaceVisible(x, y, z - 1); // Back
-
-            for (int i = 0; i < facesVisible.Length; i++)
+            bool[] facesVisible = new bool[nrOfFaces];
+            for (int faceDir = 0; faceDir < nrOfFaces; faceDir++)
             {
-                if (!facesVisible[i])
-                    AddFaceData((int)x, (int)y, (int)z, i); // Method to add mesh data for the visible face
+                int offsetX = 0, offsetY = 0, offsetZ = 0;
+
+                // Determine offsets based on face direction
+                switch (faceDir)
+                {
+                    case 0: // Top
+                        offsetY = 1;
+                        break;
+                    case 1: // Bottom
+                        offsetY = -1;
+                        break;
+                    case 2: // Left
+                        offsetX = -1;
+                        break;
+                    case 3: // Right
+                        offsetX = 1;
+                        break;
+                    case 4: // Front
+                        offsetZ = 1;
+                        break;
+                    case 5: // Back
+                        offsetZ = -1;
+                        break;
+                }
+
+                // Calculate neighboring voxel position
+                Vector3 neighborPos = new Vector3(voxel.position.x + offsetX, voxel.position.y + offsetY, voxel.position.z + offsetZ);
+
+                // Check if voxel exists and is active
+                bool isFaceVisible = voxels.TryGetValue(neighborPos, out Voxel neighborVoxel) && neighborVoxel.isActive;
+                if (!isFaceVisible)
+                    AddFaceData((int)voxel.position.x, (int)voxel.position.y, (int)voxel.position.z, faceDir); // Method to add mesh data for the visible face
             }
         }
     }
@@ -261,10 +279,13 @@ public class VoxelHash : MonoBehaviour
                 {
                     Vector3 pos = voxel.position + new Vector3(x, y, z) * cellDiameter;
 
+                    if (voxels.ContainsKey(pos))
+                        continue;
+
                     if (!forceCubic)
                     {
                         if (Random.Range(0f, 1f) < noise) {
-                            if (IsDiagonalOrCenter(new Vector3(x, y, z)) || voxels.ContainsKey(pos))
+                            if (IsDiagonalOrCenter(new Vector3(x, y, z)))
                                 continue;
                         }
                     }

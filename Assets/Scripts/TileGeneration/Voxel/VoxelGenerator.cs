@@ -85,6 +85,7 @@ public class VoxelGenerator : MonoBehaviour
     {
         Player.gameObject.SetActive(true);
         Player.position = Vector3.zero;
+        Player.GetComponent<PlayerController>().ResetMovement();
     }
 
     void Inflate()
