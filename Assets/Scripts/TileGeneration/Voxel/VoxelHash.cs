@@ -263,8 +263,10 @@ public class VoxelHash : MonoBehaviour
 
                     if (!forceCubic)
                     {
-                        if (IsDiagonalOrCenter(new Vector3(x, y, z)) || voxels.ContainsKey(pos) || Random.Range(0f,1f) < noise)
-                            continue;
+                        if (Random.Range(0f, 1f) < noise) {
+                            if (IsDiagonalOrCenter(new Vector3(x, y, z)) || voxels.ContainsKey(pos))
+                                continue;
+                        }
                     }
 
                     AddSingleVoxel(pos);
