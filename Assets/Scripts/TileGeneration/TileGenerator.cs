@@ -5,31 +5,32 @@ using UnityEngine;
 [RequireComponent(typeof(GeneratorUI))]
 public class TileGenerator : MonoBehaviour
 {
+    [SerializeField] World world;
     [SerializeField] Transform walker;
-    [SerializeField] Transform connectorWalker;
+    //[SerializeField] Transform connectorWalker;
     [SerializeField] GameObject debugCube;
     [SerializeField] GenerationSettings settings;
-    int passIndex = 0;
 
     //Dependencies
     GeneratorUI UI;
-    TileDatabase tileDatabase;
+    //TileDatabase tileDatabase;
     GeneratorAutomota automata;
 
     //Collections
-    List<Connector> connectorsToSpawn = new List<Connector>();
-    List<Tile> spawnedTiles = new List<Tile>();
+    //List<Connector> connectorsToSpawn = new List<Connector>();
+    //List<Tile> spawnedTiles = new List<Tile>();
     //Remove later
     List<Vector3> cellPositions = new List<Vector3>();
     List<GameObject> debugCubes = new List<GameObject>();
 
     //Runtime
     [SerializeField] SpatialHash grid;
-    Connector currentConnector;
+    //Connector currentConnector;
     Tile lastGeneratedTile;
     int generatedTiles = 0;
+    int passIndex = 0;
 
-    public bool canSpawn { get { return connectorsToSpawn.Count > 0 && generatedTiles < settings.Passes[passIndex].tileCount; } }
+    public bool canSpawn { get { return connectorsToSpawn.Count > 0 && generatedTiles < settings.passes[passIndex].tileCount; } }
 
     private void Start()
     {
@@ -46,16 +47,17 @@ public class TileGenerator : MonoBehaviour
 
     public void StartGeneration()
     {
+        world.CreateChunk(Vector3.zero);
         InitStart();
         StartCoroutine(Generate());
     }
 
     public IEnumerator Generate()
     {
-        //Grid creation pass?
-        for (int i = 0; i < settings.Passes.Length; i++)
+        //Create Inner
+        for (int i = 0; i < settings.passes.Length; i++)
         {
-            PassSettings pass = settings.Passes[i];
+            PassSettings pass = settings.passes[i];
             automata.ChangeModule(pass.modulename);
             generatedTiles = 0;
             passIndex = i;
@@ -67,16 +69,18 @@ public class TileGenerator : MonoBehaviour
         }
         passIndex = 0;
 
-        if (settings.resultType == ResultType.Outer || settings.resultType == ResultType.Both)
-            RemoveInner();
-        else if(settings.resultType == ResultType.Inner || settings.resultType == ResultType.Both)
+        Debug.Log("Done generating, time for inner & outer passes");
+
+        if (settings.type != ResultType.Inner)
             CreateOuter();
 
+        if (settings.type == ResultType.Outer)
+            RemoveInner();
     }
 
     private void CreateOuter()
     {
-        Debug.Log($"There are {grid.cells.Count} cells left!!");
+        Debug.Log($"Creating Outer!");
         foreach (Vector3 pos in grid.cells.Keys)
         {
             Cell c = grid.GetCellAtPos(pos);
@@ -107,13 +111,13 @@ public class TileGenerator : MonoBehaviour
 
     private void InitStart()
     {
-        GameObject firstTile = Instantiate(settings.startTile);
+        GameObject firstTile = Instantiate(settings.sizeTile);
         lastGeneratedTile = firstTile.GetComponent<Tile>();
         lastGeneratedTile.Init();
 
         connectorsToSpawn.AddRange(lastGeneratedTile.connectors);
 
-        grid.Init(firstTile.GetComponent<Collider>().bounds.extents.x);
+        grid.Init(firstTile.GetComponent<MeshFilter>().sharedMesh.bounds.extents.x);
         grid.AddTileToGrid(Vector3.zero, firstTile.GetComponent<Tile>());
     }
 
@@ -131,14 +135,12 @@ public class TileGenerator : MonoBehaviour
         int connectorIndex = 0;
         ModuleReferenceData newData = new ModuleReferenceData();
         newData.connectorsIndex = connectorIndex;
-        GameObject matchingTile = null;
-
         do
         {
             newData = UpdateModuleData(newData);
             connectorIndex = automata.currentModule.Sort(newData);
 
-            if (!canProcessConnector(connectorIndex) || hasMatchingTile(out matchingTile))
+            if (!canProcessConnector(connectorIndex) || hasMatchingTile(out GameObject matchingTile))
                     continue;
 
             Tile t = CreateTile(matchingTile);
@@ -174,10 +176,12 @@ public class TileGenerator : MonoBehaviour
 
             MoveTileToPosition(t.gameObject);
             grid.AddTileToGrid(t.transform.position, t); //Move first, add second
+            Chunk activeChunk = world.GetChunkAt(t.transform.position);
+            //activeChunk.
             ConnectToSurroundingGrid(t);
             PositionWalkers(t);
 
-            yield return new WaitForSeconds(settings.Passes[passIndex].creationspeed);
+            yield return new WaitForSeconds(settings.passes[passIndex].creationspeed);
         }
         while (canSpawn);
 
