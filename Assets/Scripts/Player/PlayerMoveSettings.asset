@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d0bbdbb48c86b1408885b67d5b1f515, type: 3}
+  m_Name: PlayerMoveSettings
+  m_EditorClassIdentifier: 
+  movespeed: 5
+  jumpforce: 5
+  airJumps: 1
+  groundColliderSize: 0.36
+  dashforce: 3
+  dashtime: 0.5
