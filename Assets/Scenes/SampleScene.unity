@@ -653,7 +653,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e52691c3af4d714ba918cedf261e910, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MinFOV: 30
+  MinFOV: 40
   MaxFOV: 90
   minZoom: 0.5
   maxZoom: 3
@@ -1180,7 +1180,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: dd54618f1e580da47bff9e1aab104aaf, type: 2}
+      objectReference: {fileID: 2100000, guid: e663e5d5798790c48a91c92f3b3f57ee, type: 2}
     - target: {fileID: 2312526408882748193, guid: 4394e85bbc607e04ca1e9744fb672596,
         type: 3}
       propertyPath: m_Name
@@ -1573,6 +1573,65 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initialModule: {fileID: 1097902374}
+--- !u!1 &1387966866
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1387966868}
+  - component: {fileID: 1387966867}
+  - component: {fileID: 1387966869}
+  m_Layer: 0
+  m_Name: World
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1387966867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1387966866}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98823450282aaea4ea186f90a58ca8db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1387966868
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1387966866}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1387966869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1387966866}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2da4f1436c6eef4c97d5dea16bc3127, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  worldSize: 5
+  VoxelMaterial: {fileID: 2100000, guid: e663e5d5798790c48a91c92f3b3f57ee, type: 2}
 --- !u!1 &1545151971
 GameObject:
   m_ObjectHideFlags: 0
@@ -2221,3 +2280,4 @@ SceneRoots:
   - {fileID: 181454304}
   - {fileID: 6918433957152114649}
   - {fileID: 714299748}
+  - {fileID: 1387966868}
