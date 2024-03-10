@@ -6,7 +6,8 @@ using static Voxel;
 public class VoxelGenerator : MonoBehaviour
 {
     [SerializeField] Transform voxelWalker; 
-    VoxelHash chunk;
+    World world;
+    VoxelHash currentChunk;
     [SerializeField] GenerationSettings settings;
     List<Vector3> previousPositions = new List<Vector3>();
 
@@ -14,12 +15,15 @@ public class VoxelGenerator : MonoBehaviour
     private Voxel currentVoxel;
     [SerializeField] Transform Player;
 
-    public bool canSpawn { get { return chunk.voxels.Count < settings.maxVoxels; } }
+    public bool canSpawn { get { return previousPositions.Count < settings.maxVoxels; } }
 
     private void Start()
     {
-        if (chunk == null)
-            chunk = new GameObject("SpatialHash").AddComponent<VoxelHash>();
+        if(world == null)
+            world = new GameObject("World").AddComponent<World>();
+
+        if (currentChunk == null)
+            currentChunk = world.GetChunk(0); //This generates a new chunk
 
         Player.gameObject.SetActive(false);
     }
@@ -33,7 +37,7 @@ public class VoxelGenerator : MonoBehaviour
     public List<Vector3Int> GetPositions()
     {
         List<Vector3Int> vector3IntList = new List<Vector3Int>();
-        foreach (Vector3 pos in chunk.voxels.Keys)
+        foreach (Vector3 pos in currentChunk.voxels.Keys)
         {
             vector3IntList.Add(Vector3Int.FloorToInt(pos));
         }
@@ -45,7 +49,7 @@ public class VoxelGenerator : MonoBehaviour
         //Create a 9x9 square starting point
         currentVoxel = new Voxel(Vector3.zero, VoxelType.Stone); // Assuming a tunnel type
         AddVoxel(currentVoxel);
-        chunk.CreateNeighbors(currentVoxel, 0f, true);
+        currentChunk.CreateNeighbors(currentVoxel, 0f, true);
         int failCounter = 0;
 
         while (canSpawn)
@@ -67,19 +71,31 @@ public class VoxelGenerator : MonoBehaviour
                 if (failCounter >= 5)
                 {
                     failCounter = 0;
-                    currentVoxel = chunk.GetVoxelAtPos(newPosition);
+                    currentChunk.GetVoxelAtPos(newPosition, out currentVoxel);
                 }
+            }
+            //Create new hash when full
+            if (currentChunk.voxels.Count >= world.maxVoxels)
+            {
+                currentChunk = world.GetChunk(currentChunk.hash + 1);
             }
 
             yield return new WaitForSeconds(settings.creationSpeed);
         }
 
         Inflate();
+        Draw();
 
         previousPositions.Clear();
-        chunk.DrawVoxels(settings.inwardsNormals, settings.material);
+        //currentChunk.DrawVoxels(settings.inwardsNormals, settings.material);
         Invoke("SetPlayer", 2f);
     }
+
+    //private void SwitchChunk()
+    //{
+    //    //currentChunk.DrawVoxels(settings.inwardsNormals, settings.material);
+    //    currentChunk = world.GetChunk(currentChunk.hash + 1);
+    //}
 
     private void SetPlayer()
     {
@@ -88,26 +104,52 @@ public class VoxelGenerator : MonoBehaviour
         Player.GetComponent<PlayerController>().ResetMovement();
     }
 
+    void Draw()
+    {
+        foreach(var chunk in world.chunks.Values)
+        {
+            chunk.DrawVoxels(settings.inwardsNormals, settings.material);
+        }
+        //currentChunk.DrawVoxels(settings.inwardsNormals, settings.material);
+    }
+
     void Inflate()
     {
+        List<Vector3> newNeighborPositions = new List<Vector3>();
         for (int i = 0; i < settings.inflationPasses; i++)
         {
-            if (previousPositions.Count < 1)
-                previousPositions.AddRange(chunk.voxels.Keys);
-
-            foreach (Vector3 v in previousPositions)
+            foreach (var chunk in world.chunks.Values)
             {
-                Voxel voxel = new Voxel(v, VoxelType.Stone);
-                chunk.CreateNeighbors(voxel, settings.noise);
-            }
+                newNeighborPositions.AddRange(chunk.voxels.Keys);
 
-            previousPositions.Clear();
+                foreach (var voxel in newNeighborPositions)
+                {
+                    Voxel newV = new Voxel(voxel, VoxelType.Stone);
+                    chunk.CreateNeighbors(newV, settings.noise);
+                }
+
+                newNeighborPositions.Clear();
+            }
         }
+
     }
+
+            //if (previousPositions.Count < 1)
+            //    previousPositions.AddRange(currentChunk.voxels.Keys);
+
+            //foreach (Vector3 v in previousPositions)
+            //{
+            //    Voxel voxel = new Voxel(v, VoxelType.Stone);
+            //    currentChunk.CreateNeighbors(voxel, settings.noise);
+            //}
+
+            //previousPositions.Clear();
+    //    }
+    //}
 
     private void AddVoxel(Voxel v)
     {
-        if(chunk.AddVoxel(v)) //This is a bool return type
+        if(currentChunk.AddVoxel(v)) //This is a bool return type
             previousPositions.Add(v.position);
     }
 
@@ -141,7 +183,7 @@ public class VoxelGenerator : MonoBehaviour
 
     private bool IsWalkable(Vector3 position)
     {
-        if(chunk.voxels.ContainsKey(position)) 
+        if(currentChunk.voxels.ContainsKey(position)) 
             return false;
         else
             return true;
@@ -150,8 +192,9 @@ public class VoxelGenerator : MonoBehaviour
     public void Clear()
     {
         StopAllCoroutines();
-        chunk.Clear();
+        currentChunk.Clear();
         currentVoxel = new Voxel();
         voxelWalker.position = Vector3.zero;
+        Player.gameObject.SetActive(false);
     }
 }

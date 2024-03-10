@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements.Experimental;
 
 public class World : MonoBehaviour
 {
@@ -8,37 +9,46 @@ public class World : MonoBehaviour
     private int chunkSize;
     public int loadRadius;
     public int unloadRadius;
+    const int maxVoxelsInChunk = 999;
+    public int maxVoxels { get => maxVoxelsInChunk; private set { } }
+    public Dictionary<int, VoxelHash> chunks;
 
-    private Dictionary<Vector3, Chunk> chunks;
+    //public static World Instance { get; private set; }
 
-    // Singleton instance
-    public static World Instance { get; private set; }
-
-    // Material for voxel rendering
-    public Material VoxelMaterial;
-
-    // Chunk loading and unloading
-    private void Start()
+    public VoxelHash GetChunk(int id)
     {
-        chunks = new Dictionary<Vector3, Chunk>();
-        // Generate initial world or load from save
+        if(chunks == null)
+            chunks = new Dictionary<int, VoxelHash>();
+
+        if (chunks.ContainsKey(id))
+        {
+            if (chunks[id].voxels.Count > maxVoxelsInChunk)
+                return AddChunk(id+1);
+            return chunks[id];
+        }
+        else
+            return AddChunk(id);
     }
 
-    public void GenerateWorld()
+    public VoxelHash GetChunkAt(Vector3 worldpos)
     {
-        // ... logic to create base chunks
+        //Warning expensive as fuck
+        foreach (VoxelHash chunk in chunks.Values)
+        {
+            if (chunk.GetVoxelAtPos(worldpos, out Voxel voxelAtPos))
+            {
+                return chunk;
+            }
+        }
+        return null;
     }
 
-    public void CreateChunk(Vector3 pos, int size)
+    VoxelHash AddChunk(int newId = 0)
     {
-        Chunk chunk = new Chunk();
-        // ... logic to create a single chunk
-    }
-
-    public Chunk GetChunkAt(Vector3 globalPosition)
-    {
-        return chunks[globalPosition];
-        // ... logic to retrieve a chunk based on position
+        VoxelHash voxelHash = new GameObject("VoxelHash"+newId).AddComponent<VoxelHash>();
+        voxelHash.Initiate(this, newId);
+        chunks[newId] = voxelHash;
+        return voxelHash;
     }
 
     // Load/unload chunks based on player position

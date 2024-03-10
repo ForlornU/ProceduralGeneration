@@ -5,6 +5,11 @@ public class PlayerController : Movement
 {
     public PlayerInputActions playerControls;
 
+    public void ResetMovement()
+    {
+        moveDirection = Vector3.zero;
+    }
+
     private void OnEnable()
     {
         playerControls = new PlayerInputActions();

@@ -4,22 +4,45 @@ using UnityEngine;
 
 public class VoxelHash : MonoBehaviour
 {
+    //const int maxVoxels = 999;
+    //Identifier
+    public int hash = 0;
+    //Data Collection
     public Dictionary<Vector3, Voxel> voxels = new Dictionary<Vector3, Voxel>();
-    [HideInInspector] public float cellDiameter = 1;
     private List<Vector3> vertices = new List<Vector3>();
     private List<int> triangles = new List<int>();
     private List<Vector2> uvs = new List<Vector2>();
-
+    //Components
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
     private MeshCollider meshCollider;
+    World world;
 
-    public Voxel GetVoxelAtPos(Vector3 pos)
+    public void Initiate(World world, int hash)
     {
-        if(voxels.ContainsKey(pos))
-            return voxels[pos];
+        this.world = world;
+        this.hash = hash;
+    }
+
+    //public Voxel GetVoxelAtPos(Vector3 pos)
+    //{
+    //    if(voxels.ContainsKey(pos))
+    //        return voxels[pos];
+    //    else
+    //        return new Voxel();
+    //}
+    public bool GetVoxelAtPos(Vector3 pos, out Voxel v)
+    {
+        if (voxels.ContainsKey(pos))
+        {
+            v = voxels[pos];
+            return true;
+        }
         else
-            return new Voxel();
+        {
+            v = new Voxel();
+            return false;
+        }
     }
 
     public bool AddVoxel(Voxel voxel)
@@ -48,12 +71,17 @@ public class VoxelHash : MonoBehaviour
         ProcessVoxels();
 
         Mesh mesh = new Mesh();
+        mesh.name = "VoxelMesh";
+        if (vertices.Count > 65536)//mesh.vertexCount > 65536)
+        {
+            Debug.Log("Verticies above limit! - " + vertices.Count + ". Switching to uint32");
+            mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+        }
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
         if(reverseNormals)
             mesh.triangles = mesh.triangles.Reverse().ToArray();
         mesh.uv = uvs.ToArray();
-
         mesh.RecalculateNormals(); // Important for lighting
 
         meshFilter.mesh = mesh;
@@ -102,7 +130,7 @@ public class VoxelHash : MonoBehaviour
                 Vector3 neighborPos = new Vector3(voxel.position.x + offsetX, voxel.position.y + offsetY, voxel.position.z + offsetZ);
 
                 // Check if voxel exists and is active
-                bool isFaceVisible = voxels.TryGetValue(neighborPos, out Voxel neighborVoxel) && neighborVoxel.isActive;
+                bool isFaceVisible = IsFaceVisible(neighborPos);//voxels.TryGetValue(neighborPos, out Voxel neighborVoxel) && neighborVoxel.isActive;
                 if (!isFaceVisible)
                     AddFaceData((int)voxel.position.x, (int)voxel.position.y, (int)voxel.position.z, faceDir); // Method to add mesh data for the visible face
             }
@@ -215,15 +243,19 @@ public class VoxelHash : MonoBehaviour
         triangles.Add(vertCount - 1);
     }
 
-    private bool IsFaceVisible(float x, float y, float z)
+    private bool IsFaceVisible(Vector3 pos)
     {
         // Convert local chunk coordinates to global coordinates
-        Vector3 globalPos = transform.position + new Vector3(x, y, z);
+        //Vector3 globalPos = transform.position + new Vector3(x, y, z);
 
+        //Neighbor exists in this chunk
+        bool exists = voxels.TryGetValue(pos, out Voxel neighborVoxel) && neighborVoxel.isActive;
+        bool existsInWorld = world.GetChunkAt(pos) != null;
+        
         // Check if the neighboring voxel is inactive or out of bounds in the current chunk
         // and also if it's inactive or out of bounds in the world (neighboring chunks)
 
-        return true;
+        return exists && existsInWorld;
         //return IsVoxelHiddenInChunk(comparisonPosition) && IsVoxelHiddenInWorld(globalPos);
     }
 
@@ -277,7 +309,7 @@ public class VoxelHash : MonoBehaviour
             {
                 for (int z = -1; z <= 1; z++)
                 {
-                    Vector3 pos = voxel.position + new Vector3(x, y, z) * cellDiameter;
+                    Vector3 pos = voxel.position + new Vector3(x, y, z);
 
                     if (voxels.ContainsKey(pos))
                         continue;
@@ -296,103 +328,9 @@ public class VoxelHash : MonoBehaviour
         }
     }
 
-    //public void AddTileToGrid(Vector3 pos, Tile tile)
-    //{
-    //    //Place into an existing cell
-    //    if (voxels.TryGetValue(pos, out Voxel foundCell))
-    //    {
-    //        if (foundCell.isOccupied)
-    //        {
-    //            Debug.Log("Adding to an occupied tile, continuing");
-    //            return;
-    //        }
-
-    //        foundCell.PlaceTile(tile);
-    //        CreateNeighbors(pos);
-    //        return;
-    //    }
-
-    //    CreateFirstCell(pos, tile);
-    //}
-
-    //private void CreateFirstCell(Vector3 pos, Tile tile)
-    //{
-    //    Cell newCell = new Cell(pos);
-    //    voxels.Add(pos, newCell);
-    //    newCell.PlaceTile(tile);
-    //    CreateNeighbors(pos);
-    //}
-
-    //void AddACellToGrid(Vector3 pos)
-    //{
-    //    if (voxels.ContainsKey(pos))
-    //    {
-    //        Debug.Log("Already a cell here, skip");
-    //        return;
-    //    }
-
-    //    Cell newCell = new Cell(pos);
-    //    voxels.Add(pos, newCell);
-    //}
-
-    //void CreateNeighbors(Vector3 centre)
-    //{
-    //    for (int x = -1; x <= 1; x++)
-    //    {
-    //        for (int y = -1; y <= 1; y++)
-    //        {
-    //            for (int z = -1; z <= 1; z++)
-    //            {
-    //                Vector3 pos = centre + new Vector3(x, y, z) * cellDiameter;
-
-    //                if (IsDiagonalOrCenter(new Vector3(x, y, z)) || voxels.ContainsKey(pos))
-    //                    continue;
-
-    //                AddACellToGrid(pos);
-    //            }
-
-    //        }
-    //    }
-    //}
-
     bool IsDiagonalOrCenter(Vector3 pos)
     {
         return pos.x * pos.z != 0 || pos.y * pos.z != 0 || pos.x * pos.y != 0 || (pos.x == 0 && pos.y == 0 && pos.z == 0);
     }
 
-    //public List<Cell> GetNeighbours(Cell c)
-    //{
-    //    List<Cell> neighbours = new List<Cell>();
-
-    //    for (int x = -1; x <= 1; x++)
-    //    {
-    //        for (int y = -1; y <= 1; y++)
-    //        {
-    //            for(int z = -1; z <= 1; z++)
-    //            {
-    //                Vector3 pos = c.worldPosition + new Vector3(x, y, z) * cellDiameter;
-
-    //                if (IsDiagonalOrCenter(new Vector3(x, y, z)) || !voxels.ContainsKey(pos))
-    //                    continue;
-
-    //                neighbours.Add(voxels[pos]);
-    //            }
-    //        }
-    //    }
-
-    //    return neighbours;
-    //}
-
-    //public void ResetGrid()
-    //{
-    //    voxels.Clear();
-    //}
-
-    //public void RemoveAtPos(Vector3 pos)
-    //{
-    //    if (!voxels.ContainsKey(pos))
-    //        return;
-
-    //    voxels.Remove(pos);
-    //}
 }
