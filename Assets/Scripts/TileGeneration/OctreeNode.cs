@@ -1,0 +1,158 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+public class OctreeNode
+{
+    public Bounds bounds { get; private set; }
+    public bool IsLeaf { get; private set; }
+    public Dictionary<Vector3, Voxel> voxels;
+    public OctreeNode[] Children { get; private set; }
+    int capacity;
+    const float minBoundsSize = 3f;
+    
+    public OctreeNode(Bounds bounds)
+    {
+        this.bounds = bounds;
+        IsLeaf = true;
+        Children = null;
+        voxels = new Dictionary<Vector3, Voxel>();
+        capacity = (int)Mathf.Clamp((bounds.size.x * bounds.size.x * bounds.size.x)/3, minBoundsSize, 3000f);
+        Debug.Log("New quadrant with size : " + capacity);
+    }
+
+    private void Subdivide()
+    {
+        // Calculate child node bounds based on parent and octant index
+        float halfSize = bounds.extents.x;
+        float quarterSize = bounds.extents.x / 2f;
+        Vector3 center = bounds.center;
+
+        if (quarterSize <= minBoundsSize)
+        {
+            Debug.Log("Octree quadrant has reached depth, the smallest node has been created");
+            return;
+        }
+
+        Debug.Log("Subdivided!");
+        IsLeaf = false;
+        Children = new OctreeNode[8];
+
+        for (int i = 0; i < 8; i++)
+        {
+            Vector3 childCenter = new Vector3(
+                center.x + (i & 4) > 0 ? quarterSize : -quarterSize, // Correct x-axis offset
+                center.y + (i & 2) > 0 ? quarterSize : -quarterSize, // Correct y-axis offset
+                  center.z + (i & 1) > 0 ? quarterSize : -quarterSize); // Correct z-axis offset
+
+            Children[i] = new OctreeNode(new Bounds(childCenter, new Vector3(halfSize, halfSize, halfSize)));
+        }
+
+        foreach(Voxel voxel in voxels.Values)
+        {
+            int childIndex = GetOctantIndex(voxel.position);
+            Children[childIndex].Insert(voxel);
+        }
+        voxels.Clear();
+    }
+
+    private int GetOctantIndex(Vector3 position)
+    {
+        int index = 0;
+        if (position.x > bounds.center.x) index |= 4;
+        if (position.y > bounds.center.y) index |= 2;
+        if (position.z > bounds.center.z) index |= 1;
+        return index;
+    }
+
+    public void Insert(Voxel voxel)
+    {
+        if (!bounds.Contains(voxel.position))
+        {
+            //Debug.Log(voxel.position + " - -Position outside octree bounds! " + bounds.center + " - " + bounds.size);
+            return;
+        }
+
+        if (IsLeaf)
+        {
+            //Check if we already have this voxel in our list?
+
+            if (voxels.Count >= capacity)
+            {
+                // Subdivide if leaf node is full
+                Subdivide();
+                Insert(voxel);
+            }
+            voxels[voxel.position] = voxel;
+        }
+        else
+        {
+            //Find leaf
+            int childIndex = GetOctantIndex(voxel.position);
+            Children[childIndex].Insert(voxel);
+        }
+    }
+
+    public Voxel Find(Vector3 position)
+    {
+        Voxel foundVoxel = new Voxel();
+
+        if (!bounds.Contains(position))
+        {
+            return foundVoxel;
+        }
+
+        if (IsLeaf)
+        {
+            if(voxels.ContainsKey(position))
+                foundVoxel = voxels[position];
+        }
+        else
+        {
+            int childIndex = GetOctantIndex(position);
+            foundVoxel = Children[childIndex].Find(position);
+        }
+
+        return foundVoxel;
+    }
+
+    public List<Voxel> Query(Bounds range)
+    {
+        List<Voxel> voxels = new List<Voxel>();
+        //if (bounds.Intersects(range))
+        //{
+        //    if (IsLeaf)
+        //    {
+        //        if (Voxel != null && range.Contains(Voxel.Position))
+        //        {
+        //            voxels.Add(Voxel);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        for (int i = 0; i < 8; i++)
+        //        {
+        //            if (Children[i].bounds.Intersects(range))
+        //            {
+        //                voxels.AddRange(Children[i].Query(range));
+        //            }
+        //        }
+        //    }
+        //}
+        return voxels;
+    }
+
+    public void Clear()
+    {
+        if (IsLeaf)
+        {
+            voxels.Clear();
+        }
+        else
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                Children[i].Clear();
+            }
+        }
+    }
+}

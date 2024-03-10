@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements.Experimental;
 
 public class World : MonoBehaviour
 {
@@ -13,7 +13,46 @@ public class World : MonoBehaviour
     public int maxVoxels { get => maxVoxelsInChunk; private set { } }
     public Dictionary<int, VoxelHash> chunks;
 
+    Octree tree;
     //public static World Instance { get; private set; }
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.white;
+        foreach (var item in tree.getAllBounds())
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireCube(item.center, item.size);
+        }
+    }
+    public Voxel RandomFromTree()
+    {
+        return tree.GetRandomVoxel();
+    }
+
+    public void InitOctoTree()
+    {
+        if (tree == null)
+            tree = new Octree(new Bounds(Vector3.zero, Vector3.one * 400));
+    }
+
+    public void addToTree(Voxel voxel)
+    {
+        tree.InsertVoxel(voxel);
+    }
+
+    public bool isInTree(Vector3 pos)
+    {
+        return tree.VoxelAtPos(pos);
+    }
+    public Voxel FindInTree(Vector3 pos)
+    {
+        return tree.FindVoxel(pos);
+    }
+
+    public void ClearTree()
+    {
+        tree.Clear();
+    }
 
     public VoxelHash GetChunk(int id)
     {

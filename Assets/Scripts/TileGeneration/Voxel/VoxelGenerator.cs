@@ -22,6 +22,8 @@ public class VoxelGenerator : MonoBehaviour
         if(world == null)
             world = new GameObject("World").AddComponent<World>();
 
+        world.InitOctoTree();
+
         if (currentChunk == null)
             currentChunk = world.GetChunk(0); //This generates a new chunk
 
@@ -59,11 +61,12 @@ public class VoxelGenerator : MonoBehaviour
             Vector3 newPosition = currentVoxel.position + newDirection;
 
             // Check if new position is within walkable area and not visited
-            if (IsWalkable(newPosition))
+            if (!world.isInTree(newPosition)) //IsWalkable(newPosition))
             {
                 currentVoxel = new Voxel(newPosition, VoxelType.Stone);
                 AddVoxel(currentVoxel);
                 voxelWalker.position = currentVoxel.position;
+                failCounter = 0;
             }
             else
             {
@@ -71,14 +74,16 @@ public class VoxelGenerator : MonoBehaviour
                 if (failCounter >= 5)
                 {
                     failCounter = 0;
-                    currentChunk.GetVoxelAtPos(newPosition, out currentVoxel);
+                    currentVoxel = world.FindInTree(previousPositions[Random.Range(0, previousPositions.Count - 1)]);
+                    //currentVoxel = world.tre//world.RandomFromTree();
+                    //currentChunk.GetVoxelAtPos(newPosition, out currentVoxel);
                 }
             }
             //Create new hash when full
-            if (currentChunk.voxels.Count >= world.maxVoxels)
-            {
-                currentChunk = world.GetChunk(currentChunk.hash + 1);
-            }
+            //if (currentChunk.voxels.Count >= world.maxVoxels)
+            //{
+            //    currentChunk = world.GetChunk(currentChunk.hash + 1);
+            //}
 
             yield return new WaitForSeconds(settings.creationSpeed);
         }
@@ -149,8 +154,14 @@ public class VoxelGenerator : MonoBehaviour
 
     private void AddVoxel(Voxel v)
     {
-        if(currentChunk.AddVoxel(v)) //This is a bool return type
+        //if(currentChunk.AddVoxel(v)) //This is a bool return type
+        //if (!world.FindInTree(v.position))
+        //{
+            world.addToTree(v);
             previousPositions.Add(v.position);
+        //}
+        //else
+        //    Debug.Log("Occupied");
     }
 
     private void OnDrawGizmos()
@@ -192,7 +203,9 @@ public class VoxelGenerator : MonoBehaviour
     public void Clear()
     {
         StopAllCoroutines();
-        currentChunk.Clear();
+        world.ClearTree();
+        //currentChunk.Clear();
+        previousPositions.Clear();
         currentVoxel = new Voxel();
         voxelWalker.position = Vector3.zero;
         Player.gameObject.SetActive(false);
