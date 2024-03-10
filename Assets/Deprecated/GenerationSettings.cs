@@ -9,7 +9,7 @@ public class GenerationSettings : ScriptableObject
     //public PassSettings[] passes;
 
     public int maxVoxels = 5000;
-    public float creationSpeed = 0.01f;
+    [Range(0f, 1f)]public float creationSpeed = 0.01f;
     public int inflationPasses = 2;
     public bool inwardsNormals = true;
     [Range(0f, 1f)] public float noise = 0.2f;
