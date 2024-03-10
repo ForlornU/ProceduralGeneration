@@ -2,13 +2,10 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class VoxelHash : MonoBehaviour
+public class OctreeMesh : MonoBehaviour
 {
-    //const int maxVoxels = 999;
-    //Identifier
-    public int hash = 0;
-    //Data Collection
-    public Dictionary<Vector3, Voxel> voxels = new Dictionary<Vector3, Voxel>();
+    Dictionary<Vector3, Voxel> meshVoxels = new Dictionary<Vector3, Voxel>();
+    //Drawing
     private List<Vector3> vertices = new List<Vector3>();
     private List<int> triangles = new List<int>();
     private List<Vector2> uvs = new List<Vector2>();
@@ -16,57 +13,16 @@ public class VoxelHash : MonoBehaviour
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
     private MeshCollider meshCollider;
-    World world;
 
-    public void Initiate(World world, int hash)
+    public void InitMesh()
     {
-        this.world = world;
-        this.hash = hash;
+        
     }
 
-    //public Voxel GetVoxelAtPos(Vector3 pos)
-    //{
-    //    if(voxels.ContainsKey(pos))
-    //        return voxels[pos];
-    //    else
-    //        return new Voxel();
-    //}
-    public bool GetVoxelAtPos(Vector3 pos, out Voxel v)
+    public void DrawVoxels(Dictionary<Vector3, Voxel> voxels)//bool reverseNormals, Material mat)
     {
-        if (voxels.ContainsKey(pos))
-        {
-            v = voxels[pos];
-            return true;
-        }
-        else
-        {
-            v = new Voxel();
-            return false;
-        }
-    }
+        meshVoxels = voxels; //This just points to the same collection, reference
 
-    public bool AddVoxel(Voxel voxel)
-    {
-        return voxels.TryAdd(voxel.position, voxel);
-    }
-
-    void AddSingleVoxel(Vector3 pos)
-    {
-        voxels.TryAdd(pos, new Voxel(pos, Voxel.VoxelType.Stone, true));
-    }
-
-    public void Clear()
-    {
-        CheckComponents();
-
-        voxels.Clear();
-        meshFilter.sharedMesh = null;
-        meshFilter.sharedMesh = new Mesh();
-        meshCollider.sharedMesh = meshFilter.sharedMesh;
-    }
-
-    public void DrawVoxels(bool reverseNormals, Material mat)
-    {
         CheckComponents();
         ProcessVoxels();
 
@@ -79,7 +35,7 @@ public class VoxelHash : MonoBehaviour
         }
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
-        if(reverseNormals)
+        //if (reverseNormals)
             mesh.triangles = mesh.triangles.Reverse().ToArray();
         mesh.uv = uvs.ToArray();
         mesh.RecalculateNormals(); // Important for lighting
@@ -87,13 +43,14 @@ public class VoxelHash : MonoBehaviour
         meshFilter.mesh = mesh;
         meshCollider.sharedMesh = mesh;
 
-        meshRenderer.material = mat;//material; //World.Instance.VoxelMaterial;
+        meshRenderer.material = World.Instance.globalTestMaterial;
+        //meshRenderer.material = mat;//material; //World.Instance.VoxelMaterial;
     }
 
     private void ProcessVoxels()
     {
         int nrOfFaces = 6;
-        foreach (Voxel voxel in voxels.Values)
+        foreach (Voxel voxel in meshVoxels.Values)
         {
             if (!voxel.isActive)
                 continue;
@@ -245,93 +202,51 @@ public class VoxelHash : MonoBehaviour
 
     private bool IsFaceVisible(Vector3 pos)
     {
-        // Convert local chunk coordinates to global coordinates
-        //Vector3 globalPos = transform.position + new Vector3(x, y, z);
+        bool localNeighbor = meshVoxels.TryGetValue(pos, out Voxel neighborVoxel) && neighborVoxel.isActive;
+        //bool globalNeighbor = World.Instance.isInTree(pos);
+        //Voxel neighbor = World.Instance.FindInTree(pos);
+        bool hasGlobalNeighbor;
 
-        ////Neighbor exists in this chunk
-        //bool exists = voxels.TryGetValue(pos, out Voxel neighborVoxel) && neighborVoxel.isActive;
-        //bool existsInWorld = world.GetChunkAt(pos) != null;
+        if(World.Instance.FindInTree(pos, out Voxel neighbor))
+            hasGlobalNeighbor = true;
+        else
+            hasGlobalNeighbor = false;
 
-        //// Check if the neighboring voxel is inactive or out of bounds in the current chunk
-        //// and also if it's inactive or out of bounds in the world (neighboring chunks)
+        bool globalNeighbor = hasGlobalNeighbor && neighbor.isActive;
 
-        //return exists && existsInWorld;
-        //return IsVoxelHiddenInChunk(comparisonPosition) && IsVoxelHiddenInWorld(globalPos);
-        return true;
+        return localNeighbor && globalNeighbor;
     }
 
-    //private bool IsVoxelHiddenInChunk(int x, int y, int z)
+    //public void CreateNeighbors(Voxel voxel, float noise, bool forceCubic = false)
     //{
-    //    if (x < 0 || x >= chunkSize || y < 0 || y >= chunkSize || z < 0 || z >= chunkSize)
-    //        return true; // Face is at the boundary of the chunk
-    //    return !voxels[x, y, z].isActive;
-    //}
-
-    //private bool IsVoxelHiddenInWorld(Vector3 globalPos)
-    //{
-    //    // Check if there is a chunk at the global position
-    //    Chunk neighborChunk = World.Instance.GetChunkAt(globalPos);
-    //    if (neighborChunk == null)
+    //    for (int x = -1; x <= 1; x++)
     //    {
-    //        // No chunk at this position, so the voxel face should be hidden
-    //        return true;
+    //        for (int y = -1; y <= 1; y++)
+    //        {
+    //            for (int z = -1; z <= 1; z++)
+    //            {
+    //                Vector3 pos = voxel.position + new Vector3(x, y, z);
+
+    //                if (meshVoxels.ContainsKey(pos))
+    //                    continue;
+
+    //                if (!forceCubic)
+    //                {
+    //                    if (Random.Range(0f, 1f) < noise)
+    //                    {
+    //                        if (IsDiagonalOrCenter(new Vector3(x, y, z)))
+    //                            continue;
+    //                    }
+    //                }
+
+    //                //AddSingleVoxel(pos);
+    //            }
+    //        }
     //    }
-
-    //    // Convert the global position to the local position within the neighboring chunk
-    //    Vector3 localPos = neighborChunk.transform.InverseTransformPoint(globalPos);
-
-    //    // If the voxel at this local position is inactive, the face should be visible (not hidden)
-    //    return !neighborChunk.IsVoxelActiveAt(localPos);
     //}
-
-    //public bool IsVoxelActiveAt(Vector3 localPosition)
-    //{
-    //    // Round the local position to get the nearest voxel index
-    //    int x = Mathf.RoundToInt(localPosition.x);
-    //    int y = Mathf.RoundToInt(localPosition.y);
-    //    int z = Mathf.RoundToInt(localPosition.z);
-
-    //    // Check if the indices are within the bounds of the voxel array
-    //    if (x >= 0 && x < chunkSize && y >= 0 && y < chunkSize && z >= 0 && z < chunkSize)
-    //    {
-    //        // Return the active state of the voxel at these indices
-    //        return voxels[x, y, z].isActive;
-    //    }
-
-    //    // If out of bounds, consider the voxel inactive
-    //    return false;
-    //}
-
-    public void CreateNeighbors(Voxel voxel, float noise, bool forceCubic = false)
-    {
-        for (int x = -1; x <= 1; x++)
-        {
-            for (int y = -1; y <= 1; y++)
-            {
-                for (int z = -1; z <= 1; z++)
-                {
-                    Vector3 pos = voxel.position + new Vector3(x, y, z);
-
-                    if (voxels.ContainsKey(pos))
-                        continue;
-
-                    if (!forceCubic)
-                    {
-                        if (Random.Range(0f, 1f) < noise) {
-                            if (IsDiagonalOrCenter(new Vector3(x, y, z)))
-                                continue;
-                        }
-                    }
-
-                    AddSingleVoxel(pos);
-                }
-            }
-        }
-    }
 
     bool IsDiagonalOrCenter(Vector3 pos)
     {
         return pos.x * pos.z != 0 || pos.y * pos.z != 0 || pos.x * pos.y != 0 || (pos.x == 0 && pos.y == 0 && pos.z == 0);
     }
-
 }

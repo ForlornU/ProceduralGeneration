@@ -14,17 +14,21 @@ public class Octree
     }
     private void GatherBoundsRecursively(OctreeNode node, List<Bounds> boundsList)
     {
+        boundsList.Add(node.bounds);
+
         if (node.IsLeaf)
         {
             return; // Stop recursion for leaf nodes
         }
-
-        boundsList.Add(node.bounds);
-
         foreach (var child in node.Children)
         {
             GatherBoundsRecursively(child, boundsList); // Recursively gather from children
         }
+    }
+
+    public void DrawAllNodes()
+    {
+        root.Draw();
     }
 
     public Octree(Bounds worldBounds)
@@ -43,19 +47,21 @@ public class Octree
             InsertVoxel(voxel);
     }
 
-    public Voxel FindVoxel(Vector3 position)
+    public bool FindVoxel(Vector3 position, out Voxel foundVoxel)
     {
-        return root.Find(position);
+        //Voxel foundVoxel = new Voxel();
+        if(root.Find(position, out foundVoxel))
+            return true;
+        else
+            return false;
     }
 
     public bool VoxelAtPos(Vector3 pos)
     {
-        //The pos in a voxel is probably 0,0,0 and not the position we are looking for
-        Voxel v = root.Find(pos);
-        if(v.position == pos) 
+        if(root.Find(pos, out Voxel v))
             return true;
-
-        return false;
+        else
+            return false;
     }
 
     public Voxel GetRandomVoxel()

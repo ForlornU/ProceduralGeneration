@@ -1,38 +1,68 @@
-using System.Collections.Generic;
-using UnityEditor;
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
 public class World : MonoBehaviour
 {
     // Core properties
-    public int worldSize;
-    private int chunkSize;
-    public int loadRadius;
-    public int unloadRadius;
-    const int maxVoxelsInChunk = 999;
-    public int maxVoxels { get => maxVoxelsInChunk; private set { } }
-    public Dictionary<int, VoxelHash> chunks;
+    //public int worldSize;
+    //private int chunkSize;
+    //public int loadRadius;
+    //public int unloadRadius;
+    //const int maxVoxelsInChunk = 999;
+    //public int maxVoxels { get => maxVoxelsInChunk; private set { } }
+    //public Dictionary<int, VoxelHash> chunks;
 
     Octree tree;
-    //public static World Instance { get; private set; }
+    public Octree treeReference => tree;
+
+    public static World Instance { get; private set; }
+    public Material globalTestMaterial;
+
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // Optional: if you want this to persist across scenes
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
+        globalTestMaterial = Resources.Load("test") as Material;
+    }
+
+    public static GameObject CreateMesh()
+    {
+        GameObject go = Instantiate(new GameObject("Mesh"), Vector3.zero, Quaternion.identity);
+        go.AddComponent<OctreeMesh>();
+        return go;
+    }
+
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.white;
+        Gizmos.color = Color.red;
         foreach (var item in tree.getAllBounds())
         {
-            Gizmos.color = Color.red;
             Gizmos.DrawWireCube(item.center, item.size);
         }
     }
-    public Voxel RandomFromTree()
+
+    public void DrawWorld()
     {
-        return tree.GetRandomVoxel();
+        tree.DrawAllNodes();
     }
+
+    //public Voxel RandomFromTree()
+    //{
+    //    return tree.GetRandomVoxel();
+    //}
 
     public void InitOctoTree()
     {
         if (tree == null)
-            tree = new Octree(new Bounds(Vector3.zero, Vector3.one * 400));
+            tree = new Octree(new Bounds(Vector3.zero, Vector3.one * 250));
     }
 
     public void addToTree(Voxel voxel)
@@ -40,13 +70,17 @@ public class World : MonoBehaviour
         tree.InsertVoxel(voxel);
     }
 
-    public bool isInTree(Vector3 pos)
+    //public bool isInTree(Vector3 pos)
+    //{
+    //    return tree.VoxelAtPos(pos);
+    //}
+    public bool FindInTree(Vector3 pos, out Voxel voxel)
     {
-        return tree.VoxelAtPos(pos);
-    }
-    public Voxel FindInTree(Vector3 pos)
-    {
-        return tree.FindVoxel(pos);
+        return tree.FindVoxel(pos, out voxel);
+        //if(tree.FindVoxel(pos, out voxel))
+        //    return true;
+        //else
+        //    return false;
     }
 
     public void ClearTree()
@@ -54,58 +88,63 @@ public class World : MonoBehaviour
         tree.Clear();
     }
 
-    public VoxelHash GetChunk(int id)
-    {
-        if(chunks == null)
-            chunks = new Dictionary<int, VoxelHash>();
+    //public OctreeNode LeafAtPos()
+    //{
 
-        if (chunks.ContainsKey(id))
-        {
-            if (chunks[id].voxels.Count > maxVoxelsInChunk)
-                return AddChunk(id+1);
-            return chunks[id];
-        }
-        else
-            return AddChunk(id);
-    }
+    //}
 
-    public VoxelHash GetChunkAt(Vector3 worldpos)
-    {
-        //Warning expensive as fuck
-        foreach (VoxelHash chunk in chunks.Values)
-        {
-            if (chunk.GetVoxelAtPos(worldpos, out Voxel voxelAtPos))
-            {
-                return chunk;
-            }
-        }
-        return null;
-    }
+    //public VoxelHash GetChunk(int id)
+    //{
+    //    if(chunks == null)
+    //        chunks = new Dictionary<int, VoxelHash>();
 
-    VoxelHash AddChunk(int newId = 0)
-    {
-        VoxelHash voxelHash = new GameObject("VoxelHash"+newId).AddComponent<VoxelHash>();
-        voxelHash.Initiate(this, newId);
-        chunks[newId] = voxelHash;
-        return voxelHash;
-    }
+    //    if (chunks.ContainsKey(id))
+    //    {
+    //        if (chunks[id].voxels.Count > maxVoxelsInChunk)
+    //            return AddChunk(id+1);
+    //        return chunks[id];
+    //    }
+    //    else
+    //        return AddChunk(id);
+    //}
 
-    // Load/unload chunks based on player position
-    private void UpdateChunks()
-    {
-        // ... logic to load and unload chunks dynamically
-    }
+    //public VoxelHash GetChunkAt(Vector3 worldpos)
+    //{
+    //    //Warning expensive as fuck
+    //    foreach (VoxelHash chunk in chunks.Values)
+    //    {
+    //        if (chunk.GetVoxelAtPos(worldpos, out Voxel voxelAtPos))
+    //        {
+    //            return chunk;
+    //        }
+    //    }
+    //    return null;
+    //}
 
-    // Save and load world data
-    public void SaveWorld()
-    {
-        // ... logic to serialize world data
-    }
+    //VoxelHash AddChunk(int newId = 0)
+    //{
+    //    VoxelHash voxelHash = new GameObject("VoxelHash"+newId).AddComponent<VoxelHash>();
+    //    voxelHash.Initiate(this, newId);
+    //    chunks[newId] = voxelHash;
+    //    return voxelHash;
+    //}
 
-    public void LoadWorld()
-    {
-        // ... logic to deserialize world data
-    }
+    //// Load/unload chunks based on player position
+    //private void UpdateChunks()
+    //{
+    //    // ... logic to load and unload chunks dynamically
+    //}
+
+    //// Save and load world data
+    //public void SaveWorld()
+    //{
+    //    // ... logic to serialize world data
+    //}
+
+    //public void LoadWorld()
+    //{
+    //    // ... logic to deserialize world data
+    //}
 }
 
 

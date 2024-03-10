@@ -1,15 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 using static Voxel;
 
 public class VoxelGenerator : MonoBehaviour
 {
-    [SerializeField] Transform voxelWalker; 
+    [SerializeField] Transform voxelWalker;
     World world;
-    VoxelHash currentChunk;
+    //VoxelHash currentChunk;
     [SerializeField] GenerationSettings settings;
     List<Vector3> previousPositions = new List<Vector3>();
+    Octree tree;
 
     // Runtime variables
     private Voxel currentVoxel;
@@ -19,13 +21,11 @@ public class VoxelGenerator : MonoBehaviour
 
     private void Start()
     {
-        if(world == null)
+        if (world == null)
             world = new GameObject("World").AddComponent<World>();
 
         world.InitOctoTree();
-
-        if (currentChunk == null)
-            currentChunk = world.GetChunk(0); //This generates a new chunk
+        tree = world.treeReference;
 
         Player.gameObject.SetActive(false);
     }
@@ -36,22 +36,10 @@ public class VoxelGenerator : MonoBehaviour
         StartCoroutine(Generate());
     }
 
-    public List<Vector3Int> GetPositions()
-    {
-        List<Vector3Int> vector3IntList = new List<Vector3Int>();
-        foreach (Vector3 pos in currentChunk.voxels.Keys)
-        {
-            vector3IntList.Add(Vector3Int.FloorToInt(pos));
-        }
-        return vector3IntList;
-    }
-
     IEnumerator Generate()
     {
-        //Create a 9x9 square starting point
-        currentVoxel = new Voxel(Vector3.zero, VoxelType.Stone); // Assuming a tunnel type
+        currentVoxel = new Voxel(Vector3.zero, VoxelType.Stone);
         AddVoxel(currentVoxel);
-        currentChunk.CreateNeighbors(currentVoxel, 0f, true);
         int failCounter = 0;
 
         while (canSpawn)
@@ -59,9 +47,7 @@ public class VoxelGenerator : MonoBehaviour
             // Perform random walk step
             Vector3 newDirection = RandomWalkDirection();
             Vector3 newPosition = currentVoxel.position + newDirection;
-
-            // Check if new position is within walkable area and not visited
-            if (!world.isInTree(newPosition)) //IsWalkable(newPosition))
+            if (!tree.VoxelAtPos(newPosition))
             {
                 currentVoxel = new Voxel(newPosition, VoxelType.Stone);
                 AddVoxel(currentVoxel);
@@ -74,33 +60,22 @@ public class VoxelGenerator : MonoBehaviour
                 if (failCounter >= 5)
                 {
                     failCounter = 0;
-                    currentVoxel = world.FindInTree(previousPositions[Random.Range(0, previousPositions.Count - 1)]);
-                    //currentVoxel = world.tre//world.RandomFromTree();
-                    //currentChunk.GetVoxelAtPos(newPosition, out currentVoxel);
+                    Voxel temp = new Voxel();
+                    if (tree.FindVoxel(previousPositions[Random.Range(0, previousPositions.Count - 1)], out temp))
+                        currentVoxel = temp;
                 }
             }
-            //Create new hash when full
-            //if (currentChunk.voxels.Count >= world.maxVoxels)
-            //{
-            //    currentChunk = world.GetChunk(currentChunk.hash + 1);
-            //}
 
             yield return new WaitForSeconds(settings.creationSpeed);
         }
 
+        CreateNeighbors(Vector3.zero, true);         //Create a 9x9 square starting point
         Inflate();
         Draw();
 
         previousPositions.Clear();
-        //currentChunk.DrawVoxels(settings.inwardsNormals, settings.material);
         Invoke("SetPlayer", 2f);
     }
-
-    //private void SwitchChunk()
-    //{
-    //    //currentChunk.DrawVoxels(settings.inwardsNormals, settings.material);
-    //    currentChunk = world.GetChunk(currentChunk.hash + 1);
-    //}
 
     private void SetPlayer()
     {
@@ -111,57 +86,56 @@ public class VoxelGenerator : MonoBehaviour
 
     void Draw()
     {
-        foreach(var chunk in world.chunks.Values)
-        {
-            chunk.DrawVoxels(settings.inwardsNormals, settings.material);
-        }
-        //currentChunk.DrawVoxels(settings.inwardsNormals, settings.material);
+        world.DrawWorld();
     }
 
     void Inflate()
     {
-        List<Vector3> newNeighborPositions = new List<Vector3>();
         for (int i = 0; i < settings.inflationPasses; i++)
         {
-            foreach (var chunk in world.chunks.Values)
+            foreach (Vector3 pos in previousPositions)
             {
-                newNeighborPositions.AddRange(chunk.voxels.Keys);
-
-                foreach (var voxel in newNeighborPositions)
-                {
-                    Voxel newV = new Voxel(voxel, VoxelType.Stone);
-                    chunk.CreateNeighbors(newV, settings.noise);
-                }
-
-                newNeighborPositions.Clear();
+                CreateNeighbors(pos);
             }
         }
-
     }
 
-            //if (previousPositions.Count < 1)
-            //    previousPositions.AddRange(currentChunk.voxels.Keys);
+    public void CreateNeighbors(Vector3 centre, bool forceCubic = false)
+    {
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int y = -1; y <= 1; y++)
+            {
+                for (int z = -1; z <= 1; z++)
+                {
+                    Vector3 pos = centre + new Vector3(x, y, z);
 
-            //foreach (Vector3 v in previousPositions)
-            //{
-            //    Voxel voxel = new Voxel(v, VoxelType.Stone);
-            //    currentChunk.CreateNeighbors(voxel, settings.noise);
-            //}
+                    if (tree.VoxelAtPos(pos))
+                        continue;
 
-            //previousPositions.Clear();
-    //    }
-    //}
+                    if (!forceCubic)
+                    {
+                        if (Random.Range(0f, 1f) < settings.noise)
+                        {
+                            if (IsDiagonalOrCenter(new Vector3(x, y, z)))
+                                continue;
+                        }
+                    }
+
+                    tree.InsertVoxel(new Voxel(pos, VoxelType.Stone));
+                }
+            }
+        }
+    }
+    bool IsDiagonalOrCenter(Vector3 pos)
+    {
+        return pos.x * pos.z != 0 || pos.y * pos.z != 0 || pos.x * pos.y != 0 || (pos.x == 0 && pos.y == 0 && pos.z == 0);
+    }
 
     private void AddVoxel(Voxel v)
     {
-        //if(currentChunk.AddVoxel(v)) //This is a bool return type
-        //if (!world.FindInTree(v.position))
-        //{
-            world.addToTree(v);
-            previousPositions.Add(v.position);
-        //}
-        //else
-        //    Debug.Log("Occupied");
+        tree.InsertVoxel(v);
+        previousPositions.Add(v.position);
     }
 
     private void OnDrawGizmos()
@@ -192,19 +166,10 @@ public class VoxelGenerator : MonoBehaviour
         return result;
     }
 
-    private bool IsWalkable(Vector3 position)
-    {
-        if(currentChunk.voxels.ContainsKey(position)) 
-            return false;
-        else
-            return true;
-    }
-
     public void Clear()
     {
         StopAllCoroutines();
         world.ClearTree();
-        //currentChunk.Clear();
         previousPositions.Clear();
         currentVoxel = new Voxel();
         voxelWalker.position = Vector3.zero;

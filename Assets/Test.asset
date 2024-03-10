@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d406b707740499478a9d7e547ce12d5, type: 3}
   m_Name: Test
   m_EditorClassIdentifier: 
-  maxVoxels: 20000
+  maxVoxels: 1000
   creationSpeed: 0
   inflationPasses: 2
   inwardsNormals: 1
-  noise: 0.769
+  noise: 0.733
   material: {fileID: 2100000, guid: 282060f77c4966941aa9d891c7626ea7, type: 2}

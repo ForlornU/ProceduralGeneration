@@ -4,8 +4,8 @@ public struct Voxel
 {
     public Vector3 position;
     public bool isActive;
-
     public VoxelType type; // Using the VoxelType enum
+
     public enum VoxelType
     {
         Air,    // Represents empty space

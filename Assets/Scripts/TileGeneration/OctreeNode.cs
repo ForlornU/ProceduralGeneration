@@ -9,9 +9,11 @@ public class OctreeNode
     public OctreeNode[] Children { get; private set; }
     int capacity;
     const float minBoundsSize = 3f;
-    
+    OctreeMesh mesh;
+
     public OctreeNode(Bounds bounds)
     {
+        mesh = World.CreateMesh().GetComponent<OctreeMesh>();
         this.bounds = bounds;
         IsLeaf = true;
         Children = null;
@@ -68,7 +70,6 @@ public class OctreeNode
     {
         if (!bounds.Contains(voxel.position))
         {
-            //Debug.Log(voxel.position + " - -Position outside octree bounds! " + bounds.center + " - " + bounds.size);
             return;
         }
 
@@ -92,27 +93,35 @@ public class OctreeNode
         }
     }
 
-    public Voxel Find(Vector3 position)
+    public bool Find(Vector3 position, out Voxel foundVoxel)
     {
-        Voxel foundVoxel = new Voxel();
-
+        foundVoxel = new Voxel();
+        bool found = false;
         if (!bounds.Contains(position))
         {
-            return foundVoxel;
+            return found;
         }
 
         if (IsLeaf)
         {
-            if(voxels.ContainsKey(position))
+            if (voxels.ContainsKey(position))
+            {
                 foundVoxel = voxels[position];
+                found = true;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         else
         {
             int childIndex = GetOctantIndex(position);
-            foundVoxel = Children[childIndex].Find(position);
+            found = Children[childIndex].Find(position, out foundVoxel);
         }
 
-        return foundVoxel;
+        return found;
     }
 
     public List<Voxel> Query(Bounds range)
@@ -155,4 +164,22 @@ public class OctreeNode
             }
         }
     }
+
+    //Drawing
+    public void Draw()
+    {
+        if(IsLeaf)
+        {
+            mesh.DrawVoxels(voxels);
+        }
+        else
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                Children[i].Draw();
+            }
+        }
+    }
+
+
 }
