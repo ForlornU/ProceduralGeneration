@@ -19,21 +19,22 @@ public class OctreeNode
         Children = null;
         voxels = new Dictionary<Vector3, Voxel>();
         capacity = (int)Mathf.Clamp((bounds.size.x * bounds.size.x * bounds.size.x)/3, minBoundsSize, 3000f);
+        //capacity = (int)(bounds.size.x * bounds.size.x * bounds.size.x) / 3;
         Debug.Log("New quadrant with size : " + capacity);
+    }
+
+    bool CanSubdivide()
+    {
+        float quarterSize = bounds.extents.x / 2.0f;
+        return (quarterSize > minBoundsSize);
     }
 
     private void Subdivide()
     {
         // Calculate child node bounds based on parent and octant index
         float halfSize = bounds.extents.x;
-        float quarterSize = bounds.extents.x / 2f;
+        float quarterSize = bounds.extents.x / 2.0f;
         Vector3 center = bounds.center;
-
-        if (quarterSize <= minBoundsSize)
-        {
-            Debug.Log("Octree quadrant has reached depth, the smallest node has been created");
-            return;
-        }
 
         Debug.Log("Subdivided!");
         IsLeaf = false;
@@ -75,15 +76,13 @@ public class OctreeNode
 
         if (IsLeaf)
         {
-            //Check if we already have this voxel in our list?
-
-            if (voxels.Count >= capacity)
+            if (ShouldSubdivide() && CanSubdivide())
             {
-                // Subdivide if leaf node is full
                 Subdivide();
                 Insert(voxel);
             }
-            voxels[voxel.position] = voxel;
+
+            voxels.TryAdd(voxel.position, voxel);
         }
         else
         {
@@ -91,6 +90,11 @@ public class OctreeNode
             int childIndex = GetOctantIndex(voxel.position);
             Children[childIndex].Insert(voxel);
         }
+    }
+
+    private bool ShouldSubdivide()
+    {
+        return voxels.Count >= capacity;
     }
 
     public bool Find(Vector3 position, out Voxel foundVoxel)
