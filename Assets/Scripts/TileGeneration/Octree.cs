@@ -5,7 +5,7 @@ public class Octree
 {
     private readonly OctreeNode root;
 
-    //Test
+    //Test, draw the octree
     public List<Bounds> getAllBounds()
     {
         List<Bounds> bounds = new List<Bounds>();
@@ -14,18 +14,25 @@ public class Octree
     }
     private void GatherBoundsRecursively(OctreeNode node, List<Bounds> boundsList)
     {
+        if (node == null)
+            return;
+
         boundsList.Add(node.bounds);
 
-        if (node.IsLeaf)
+        if (node.Children == null)
+            return;
+
+        if (node.Children.Length > 0)
         {
-            return; // Stop recursion for leaf nodes
-        }
-        foreach (var child in node.Children)
-        {
-            GatherBoundsRecursively(child, boundsList); // Recursively gather from children
+            foreach (var child in node.Children)
+            {
+                GatherBoundsRecursively(child, boundsList); // Recursively gather from children
+            }
         }
     }
+    //EndTest
 
+    //Render all the voxels
     public void DrawAllNodes()
     {
         root.Draw();
@@ -64,12 +71,17 @@ public class Octree
             return false;
     }
 
-    public Voxel GetRandomVoxel()
-    {
-        OctreeNode node = root.Children[Random.Range(0, root.Children.Length - 1)];
-        return node.voxels[Vector3.one];
-        //return node.voxels.Values[Random.Range(0, root.voxels.Values.Count-1)];
-    }
+    //public bool ValidVoxelPlacement(Vector3 pos)
+    //{
+
+    //}
+
+    //public Voxel GetRandomVoxel()
+    //{
+    //    OctreeNode node = root.Children[Random.Range(0, root.Children.Length - 1)];
+    //    return node.voxels[Vector3.one];
+    //    //return node.voxels.Values[Random.Range(0, root.voxels.Values.Count-1)];
+    //}
 
     public List<Voxel> QueryRange(Bounds range)
     {
