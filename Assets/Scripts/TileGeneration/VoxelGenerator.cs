@@ -14,7 +14,7 @@ public class VoxelGenerator : MonoBehaviour
     // Runtime variables
     private Voxel currentVoxel;
     List<Vector3> previousPositions = new List<Vector3>();
-    public bool canSpawn { get { return previousPositions.Count < settings.maxVoxels; } }
+    public bool canSpawn { get { return previousPositions.Count < settings.voxelsToCreate; } }
 
     private void Start()
     {
@@ -36,7 +36,7 @@ public class VoxelGenerator : MonoBehaviour
     IEnumerator Generate()
     {
         Vector3 veryFirstVoxelPosition = new Vector3(0.5f,0.5f,0.5f);
-        CreateNeighbors(veryFirstVoxelPosition, true, true);         //Create a 9x9 square starting point
+        CreateNeighbors(veryFirstVoxelPosition, true, settings.startBlockSize, true);         //Create a 9x9 square starting point
         currentVoxel.position = veryFirstVoxelPosition;
         int failCounter = 0;
 
@@ -81,18 +81,15 @@ public class VoxelGenerator : MonoBehaviour
 
     void Inflate()
     {
-        for (int i = 0; i < settings.inflationPasses; i++)
+        foreach (Vector3 pos in previousPositions)
         {
-            foreach (Vector3 pos in previousPositions)
-            {
-                CreateNeighbors(pos, false);
-            }
+            if (Random.value < settings.noise)
+                CreateNeighbors(pos, false, settings.inflationPasses);
         }
     }
 
-    public void CreateNeighbors(Vector3 centre, bool addToPreviousLocations, bool forceCubic = false)
+    public void CreateNeighbors(Vector3 centre, bool addToPreviousLocations, int radius, bool forceCubic = false)
     {
-        int radius = 2;
         for (int x = -radius; x <= radius; x++)
         {
             for (int y = -radius; y <= radius; y++)
@@ -106,7 +103,7 @@ public class VoxelGenerator : MonoBehaviour
 
                     if (!forceCubic)
                     {
-                        if (Random.Range(0f, 1f) < settings.noise)
+                        if (Random.value < settings.noise)
                         {
                             if (IsDiagonalOrCenter(new Vector3(x, y, z)))
                             {

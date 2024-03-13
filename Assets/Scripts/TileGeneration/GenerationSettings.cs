@@ -5,24 +5,11 @@ using UnityEngine;
 public class GenerationSettings : ScriptableObject
 {
     [Header("Generation Settings")]
-    //public ResultType type;
-    //public PassSettings[] passes;
-
-    public int maxVoxels = 5000;
-    [Range(0f, 1f)]public float creationSpeed = 0.01f;
+    [Tooltip("value + 3 ^ 3 is the starting block of voxels where the player spawns. 1 = 27, 2 = 125, 3 = 216.. This is also affected by inflation")]
+    public int startBlockSize = 1;
     public int inflationPasses = 2;
-    public bool inwardsNormals = true;
+
+    public int voxelsToCreate = 5000;
+    [Range(0f, 1f)]public float creationSpeed = 0.01f;
     [Range(0f, 1f)] public float noise = 0.2f;
-    public Material material;
 }
-
-//[System.Serializable]
-//public struct PassSettings
-//{
-//    public string modulename;
-//    [Range(1, 9999)] public int maxCount;
-//    //public bool isInstant;
-//    [Range(0, 5)] public float creationspeed;
-//}
-
-//public enum ResultType { Inner, Outer, Both };

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PlayerMoveSettings
   m_EditorClassIdentifier: 
   movespeed: 5
-  jumpforce: 5
+  jumpforce: 6
   airJumps: 1
   groundColliderSize: 0.36
   dashforce: 3
