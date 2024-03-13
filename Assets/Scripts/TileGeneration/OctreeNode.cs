@@ -8,17 +8,18 @@ public class OctreeNode
     public Dictionary<Vector3, Voxel> voxels;
     public OctreeNode[] Children { get; private set; }
     int capacity;
-    const float minBoundsSize = 3f;
+    const float minBoundsSize = 2f;
     OctreeMesh mesh;
+    const int maxCapacity = 12000;
 
     public OctreeNode(Bounds bounds)
     {
-        mesh = World.CreateMesh().GetComponent<OctreeMesh>();
+        mesh = World.CreateNodeMesh().GetComponent<OctreeMesh>();
         this.bounds = bounds;
         IsLeaf = true;
         Children = null;
         voxels = new Dictionary<Vector3, Voxel>();
-        capacity = (int)Mathf.Clamp((bounds.size.x * bounds.size.x * bounds.size.x)/3, minBoundsSize, 3000f);
+        capacity = (int)Mathf.Clamp((bounds.size.x * bounds.size.x * bounds.size.x)/3, minBoundsSize, maxCapacity);
         //capacity = (int)(bounds.size.x * bounds.size.x * bounds.size.x) / 3;
         Debug.Log("New quadrant with size : " + capacity);
     }
@@ -55,6 +56,7 @@ public class OctreeNode
             int childIndex = GetOctantIndex(voxel.position);
             Children[childIndex].Insert(voxel);
         }
+
         voxels.Clear();
     }
 
@@ -81,8 +83,10 @@ public class OctreeNode
                 Subdivide();
                 Insert(voxel);
             }
-
-            voxels.TryAdd(voxel.position, voxel);
+            else
+            {
+                voxels.TryAdd(voxel.position, voxel);
+            }
         }
         else
         {
@@ -103,7 +107,7 @@ public class OctreeNode
         bool found = false;
         if (!bounds.Contains(position))
         {
-            return found;
+            return false;
         }
 
         if (IsLeaf)
@@ -159,6 +163,8 @@ public class OctreeNode
         if (IsLeaf)
         {
             voxels.Clear();
+            //World.DestroyNodeMesh(mesh);
+            //Redraw entire octree?
         }
         else
         {

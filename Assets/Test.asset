@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxVoxels: 2000
   creationSpeed: 0
-  inflationPasses: 2
+  inflationPasses: 1
   inwardsNormals: 1
-  noise: 0.733
+  noise: 0.666
   material: {fileID: 2100000, guid: 282060f77c4966941aa9d891c7626ea7, type: 2}

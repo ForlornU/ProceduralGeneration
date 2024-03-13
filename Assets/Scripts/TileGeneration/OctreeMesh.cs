@@ -14,12 +14,7 @@ public class OctreeMesh : MonoBehaviour
     private MeshRenderer meshRenderer;
     private MeshCollider meshCollider;
 
-    public void InitMesh()
-    {
-        
-    }
-
-    public void DrawVoxels(Dictionary<Vector3, Voxel> voxels)//bool reverseNormals, Material mat)
+    public void DrawVoxels(Dictionary<Vector3, Voxel> voxels)
     {
         meshVoxels = voxels; //This just points to the same collection, reference
 
@@ -35,16 +30,16 @@ public class OctreeMesh : MonoBehaviour
         }
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
-        //if (reverseNormals)
-            mesh.triangles = mesh.triangles.Reverse().ToArray();
+
+        mesh.triangles = mesh.triangles.Reverse().ToArray();
         mesh.uv = uvs.ToArray();
-        mesh.RecalculateNormals(); // Important for lighting
+        mesh.RecalculateNormals();
+        mesh.RecalculateBounds();
 
         meshFilter.mesh = mesh;
         meshCollider.sharedMesh = mesh;
 
         meshRenderer.material = World.Instance.globalTestMaterial;
-        //meshRenderer.material = mat;//material; //World.Instance.VoxelMaterial;
     }
 
     private void ProcessVoxels()
@@ -52,8 +47,8 @@ public class OctreeMesh : MonoBehaviour
         int nrOfFaces = 6;
         foreach (Voxel voxel in meshVoxels.Values)
         {
-            if (!voxel.isActive)
-                continue;
+            //if (!voxel.isActive)
+            //    continue;
 
             bool[] facesVisible = new bool[nrOfFaces];
             for (int faceDir = 0; faceDir < nrOfFaces; faceDir++)
@@ -89,7 +84,8 @@ public class OctreeMesh : MonoBehaviour
                 // Check if voxel exists and is active
                 bool isFaceVisible = IsFaceVisible(neighborPos);//voxels.TryGetValue(neighborPos, out Voxel neighborVoxel) && neighborVoxel.isActive;
                 if (!isFaceVisible)
-                    AddFaceData((int)voxel.position.x, (int)voxel.position.y, (int)voxel.position.z, faceDir); // Method to add mesh data for the visible face
+                    AddFaceData(voxel.position.x, voxel.position.y, voxel.position.z, faceDir);
+                    //AddFaceData((int)voxel.position.x, (int)voxel.position.y, (int)voxel.position.z, faceDir); // Method to add mesh data for the visible face
             }
         }
     }
@@ -104,11 +100,13 @@ public class OctreeMesh : MonoBehaviour
             meshCollider = gameObject.AddComponent<MeshCollider>();
     }
 
-    private void AddFaceData(int x, int y, int z, int faceIndex)
+    //private void AddFaceData(int x, int y, int z, int faceIndex)
+    private void AddFaceData(float x, float y, float z, int faceIndex)
     {
         // Based on faceIndex, determine vertices and triangles
         // Add vertices and triangles for the visible face
         // Calculate and add corresponding UVs
+        float voxelHalfSize = 0.5f; // Assuming your voxel is a unit cube
 
         if (faceIndex == 0) // Top Face
         {
@@ -202,51 +200,14 @@ public class OctreeMesh : MonoBehaviour
 
     private bool IsFaceVisible(Vector3 pos)
     {
-        bool localNeighbor = meshVoxels.TryGetValue(pos, out Voxel neighborVoxel) && neighborVoxel.isActive;
-        //bool globalNeighbor = World.Instance.isInTree(pos);
-        //Voxel neighbor = World.Instance.FindInTree(pos);
+        bool localNeighbor = meshVoxels.TryGetValue(pos, out Voxel localNeighborVoxel); //&& localNeighborVoxel.isActive;
         bool hasGlobalNeighbor;
 
-        if(World.Instance.FindInTree(pos, out Voxel neighbor))
+        if(World.Instance.FindInTree(pos, out Voxel GlobalNeighbor))
             hasGlobalNeighbor = true;
         else
             hasGlobalNeighbor = false;
 
-        bool globalNeighbor = hasGlobalNeighbor && neighbor.isActive;
-
-        return localNeighbor && globalNeighbor;
-    }
-
-    //public void CreateNeighbors(Voxel voxel, float noise, bool forceCubic = false)
-    //{
-    //    for (int x = -1; x <= 1; x++)
-    //    {
-    //        for (int y = -1; y <= 1; y++)
-    //        {
-    //            for (int z = -1; z <= 1; z++)
-    //            {
-    //                Vector3 pos = voxel.position + new Vector3(x, y, z);
-
-    //                if (meshVoxels.ContainsKey(pos))
-    //                    continue;
-
-    //                if (!forceCubic)
-    //                {
-    //                    if (Random.Range(0f, 1f) < noise)
-    //                    {
-    //                        if (IsDiagonalOrCenter(new Vector3(x, y, z)))
-    //                            continue;
-    //                    }
-    //                }
-
-    //                //AddSingleVoxel(pos);
-    //            }
-    //        }
-    //    }
-    //}
-
-    bool IsDiagonalOrCenter(Vector3 pos)
-    {
-        return pos.x * pos.z != 0 || pos.y * pos.z != 0 || pos.x * pos.y != 0 || (pos.x == 0 && pos.y == 0 && pos.z == 0);
+        return localNeighbor || hasGlobalNeighbor;
     }
 }

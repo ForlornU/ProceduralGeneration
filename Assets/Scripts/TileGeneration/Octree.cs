@@ -56,7 +56,6 @@ public class Octree
 
     public bool FindVoxel(Vector3 position, out Voxel foundVoxel)
     {
-        //Voxel foundVoxel = new Voxel();
         if(root.Find(position, out foundVoxel))
             return true;
         else

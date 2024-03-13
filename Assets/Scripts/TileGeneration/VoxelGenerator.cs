@@ -1,22 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 using static Voxel;
 
 public class VoxelGenerator : MonoBehaviour
 {
     [SerializeField] Transform voxelWalker;
-    World world;
-    //VoxelHash currentChunk;
     [SerializeField] GenerationSettings settings;
-    List<Vector3> previousPositions = new List<Vector3>();
+    [SerializeField] Transform Player;
+    World world;
     Octree tree;
 
     // Runtime variables
     private Voxel currentVoxel;
-    [SerializeField] Transform Player;
-
+    List<Vector3> previousPositions = new List<Vector3>();
     public bool canSpawn { get { return previousPositions.Count < settings.maxVoxels; } }
 
     private void Start()
@@ -38,8 +35,9 @@ public class VoxelGenerator : MonoBehaviour
 
     IEnumerator Generate()
     {
-        currentVoxel = new Voxel(Vector3.zero, VoxelType.Stone);
-        AddVoxel(currentVoxel);
+        Vector3 veryFirstVoxelPosition = new Vector3(0.5f,0.5f,0.5f);
+        CreateNeighbors(veryFirstVoxelPosition, true, true);         //Create a 9x9 square starting point
+        currentVoxel.position = veryFirstVoxelPosition;
         int failCounter = 0;
 
         while (canSpawn)
@@ -60,33 +58,25 @@ public class VoxelGenerator : MonoBehaviour
                 if (failCounter >= 5)
                 {
                     failCounter = 0;
-                    Voxel temp = new Voxel();
-                    if (tree.FindVoxel(previousPositions[Random.Range(0, previousPositions.Count - 1)], out temp))
-                        currentVoxel = temp;
+                    tree.FindVoxel(previousPositions[Random.Range(0, previousPositions.Count - 1)], out currentVoxel);
                 }
             }
 
             yield return new WaitForSeconds(settings.creationSpeed);
         }
 
-        CreateNeighbors(Vector3.zero, true);         //Create a 9x9 square starting point
         Inflate();
-        Draw();
+        world.DrawWorld();
 
-        previousPositions.Clear();
+        //previousPositions.Clear();
         Invoke("SetPlayer", 2f);
     }
 
     private void SetPlayer()
     {
         Player.gameObject.SetActive(true);
-        Player.position = Vector3.zero;
+        Player.position = new Vector3(0.5f, 1f, 0.5f);
         Player.GetComponent<PlayerController>().ResetMovement();
-    }
-
-    void Draw()
-    {
-        world.DrawWorld();
     }
 
     void Inflate()
@@ -95,18 +85,19 @@ public class VoxelGenerator : MonoBehaviour
         {
             foreach (Vector3 pos in previousPositions)
             {
-                CreateNeighbors(pos);
+                CreateNeighbors(pos, false);
             }
         }
     }
 
-    public void CreateNeighbors(Vector3 centre, bool forceCubic = false)
+    public void CreateNeighbors(Vector3 centre, bool addToPreviousLocations, bool forceCubic = false)
     {
-        for (int x = -1; x <= 1; x++)
+        int radius = 2;
+        for (int x = -radius; x <= radius; x++)
         {
-            for (int y = -1; y <= 1; y++)
+            for (int y = -radius; y <= radius; y++)
             {
-                for (int z = -1; z <= 1; z++)
+                for (int z = -radius; z <= radius; z++)
                 {
                     Vector3 pos = centre + new Vector3(x, y, z);
 
@@ -118,11 +109,16 @@ public class VoxelGenerator : MonoBehaviour
                         if (Random.Range(0f, 1f) < settings.noise)
                         {
                             if (IsDiagonalOrCenter(new Vector3(x, y, z)))
+                            {
                                 continue;
+                            }
                         }
                     }
 
-                    tree.InsertVoxel(new Voxel(pos, VoxelType.Stone));
+                    if (addToPreviousLocations)
+                        AddVoxel(new Voxel(pos, VoxelType.Stone));
+                    else
+                        tree.InsertVoxel(new Voxel(pos, VoxelType.Stone));
                 }
             }
         }
@@ -144,7 +140,8 @@ public class VoxelGenerator : MonoBehaviour
 
         foreach (Vector3 pos in previousPositions)
         {
-            Gizmos.DrawCube(pos, Vector3.one);
+            //Gizmos.DrawCube(pos, Vector3.one);
+            Gizmos.DrawWireCube(pos, Vector3.one);
         }
     }
 
@@ -172,7 +169,7 @@ public class VoxelGenerator : MonoBehaviour
         world.ClearTree();
         previousPositions.Clear();
         currentVoxel = new Voxel();
-        voxelWalker.position = Vector3.zero;
+        voxelWalker.position = Vector3.one;
         Player.gameObject.SetActive(false);
     }
 }

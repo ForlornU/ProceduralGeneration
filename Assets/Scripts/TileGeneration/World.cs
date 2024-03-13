@@ -3,15 +3,6 @@ using UnityEngine;
 
 public class World : MonoBehaviour
 {
-    // Core properties
-    //public int worldSize;
-    //private int chunkSize;
-    //public int loadRadius;
-    //public int unloadRadius;
-    //const int maxVoxelsInChunk = 999;
-    //public int maxVoxels { get => maxVoxelsInChunk; private set { } }
-    //public Dictionary<int, VoxelHash> chunks;
-
     Octree tree;
     public Octree treeReference => tree;
 
@@ -21,31 +12,34 @@ public class World : MonoBehaviour
     void Awake()
     {
         if (Instance == null)
-        {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // Optional: if you want this to persist across scenes
-        }
         else
-        {
             Destroy(gameObject);
-        }
 
         globalTestMaterial = Resources.Load("test") as Material;
     }
 
-    public static GameObject CreateMesh()
+    public static GameObject CreateNodeMesh()
     {
-        GameObject go = Instantiate(new GameObject("Mesh"), Vector3.zero, Quaternion.identity);
-        go.AddComponent<OctreeMesh>();
-        return go;
+        GameObject meshGO = new GameObject("Mesh");//Instantiate(new GameObject("Mesh"), Vector3.zero, Quaternion.identity);
+        meshGO.AddComponent<OctreeMesh>();
+        return meshGO;
+    }
+
+    public static void DestroyNodeMesh(OctreeMesh mesh)
+    {
+        Destroy(mesh.gameObject);
     }
 
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        foreach (var item in tree.getAllBounds())
+        if (tree != null)
         {
-            Gizmos.DrawWireCube(item.center, item.size);
+            foreach (var item in tree.getAllBounds())
+            {
+                Gizmos.DrawWireCube(item.center, item.size);
+            }
         }
     }
 
@@ -54,33 +48,21 @@ public class World : MonoBehaviour
         tree.DrawAllNodes();
     }
 
-    //public Voxel RandomFromTree()
-    //{
-    //    return tree.GetRandomVoxel();
-    //}
 
     public void InitOctoTree()
     {
+        //Bounds must always be even
+        int boundsSize = 230;
+        if (boundsSize % 2 != 0)
+            boundsSize++;
+
         if (tree == null)
-            tree = new Octree(new Bounds(Vector3.zero, Vector3.one * 250));
+            tree = new Octree(new Bounds(Vector3.zero, Vector3.one * boundsSize));
     }
 
-    public void addToTree(Voxel voxel)
-    {
-        tree.InsertVoxel(voxel);
-    }
-
-    //public bool isInTree(Vector3 pos)
-    //{
-    //    return tree.VoxelAtPos(pos);
-    //}
     public bool FindInTree(Vector3 pos, out Voxel voxel)
     {
         return tree.FindVoxel(pos, out voxel);
-        //if(tree.FindVoxel(pos, out voxel))
-        //    return true;
-        //else
-        //    return false;
     }
 
     public void ClearTree()
@@ -88,211 +70,4 @@ public class World : MonoBehaviour
         tree.Clear();
     }
 
-    //public OctreeNode LeafAtPos()
-    //{
-
-    //}
-
-    //public VoxelHash GetChunk(int id)
-    //{
-    //    if(chunks == null)
-    //        chunks = new Dictionary<int, VoxelHash>();
-
-    //    if (chunks.ContainsKey(id))
-    //    {
-    //        if (chunks[id].voxels.Count > maxVoxelsInChunk)
-    //            return AddChunk(id+1);
-    //        return chunks[id];
-    //    }
-    //    else
-    //        return AddChunk(id);
-    //}
-
-    //public VoxelHash GetChunkAt(Vector3 worldpos)
-    //{
-    //    //Warning expensive as fuck
-    //    foreach (VoxelHash chunk in chunks.Values)
-    //    {
-    //        if (chunk.GetVoxelAtPos(worldpos, out Voxel voxelAtPos))
-    //        {
-    //            return chunk;
-    //        }
-    //    }
-    //    return null;
-    //}
-
-    //VoxelHash AddChunk(int newId = 0)
-    //{
-    //    VoxelHash voxelHash = new GameObject("VoxelHash"+newId).AddComponent<VoxelHash>();
-    //    voxelHash.Initiate(this, newId);
-    //    chunks[newId] = voxelHash;
-    //    return voxelHash;
-    //}
-
-    //// Load/unload chunks based on player position
-    //private void UpdateChunks()
-    //{
-    //    // ... logic to load and unload chunks dynamically
-    //}
-
-    //// Save and load world data
-    //public void SaveWorld()
-    //{
-    //    // ... logic to serialize world data
-    //}
-
-    //public void LoadWorld()
-    //{
-    //    // ... logic to deserialize world data
-    //}
 }
-
-
-//using System.Collections.Generic;
-//using UnityEngine;
-
-//public class World : MonoBehaviour
-//{
-//    public int worldSize = 5; // Size of the world in number of chunks
-//    private int chunkSize = 16; // Assuming chunk size is 16x16x16
-//    public int loadRadius = 5; // Define how many chunks to load around the player
-//    public int unloadRadius = 7; // Chunks outside this radius will be unloaded
-//    private Dictionary<Vector3, Chunk> chunks;
-
-//    public static World Instance { get; private set; }
-
-//    public Material VoxelMaterial;
-
-//    void Awake()
-//    {
-//        if (Instance == null)
-//        {
-//            Instance = this;
-//            DontDestroyOnLoad(gameObject); // Optional: if you want this to persist across scenes
-//        }
-//        else
-//        {
-//            Destroy(gameObject);
-//        }
-//    }
-
-//    void Start()
-//    {
-//        chunks = new Dictionary<Vector3, Chunk>();
-
-//        //GenerateWorld();
-//    }
-
-//    private void GenerateWorld()
-//    {
-//        for (int x = 0; x < worldSize; x++)
-//        {
-//            for (int y = 0; y < worldSize; y++)
-//            {
-//                for (int z = 0; z < worldSize; z++)
-//                {
-//                    Vector3 chunkPosition = new Vector3(x * chunkSize, y * chunkSize, z * chunkSize);
-//                    GameObject newChunkObject = new GameObject($"Chunk_{x}_{y}_{z}");
-//                    newChunkObject.transform.position = chunkPosition;
-//                    newChunkObject.transform.parent = this.transform;
-
-//                    Chunk newChunk = newChunkObject.AddComponent<Chunk>();
-//                    newChunk.Initialize(chunkSize);
-//                    chunks.Add(chunkPosition, newChunk);
-//                }
-//            }
-//        }
-//    }
-
-//    public void CreateChunk(Vector3 pos)
-//    {
-//        Vector3 chunkPosition = pos;
-//        GameObject newChunkObject = new GameObject($"Chunk_{pos.x}_{pos.y}_{pos.z}");
-//        newChunkObject.transform.position = chunkPosition;
-//        newChunkObject.transform.parent = this.transform;
-
-//        Chunk newChunk = newChunkObject.AddComponent<Chunk>();
-//        newChunk.Initialize(chunkSize);
-//        chunks.Add(chunkPosition, newChunk);
-//    }
-
-//    public Chunk GetChunkAt(Vector3 globalPosition)
-//    {
-//        // Calculate the chunk's starting position based on the global position
-//        Vector3Int chunkCoordinates = new Vector3Int(
-//            Mathf.FloorToInt(globalPosition.x / chunkSize) * chunkSize,
-//            Mathf.FloorToInt(globalPosition.y / chunkSize) * chunkSize,
-//            Mathf.FloorToInt(globalPosition.z / chunkSize) * chunkSize
-//        );
-
-//        // Retrieve and return the chunk at the calculated position
-//        if (chunks.TryGetValue(chunkCoordinates, out Chunk chunk))
-//        {
-//            return chunk;
-//        }
-
-//        // Return null if no chunk exists at the position
-//        return null;
-//    }
-
-//    //void UpdateChunks(Vector3 pos)
-//    //{
-//    //    // Determine the chunk coordinates for the player's position
-//    //    Vector3Int playerChunkCoordinates = new Vector3Int(
-//    //        Mathf.FloorToInt(pos.x / chunkSize),
-//    //        Mathf.FloorToInt(pos.y / chunkSize),
-//    //        Mathf.FloorToInt(pos.z / chunkSize));
-
-//    //    // Load and unload chunks based on the player's position
-//    //    LoadChunksAround(playerChunkCoordinates);
-//    //    UnloadDistantChunks(playerChunkCoordinates);
-//    //}
-
-//    //void LoadChunksAround(Vector3Int centerChunkCoordinates)
-//    //{
-//    //    for (int x = -loadRadius; x <= loadRadius; x++)
-//    //    {
-//    //        for (int z = -loadRadius; z <= loadRadius; z++)
-//    //        {
-//    //            Vector3Int chunkCoordinates = new Vector3Int(centerChunkCoordinates.x + x, 0, centerChunkCoordinates.z + z);
-//    //            Vector3 chunkPosition = new Vector3(chunkCoordinates.x * chunkSize, 0, chunkCoordinates.z * chunkSize);
-//    //            if (!chunks.ContainsKey(chunkPosition))
-//    //            {
-//    //                GameObject chunkObject = new GameObject($"Chunk_{chunkCoordinates.x}_{chunkCoordinates.z}");
-//    //                chunkObject.transform.position = chunkPosition;
-//    //                chunkObject.transform.parent = this.transform; // Optional, for organizational purposes
-
-//    //                Chunk newChunk = chunkObject.AddComponent<Chunk>();
-//    //                newChunk.Initialize(chunkSize); // Initialize the chunk with its size
-
-//    //                chunks.Add(chunkPosition, newChunk); // Add the chunk to the dictionary
-//    //            }
-//    //        }
-//    //    }
-//    //}
-
-//    //void UnloadDistantChunks(Vector3Int centerChunkCoordinates)
-//    //{
-//    //    List<Vector3> chunksToUnload = new List<Vector3>();
-//    //    foreach (var chunk in chunks)
-//    //    {
-//    //        Vector3Int chunkCoord = new Vector3Int(
-//    //            Mathf.FloorToInt(chunk.Key.x / chunkSize),
-//    //            Mathf.FloorToInt(chunk.Key.y / chunkSize),
-//    //            Mathf.FloorToInt(chunk.Key.z / chunkSize));
-
-//    //        if (Vector3Int.Distance(chunkCoord, centerChunkCoordinates) > unloadRadius)
-//    //        {
-//    //            chunksToUnload.Add(chunk.Key);
-//    //        }
-//    //    }
-
-//    //    foreach (var chunkPos in chunksToUnload)
-//    //    {
-//    //        Destroy(chunks[chunkPos].gameObject);
-//    //        chunks.Remove(chunkPos);
-//    //    }
-//    //}
-
-//    // Additional methods for managing chunks, like loading and unloading, can be added here
-//}
