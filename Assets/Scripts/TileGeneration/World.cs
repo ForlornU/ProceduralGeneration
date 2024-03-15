@@ -39,6 +39,7 @@ public class World : MonoBehaviour
             foreach (var item in tree.getAllBounds())
             {
                 Gizmos.DrawWireCube(item.center, item.size);
+                //Gizmos.DrawSphere(item.center, 4f);
             }
         }
     }
@@ -52,7 +53,7 @@ public class World : MonoBehaviour
     public void InitOctoTree()
     {
         //Bounds must always be even
-        int boundsSize = 230;
+        int boundsSize = 200;
         if (boundsSize % 2 != 0)
             boundsSize++;
 

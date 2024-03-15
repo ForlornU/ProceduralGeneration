@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class OctreeNode
 {
+    int depth;
     public Bounds bounds { get; private set; }
     public bool IsLeaf { get; private set; }
     public Dictionary<Vector3, Voxel> voxels;
@@ -10,18 +11,24 @@ public class OctreeNode
     int capacity;
     const float minBoundsSize = 2f;
     OctreeMesh mesh;
-    const int maxCapacity = 12000;
+    const int maxCapacity = 1000;
 
-    public OctreeNode(Bounds bounds)
+    public OctreeNode(Bounds bounds, int depth)
     {
         mesh = World.CreateNodeMesh().GetComponent<OctreeMesh>();
+        mesh.name = mesh.name + "_" + depth;
+        //mesh.transform.position = bounds.center;
+
         this.bounds = bounds;
         IsLeaf = true;
         Children = null;
         voxels = new Dictionary<Vector3, Voxel>();
-        capacity = (int)Mathf.Clamp((bounds.size.x * bounds.size.x * bounds.size.x)/3, minBoundsSize, maxCapacity);
-        //capacity = (int)(bounds.size.x * bounds.size.x * bounds.size.x) / 3;
+        capacity = (int)Mathf.Clamp((bounds.size.x * bounds.size.x * bounds.size.x) / 3, minBoundsSize, maxCapacity);
         Debug.Log("New quadrant with size : " + capacity);
+        this.depth = depth;
+
+        if (bounds.size.x > 80) //TEST
+            Subdivide();
     }
 
     bool CanSubdivide()
@@ -37,28 +44,59 @@ public class OctreeNode
         float quarterSize = bounds.extents.x / 2.0f;
         Vector3 center = bounds.center;
 
-        Debug.Log("Subdivided!");
         IsLeaf = false;
         Children = new OctreeNode[8];
 
+        // Create child nodes
         for (int i = 0; i < 8; i++)
         {
-            Vector3 childCenter = new Vector3(
-                center.x + (i & 4) > 0 ? quarterSize : -quarterSize, // Correct x-axis offset
-                center.y + (i & 2) > 0 ? quarterSize : -quarterSize, // Correct y-axis offset
-                  center.z + (i & 1) > 0 ? quarterSize : -quarterSize); // Correct z-axis offset
+            //Vector3 childCenter = new Vector3(
+            //    center.x + (i & 4) > 0 ? quarterSize : -quarterSize, // Correct x-axis offset
+            //    center.y + (i & 2) > 0 ? quarterSize : -quarterSize, // Correct y-axis offset
+            //    center.z + (i & 1) > 0 ? quarterSize : -quarterSize); // Correct z-axis offset
+            Vector3 childCenter = bounds.center;
 
-            Children[i] = new OctreeNode(new Bounds(childCenter, new Vector3(halfSize, halfSize, halfSize)));
+            if ((i & 4) > 0) // Positive X
+            {
+                childCenter.x += quarterSize;
+            }
+            else // Negative X
+            {
+                childCenter.x -= quarterSize;
+            }
+
+            if ((i & 2) > 0) // Positive Y
+            {
+                childCenter.y += quarterSize;
+            }
+            else // Negative Y
+            {
+                childCenter.y -= quarterSize;
+            }
+
+            if ((i & 1) > 0) // Positive Z
+            {
+                childCenter.z += quarterSize;
+            }
+            else // Negative Z
+            {
+                childCenter.z -= quarterSize;
+            }
+
+            Children[i] = new OctreeNode(new Bounds(childCenter, new Vector3(halfSize, halfSize, halfSize)), depth+1);
         }
 
-        foreach(Voxel voxel in voxels.Values)
+        // Redistribute existing voxels among child nodes
+        foreach (Voxel voxel in voxels.Values)
         {
             int childIndex = GetOctantIndex(voxel.position);
             Children[childIndex].Insert(voxel);
         }
 
+        // Clear the voxels collection of the parent node
         voxels.Clear();
     }
+
 
     private int GetOctantIndex(Vector3 position)
     {
@@ -180,10 +218,12 @@ public class OctreeNode
     {
         if(IsLeaf)
         {
+            Debug.Log($"There are {voxels.Count} voxels in this node, calling for the mesh to draw");
             mesh.DrawVoxels(voxels);
         }
         else
         {
+            Debug.Log("Calling on leaves to draw, even though I still have " + voxels.Count + " voxels in me");
             for (int i = 0; i < 8; i++)
             {
                 Children[i].Draw();

@@ -40,7 +40,7 @@ public class Octree
 
     public Octree(Bounds worldBounds)
     {
-        root = new OctreeNode(worldBounds);
+        root = new OctreeNode(worldBounds, 0);
     }
 
     public void InsertVoxel(Voxel voxel)
