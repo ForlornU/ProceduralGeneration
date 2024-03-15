@@ -14,7 +14,6 @@ public class VoxelGenerator : MonoBehaviour
     // Runtime variables
     private Voxel currentVoxel;
     List<Vector3> previousPositions = new List<Vector3>();
-    List<Voxel> savedVoxels = new List<Voxel>();
     
     public bool canSpawn { get { return previousPositions.Count < settings.voxelsToCreate; } }
 
@@ -50,9 +49,7 @@ public class VoxelGenerator : MonoBehaviour
             if (!tree.VoxelAtPos(newPosition))
             {
                 currentVoxel = new Voxel(newPosition, VoxelType.Stone);
-                //AddVoxel(currentVoxel);
-                //Test
-                savedVoxels.Add(currentVoxel);
+                AddVoxel(currentVoxel);
                 previousPositions.Add(newPosition);
 
                 voxelWalker.position = currentVoxel.position;
@@ -72,8 +69,6 @@ public class VoxelGenerator : MonoBehaviour
         }
 
         Inflate();
-        
-        tree.InsertVoxelRange(savedVoxels);
         world.DrawWorld();
 
         //previousPositions.Clear();
@@ -119,13 +114,10 @@ public class VoxelGenerator : MonoBehaviour
                             }
                         }
                     }
-                    savedVoxels.Add(new Voxel(pos, VoxelType.Stone));
-                    if(addToPreviousLocations)
-                        previousPositions.Add(pos);
-                    //if (addToPreviousLocations)
-                    //    AddVoxel(new Voxel(pos, VoxelType.Stone));
-                    //else
-                    //    tree.InsertVoxel(new Voxel(pos, VoxelType.Stone));
+                    if (addToPreviousLocations)
+                        AddVoxel(new Voxel(pos, VoxelType.Stone));
+                    else
+                        tree.InsertVoxel(new Voxel(pos, VoxelType.Stone));
                 }
             }
         }
