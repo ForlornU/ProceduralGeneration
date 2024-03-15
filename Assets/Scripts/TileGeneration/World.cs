@@ -21,7 +21,7 @@ public class World : MonoBehaviour
 
     public static GameObject CreateNodeMesh()
     {
-        GameObject meshGO = new GameObject("Mesh");//Instantiate(new GameObject("Mesh"), Vector3.zero, Quaternion.identity);
+        GameObject meshGO = new GameObject("Mesh");
         meshGO.AddComponent<OctreeMesh>();
         return meshGO;
     }

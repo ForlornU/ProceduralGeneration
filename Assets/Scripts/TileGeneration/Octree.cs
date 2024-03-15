@@ -70,18 +70,6 @@ public class Octree
             return false;
     }
 
-    //public bool ValidVoxelPlacement(Vector3 pos)
-    //{
-
-    //}
-
-    //public Voxel GetRandomVoxel()
-    //{
-    //    OctreeNode node = root.Children[Random.Range(0, root.Children.Length - 1)];
-    //    return node.voxels[Vector3.one];
-    //    //return node.voxels.Values[Random.Range(0, root.voxels.Values.Count-1)];
-    //}
-
     public List<Voxel> QueryRange(Bounds range)
     {
         return root.Query(range);

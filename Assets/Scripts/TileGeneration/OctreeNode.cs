@@ -9,32 +9,32 @@ public class OctreeNode
     public Dictionary<Vector3, Voxel> voxels;
     public OctreeNode[] Children { get; private set; }
     int capacity;
-    const float minBoundsSize = 2f;
+    const float minBoundsSize = 3.0f;
     OctreeMesh mesh;
-    const int maxCapacity = 1000;
+    const int maxCapacity = 5000;
 
     public OctreeNode(Bounds bounds, int depth)
     {
         mesh = World.CreateNodeMesh().GetComponent<OctreeMesh>();
         mesh.name = mesh.name + "_" + depth;
-        //mesh.transform.position = bounds.center;
 
         this.bounds = bounds;
         IsLeaf = true;
         Children = null;
         voxels = new Dictionary<Vector3, Voxel>();
         capacity = (int)Mathf.Clamp((bounds.size.x * bounds.size.x * bounds.size.x) / 3, minBoundsSize, maxCapacity);
-        Debug.Log("New quadrant with size : " + capacity);
+        //Debug.Log("New quadrant with size : " + capacity);
         this.depth = depth;
-
-        if (bounds.size.x > 80) //TEST
-            Subdivide();
     }
 
     bool CanSubdivide()
     {
-        float quarterSize = bounds.extents.x / 2.0f;
-        return (quarterSize > minBoundsSize);
+        return (bounds.extents.x > minBoundsSize);
+    }
+
+    private bool ShouldSubdivide()
+    {
+        return voxels.Count >= capacity;
     }
 
     private void Subdivide()
@@ -42,7 +42,6 @@ public class OctreeNode
         // Calculate child node bounds based on parent and octant index
         float halfSize = bounds.extents.x;
         float quarterSize = bounds.extents.x / 2.0f;
-        Vector3 center = bounds.center;
 
         IsLeaf = false;
         Children = new OctreeNode[8];
@@ -134,11 +133,6 @@ public class OctreeNode
         }
     }
 
-    private bool ShouldSubdivide()
-    {
-        return voxels.Count >= capacity;
-    }
-
     public bool Find(Vector3 position, out Voxel foundVoxel)
     {
         foundVoxel = new Voxel();
@@ -218,12 +212,11 @@ public class OctreeNode
     {
         if(IsLeaf)
         {
-            Debug.Log($"There are {voxels.Count} voxels in this node, calling for the mesh to draw");
+            //Debug.Log($"There are {voxels.Count} voxels in this node, calling for the mesh to draw");
             mesh.DrawVoxels(voxels);
         }
         else
         {
-            Debug.Log("Calling on leaves to draw, even though I still have " + voxels.Count + " voxels in me");
             for (int i = 0; i < 8; i++)
             {
                 Children[i].Draw();

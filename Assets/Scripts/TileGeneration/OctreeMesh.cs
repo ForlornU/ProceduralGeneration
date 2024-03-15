@@ -35,6 +35,7 @@ public class OctreeMesh : MonoBehaviour
         mesh.uv = uvs.ToArray();
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
+        mesh.RecalculateTangents();
 
         meshFilter.mesh = mesh;
         meshCollider.sharedMesh = mesh;
