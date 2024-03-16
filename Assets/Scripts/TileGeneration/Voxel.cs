@@ -19,4 +19,8 @@ public struct Voxel
         this.type = type;
         //this.isActive = isActive;
     }
+    //public Voxel(Vector3 position)
+    //{
+    //    this.position = position;
+    //}
 }

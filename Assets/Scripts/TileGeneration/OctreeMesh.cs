@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class OctreeMesh : MonoBehaviour
@@ -13,14 +14,17 @@ public class OctreeMesh : MonoBehaviour
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
     private MeshCollider meshCollider;
+    public bool drawn = false;
 
     public void DrawVoxels(Dictionary<Vector3, Voxel> voxels)
     {
         meshVoxels = voxels; //This just points to the same collection, reference
 
         CheckComponents();
+        ClearMesh();
         ProcessVoxels();
 
+        transform.position = new Vector3 (-0.5f, -0.5f, -0.5f); //Account for voxel 0.5f offset, temp fix?
         Mesh mesh = new Mesh();
         mesh.name = "VoxelMesh";
         if (vertices.Count > 65536)//mesh.vertexCount > 65536)
@@ -41,6 +45,20 @@ public class OctreeMesh : MonoBehaviour
         meshCollider.sharedMesh = mesh;
 
         meshRenderer.material = World.Instance.globalTestMaterial;
+        drawn = true;
+    }
+
+    private void ClearMesh()
+    {
+        if (meshFilter.mesh)
+        {
+            meshFilter.mesh.Clear(false); // Clear existing mesh data, preserving vertex layout
+        }
+
+        // Reset vertex and triangle collections for new data
+        vertices.Clear();
+        triangles.Clear();
+        uvs.Clear();
     }
 
     private void ProcessVoxels()
@@ -48,8 +66,7 @@ public class OctreeMesh : MonoBehaviour
         int nrOfFaces = 6;
         foreach (Voxel voxel in meshVoxels.Values)
         {
-            //if (!voxel.isActive)
-            //    continue;
+            bool voxelIsAir = false;
 
             bool[] facesVisible = new bool[nrOfFaces];
             for (int faceDir = 0; faceDir < nrOfFaces; faceDir++)
@@ -85,9 +102,15 @@ public class OctreeMesh : MonoBehaviour
                 // Check if voxel exists and is active
                 bool isFaceVisible = IsFaceVisible(neighborPos);//voxels.TryGetValue(neighborPos, out Voxel neighborVoxel) && neighborVoxel.isActive;
                 if (!isFaceVisible)
+                {
                     AddFaceData(voxel.position.x, voxel.position.y, voxel.position.z, faceDir);
+                    voxelIsAir= true;
+                }
                     //AddFaceData((int)voxel.position.x, (int)voxel.position.y, (int)voxel.position.z, faceDir); // Method to add mesh data for the visible face
             }
+
+            //if (voxelIsAir)
+            //    voxel.type = Voxel.VoxelType.Air;
         }
     }
 
@@ -107,7 +130,6 @@ public class OctreeMesh : MonoBehaviour
         // Based on faceIndex, determine vertices and triangles
         // Add vertices and triangles for the visible face
         // Calculate and add corresponding UVs
-        float voxelHalfSize = 0.5f; // Assuming your voxel is a unit cube
 
         if (faceIndex == 0) // Top Face
         {

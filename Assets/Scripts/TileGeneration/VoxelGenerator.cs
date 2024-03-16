@@ -50,7 +50,6 @@ public class VoxelGenerator : MonoBehaviour
             {
                 currentVoxel = new Voxel(newPosition, VoxelType.Stone);
                 AddVoxel(currentVoxel);
-                previousPositions.Add(newPosition);
 
                 voxelWalker.position = currentVoxel.position;
                 failCounter = 0;

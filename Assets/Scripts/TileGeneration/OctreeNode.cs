@@ -9,11 +9,12 @@ public class OctreeNode
     public Dictionary<Vector3, Voxel> voxels;
     public OctreeNode[] Children { get; private set; }
     int capacity;
-    const float minBoundsSize = 3.0f;
+    const float minBoundsSize = 5.0f;
     OctreeMesh mesh;
     const int maxCapacity = 5000;
+    Octree tree;
 
-    public OctreeNode(Bounds bounds, int depth)
+    public OctreeNode(Bounds bounds, int depth, Octree tree)
     {
         mesh = World.CreateNodeMesh().GetComponent<OctreeMesh>();
         mesh.name = mesh.name + "_" + depth;
@@ -25,6 +26,7 @@ public class OctreeNode
         capacity = (int)Mathf.Clamp((bounds.size.x * bounds.size.x * bounds.size.x) / 3, minBoundsSize, maxCapacity);
         //Debug.Log("New quadrant with size : " + capacity);
         this.depth = depth;
+        this.tree = tree;
     }
 
     bool CanSubdivide()
@@ -55,34 +57,37 @@ public class OctreeNode
             //    center.z + (i & 1) > 0 ? quarterSize : -quarterSize); // Correct z-axis offset
             Vector3 childCenter = bounds.center;
 
-            if ((i & 4) > 0) // Positive X
-            {
-                childCenter.x += quarterSize;
-            }
-            else // Negative X
-            {
-                childCenter.x -= quarterSize;
-            }
+            childCenter.x += (i & 4) > 0 ? quarterSize : -quarterSize;
+            childCenter.y += (i & 2) > 0 ? quarterSize : -quarterSize;
+            childCenter.z += (i & 1) > 0 ? quarterSize : -quarterSize;
+            //if ((i & 4) > 0) // Positive X
+            //{
+            //    childCenter.x += quarterSize;
+            //}
+            //else // Negative X
+            //{
+            //    childCenter.x -= quarterSize;
+            //}
 
-            if ((i & 2) > 0) // Positive Y
-            {
-                childCenter.y += quarterSize;
-            }
-            else // Negative Y
-            {
-                childCenter.y -= quarterSize;
-            }
+            //if ((i & 2) > 0) // Positive Y
+            //{
+            //    childCenter.y += quarterSize;
+            //}
+            //else // Negative Y
+            //{
+            //    childCenter.y -= quarterSize;
+            //}
 
-            if ((i & 1) > 0) // Positive Z
-            {
-                childCenter.z += quarterSize;
-            }
-            else // Negative Z
-            {
-                childCenter.z -= quarterSize;
-            }
+            //if ((i & 1) > 0) // Positive Z
+            //{
+            //    childCenter.z += quarterSize;
+            //}
+            //else // Negative Z
+            //{
+            //    childCenter.z -= quarterSize;
+            //}
 
-            Children[i] = new OctreeNode(new Bounds(childCenter, new Vector3(halfSize, halfSize, halfSize)), depth+1);
+            Children[i] = new OctreeNode(new Bounds(childCenter, new Vector3(halfSize, halfSize, halfSize)), depth + 1, tree);
         }
 
         // Redistribute existing voxels among child nodes
@@ -110,6 +115,7 @@ public class OctreeNode
     {
         if (!bounds.Contains(voxel.position))
         {
+            tree.Grow();
             return;
         }
 
@@ -122,7 +128,13 @@ public class OctreeNode
             }
             else
             {
-                voxels.TryAdd(voxel.position, voxel);
+                if (voxels.TryAdd(voxel.position, voxel))
+                {
+                    if (mesh.drawn)
+                        mesh.DrawVoxels(voxels);
+                }
+                else
+                    Debug.Log("Already a voxel at pos");
             }
         }
         else
@@ -131,6 +143,25 @@ public class OctreeNode
             int childIndex = GetOctantIndex(voxel.position);
             Children[childIndex].Insert(voxel);
         }
+    }
+
+    public void RemoveAt(Vector3 position)
+    {
+        if (IsLeaf)
+        {
+            if (voxels.ContainsKey(position))
+            {
+                voxels.Remove(position);
+                if (mesh.drawn)
+                    mesh.DrawVoxels(voxels);
+            }
+        }
+        else
+        {
+            int childIndex = GetOctantIndex(position);
+            Children[childIndex].RemoveAt(position);
+        }
+
     }
 
     public bool Find(Vector3 position, out Voxel foundVoxel)
@@ -210,9 +241,8 @@ public class OctreeNode
     //Drawing
     public void Draw()
     {
-        if(IsLeaf)
+        if (IsLeaf)
         {
-            //Debug.Log($"There are {voxels.Count} voxels in this node, calling for the mesh to draw");
             mesh.DrawVoxels(voxels);
         }
         else

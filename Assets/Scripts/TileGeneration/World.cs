@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
 public class World : MonoBehaviour
@@ -39,7 +38,7 @@ public class World : MonoBehaviour
             foreach (var item in tree.getAllBounds())
             {
                 Gizmos.DrawWireCube(item.center, item.size);
-                //Gizmos.DrawSphere(item.center, 4f);
+                Gizmos.DrawSphere(item.center, 0.5f);
             }
         }
     }
@@ -49,11 +48,10 @@ public class World : MonoBehaviour
         tree.DrawAllNodes();
     }
 
-
     public void InitOctoTree()
     {
         //Bounds must always be even
-        int boundsSize = 200;
+        int boundsSize = 275;
         if (boundsSize % 2 != 0)
             boundsSize++;
 
