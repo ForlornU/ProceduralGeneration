@@ -8,9 +8,7 @@ public class FogUndulation : MonoBehaviour
     void Update()
     {
         // Scale Time.deltaTime for frequency control
-        float noiseInput = frequency * Time.deltaTime;
-        float undulation = Mathf.Clamp(Mathf.PerlinNoise(noiseInput, noiseInput), 0f, 1f);
-        float newFogDensity = Mathf.Lerp( minDensity, maxDensity, undulation);
-        RenderSettings.fogDensity = newFogDensity;
+        float undulation = Mathf.Clamp(Mathf.PerlinNoise(frequency * Time.deltaTime, frequency * Time.time), 0f, 1f);
+        RenderSettings.fogDensity = Mathf.Lerp(minDensity, maxDensity, undulation);
     }
 }

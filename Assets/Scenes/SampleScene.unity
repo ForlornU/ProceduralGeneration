@@ -6060,9 +6060,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90c20f7d157bed84da06a51a7aa1c496, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minDensity: 0.005
-  maxDensity: 0.01
-  frequency: 1
+  minDensity: 0.003
+  maxDensity: 0.007
+  frequency: 0.1
 --- !u!1001 &1069726152
 PrefabInstance:
   m_ObjectHideFlags: 0
