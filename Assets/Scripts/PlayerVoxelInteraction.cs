@@ -3,42 +3,70 @@ using UnityEngine;
 public class PlayerVoxelInteraction : MonoBehaviour
 {
     Octree tree;
-    [SerializeField] Transform Cursor;
+    Camera cam;
+    [SerializeField] GameObject targetVoxelCursor;
+    [SerializeField] GameObject normalCursor;
+    bool canAlter = false;
+    [SerializeField] LayerMask hitMask;
+    Vector3 hitVoxelPosition;
+    Vector3 neighborVoxelPosition;
 
     // Start is called before the first frame update
     void Start()
     {
         tree = World.Instance.treeReference;
+        cam = GetComponent<Camera>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(Physics.Raycast(transform.position, transform.forward, out RaycastHit hitInfo, 3f, hitMask))
+        {
+            canAlter = true;
+            normalCursor.SetActive(true);
+            targetVoxelCursor.SetActive(true);
 
-        // Get camera forward direction
-        Vector3 forward = transform.forward;
+            //Centre of hit voxel
+            hitVoxelPosition = hitInfo.point - hitInfo.normal * 0.5f; 
+            hitVoxelPosition = snap(hitVoxelPosition);
 
-        // Calculate target position 2 meters in front of the camera
-        Vector3 targetPosition = transform.position + forward * 2.0f;
+            //Centre of potential neighbor voxel
+            neighborVoxelPosition = hitInfo.point + hitInfo.normal * 0.5f;
+            neighborVoxelPosition = snap(neighborVoxelPosition);
 
-        // Round down to nearest half meter for each axis
-        targetPosition.x = Mathf.Floor(targetPosition.x) + 0.5f;
-        targetPosition.y = Mathf.Floor(targetPosition.y) + 0.5f;
-        targetPosition.z = Mathf.Floor(targetPosition.z) + 0.5f;
+            targetVoxelCursor.transform.position = hitVoxelPosition;
+            normalCursor.transform.position = neighborVoxelPosition;
+            normalCursor.transform.rotation = Quaternion.LookRotation(hitInfo.normal, Vector3.up);
+        }
+        else
+        {
+            normalCursor.SetActive(false);
+            targetVoxelCursor.SetActive(false);
+            canAlter = false;
+        }
 
-        Cursor.position = targetPosition;
-
-        if (Input.GetMouseButton(0))
+        //Adding a voxel (by removing)
+        if (Input.GetMouseButtonDown(0) && canAlter)
         {
             if (tree == null)
                 tree = World.Instance.treeReference;
-            tree.RemoveVoxel(targetPosition);
+            tree.RemoveVoxel(neighborVoxelPosition);
         }
-        else if (Input.GetMouseButton(1))
+        //Removing a voxel (by adding one)
+        else if (Input.GetMouseButton(1) && canAlter)
         {
             if (tree == null)
                 tree = World.Instance.treeReference;
-            tree.InsertVoxel(new Voxel(targetPosition, Voxel.VoxelType.Stone));
+            tree.InsertVoxel(new Voxel(hitVoxelPosition, Voxel.VoxelType.Stone));
         }
+    }
+
+    private Vector3 snap(Vector3 pos)
+    {
+        pos.x = Mathf.Floor(pos.x) + 0.5f;
+        pos.y = Mathf.Floor(pos.y) + 0.5f;
+        pos.z = Mathf.Floor(pos.z) + 0.5f;
+        return pos;
     }
 }

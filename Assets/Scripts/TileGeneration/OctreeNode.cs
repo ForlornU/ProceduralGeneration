@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class OctreeNode
 {
@@ -195,31 +196,31 @@ public class OctreeNode
         return found;
     }
 
-    public List<Voxel> Query(Bounds range)
-    {
-        List<Voxel> voxels = new List<Voxel>();
-        //if (bounds.Intersects(range))
-        //{
-        //    if (IsLeaf)
-        //    {
-        //        if (Voxel != null && range.Contains(Voxel.Position))
-        //        {
-        //            voxels.Add(Voxel);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        for (int i = 0; i < 8; i++)
-        //        {
-        //            if (Children[i].bounds.Intersects(range))
-        //            {
-        //                voxels.AddRange(Children[i].Query(range));
-        //            }
-        //        }
-        //    }
-        //}
-        return voxels;
-    }
+    //public List<Voxel> Query(Bounds range)
+    //{
+    //    List<Voxel> voxels = new List<Voxel>();
+    //    if (bounds.Intersects(range))
+    //    {
+    //        if (IsLeaf)
+    //        {
+    //            //if (Voxel != null && range.Contains(Voxel.Position))
+    //            //{
+    //            //    voxels.Add(Voxel);
+    //            //}
+    //        }
+    //        else
+    //        {
+    //            for (int i = 0; i < 8; i++)
+    //            {
+    //                if (Children[i].bounds.Intersects(range))
+    //                {
+    //                    voxels.AddRange(Children[i].Query(range));
+    //                }
+    //            }
+    //        }
+    //    }
+    //    return voxels;
+    //}
 
     public void Clear()
     {

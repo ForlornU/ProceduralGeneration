@@ -48,6 +48,13 @@ public class OctreeMesh : MonoBehaviour
         drawn = true;
     }
 
+
+
+    public void DrawSection()
+    {
+
+    }
+
     private void ClearMesh()
     {
         if (meshFilter.mesh)
@@ -233,4 +240,5 @@ public class OctreeMesh : MonoBehaviour
 
         return localNeighbor || hasGlobalNeighbor;
     }
+
 }

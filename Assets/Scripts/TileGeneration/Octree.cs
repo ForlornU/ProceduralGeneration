@@ -66,6 +66,52 @@ public class Octree
             InsertVoxel(voxel);
     }
 
+    public void CubicQuery(Vector3 position)
+    {
+        int radius = 1;
+
+        // Calculate bounds for the cubic query range
+        Bounds queryBounds = new Bounds(position, new Vector3(radius * 2, radius * 2, radius * 2));
+
+        // Start the query from the root node
+        QueryCubicRange(queryBounds, root);
+    }
+
+    private void QueryCubicRange(Bounds queryBounds, OctreeNode node)
+    {
+        // Check for intersection between query bounds and current node bounds
+        if (!node.bounds.Intersects(queryBounds))
+        {
+            return; // Skip nodes outside the query range
+        }
+
+        // If it's a leaf node, check the voxel and update mesh if needed
+        if (node.IsLeaf)
+        {
+            //if (node.Voxel != null && queryBounds.Contains(node.Voxel.Position))
+            //{
+            //    // Update mesh for the affected voxel (implement your update logic here)
+            //    UpdateMeshForVoxel(node.Voxel);
+            //}
+        }
+        else
+        {
+            // Recursively query child nodes that might be within the range
+            for (int i = 0; i < 8; i++)
+            {
+                QueryCubicRange(queryBounds, node.Children[i]);
+            }
+        }
+    }
+
+    private void UpdateMeshForVoxel(Voxel voxel)
+    {
+        // Implement your logic here to update the mesh based on the affected voxel
+        // This might involve recalculating neighboring voxels, identifying affected faces,
+        // and updating vertex/triangle/UV data in the OctreeMesh script.
+    }
+
+
     public bool FindVoxel(Vector3 position, out Voxel foundVoxel)
     {
         if(root.Find(position, out foundVoxel))
@@ -82,10 +128,10 @@ public class Octree
             return false;
     }
 
-    public List<Voxel> QueryRange(Bounds range)
-    {
-        return root.Query(range);
-    }
+    //public List<Voxel> QueryRange(Bounds range)
+    //{
+    //    return root.Query(range);
+    //}
 
     public void Clear()
     {
