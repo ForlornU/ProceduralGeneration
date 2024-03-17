@@ -51,7 +51,7 @@ public class World : MonoBehaviour
     public void InitOctoTree()
     {
         //Bounds must always be even
-        int boundsSize = 275;
+        int boundsSize = 352;
         if (boundsSize % 2 != 0)
             boundsSize++;
 

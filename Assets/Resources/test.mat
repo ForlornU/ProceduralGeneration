@@ -137,8 +137,8 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     - _alphaClip: 0.65
-    - _maxY: 20
-    - _minY: -20
+    - _maxY: 100
+    - _minY: -100
     m_Colors:
     - _Alt: {r: 0.83584905, g: 1, b: 0.9696952, a: 0}
     - _Base: {r: 0.9245283, g: 0.70299035, b: 0.7626001, a: 0}

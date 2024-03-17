@@ -12,4 +12,11 @@ public class GenerationSettings : ScriptableObject
     public int voxelsToCreate = 5000;
     [Range(0f, 1f)]public float creationSpeed = 0.01f;
     [Range(0f, 1f)] public float noise = 0.2f;
+
+
+    [Header("Torches")]
+    [Range(0.001f, 0.1f)] public float torchesDistribution = 0.02f;
+
+    [Header("Debug")]
+    public bool debug = true;
 }

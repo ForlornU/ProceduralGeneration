@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: Test
   m_EditorClassIdentifier: 
   startBlockSize: 1
-  inflationPasses: 3
-  voxelsToCreate: 12000
+  inflationPasses: 4
+  voxelsToCreate: 50000
   creationSpeed: 0
-  noise: 0.524
+  noise: 0.396
+  torchesDistribution: 0.004
+  debug: 0

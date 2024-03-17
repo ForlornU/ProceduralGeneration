@@ -3,20 +3,12 @@ using UnityEngine;
 public class PlayerVoxelInteraction : MonoBehaviour
 {
     Octree tree;
-    Camera cam;
     [SerializeField] GameObject targetVoxelCursor;
     [SerializeField] GameObject normalCursor;
     bool canAlter = false;
     [SerializeField] LayerMask hitMask;
     Vector3 hitVoxelPosition;
     Vector3 neighborVoxelPosition;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        tree = World.Instance.treeReference;
-        cam = GetComponent<Camera>();
-    }
 
     // Update is called once per frame
     void Update()
@@ -52,6 +44,7 @@ public class PlayerVoxelInteraction : MonoBehaviour
             if (tree == null)
                 tree = World.Instance.treeReference;
             tree.RemoveVoxel(neighborVoxelPosition);
+            tree.CubicQuery(neighborVoxelPosition);
         }
         //Removing a voxel (by adding one)
         else if (Input.GetMouseButton(1) && canAlter)
@@ -59,6 +52,7 @@ public class PlayerVoxelInteraction : MonoBehaviour
             if (tree == null)
                 tree = World.Instance.treeReference;
             tree.InsertVoxel(new Voxel(hitVoxelPosition, Voxel.VoxelType.Stone));
+            tree.CubicQuery(hitVoxelPosition);
         }
     }
 

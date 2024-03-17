@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static Voxel;
 
@@ -68,9 +69,10 @@ public class VoxelGenerator : MonoBehaviour
         }
 
         Inflate();
+        PlaceTorches();
         world.DrawWorld();
-
-        //previousPositions.Clear();
+        if(!settings.debug)
+            previousPositions.Clear();
         Invoke("SetPlayer", 2f);
     }
 
@@ -87,6 +89,43 @@ public class VoxelGenerator : MonoBehaviour
         {
             if (Random.value < settings.noise)
                 CreateNeighbors(pos, false, settings.inflationPasses);
+        }
+    }
+
+    void PlaceTorches()
+    {
+        int numTorches = Mathf.RoundToInt(previousPositions.Count * settings.torchesDistribution) + 1;
+        Vector3 lastPosition = Vector3.zero;
+
+        for (int i = 0; i < numTorches; i++)
+        {
+            int verticalChange = 10;
+            int randomIndex = Random.Range(0, previousPositions.Count - 1);
+            Vector3 targetPosition = previousPositions[randomIndex];
+            Vector3 floor = targetPosition;
+            floor.y -= 1;
+
+            if (Vector3.Distance(targetPosition, lastPosition) < verticalChange*1.5f)
+                continue;
+
+            if(settings.debug)
+                Instantiate(Resources.Load<GameObject>("TorchStartCube"), targetPosition, Quaternion.identity);
+
+            // Look down until we reach floor
+            while (tree.VoxelAtPos(floor))
+            {
+                floor.y--;
+                verticalChange--;
+            }
+
+            if (verticalChange < 0) //If we moved too far, skip
+                continue;
+
+            targetPosition = floor;
+            targetPosition.y++;
+            lastPosition = targetPosition;
+
+            Instantiate(Resources.Load<GameObject>("Torch"), targetPosition, Quaternion.identity);
         }
     }
 

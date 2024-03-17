@@ -68,40 +68,47 @@ public class Octree
 
     public void CubicQuery(Vector3 position)
     {
-        int radius = 1;
+        Bounds queryBounds = new Bounds(position, new Vector3(3, 3, 3));
 
-        // Calculate bounds for the cubic query range
-        Bounds queryBounds = new Bounds(position, new Vector3(radius * 2, radius * 2, radius * 2));
+        //Find all the affected meshes
+        List<OctreeMesh> list = new List<OctreeMesh>();
 
         // Start the query from the root node
-        QueryCubicRange(queryBounds, root);
-    }
+        QueryCubicRange(queryBounds, root, list);
 
-    private void QueryCubicRange(Bounds queryBounds, OctreeNode node)
-    {
-        // Check for intersection between query bounds and current node bounds
-        if (!node.bounds.Intersects(queryBounds))
+        foreach (OctreeMesh mesh in list)
         {
-            return; // Skip nodes outside the query range
+            mesh.DrawSection();
+            Debug.Log($"Intersected {list.Count} meshes, redrawing");
         }
 
-        // If it's a leaf node, check the voxel and update mesh if needed
-        if (node.IsLeaf)
+
+    }
+    private void QueryCubicRange(Bounds queryBounds, OctreeNode node, List<OctreeMesh> meshes)
+    {
+
+        if (!node.bounds.Intersects(queryBounds))
         {
-            //if (node.Voxel != null && queryBounds.Contains(node.Voxel.Position))
-            //{
-            //    // Update mesh for the affected voxel (implement your update logic here)
-            //    UpdateMeshForVoxel(node.Voxel);
-            //}
+            return;
         }
         else
         {
-            // Recursively query child nodes that might be within the range
-            for (int i = 0; i < 8; i++)
+
+            // If it's a leaf node, check the voxel and update mesh if needed
+            if (node.IsLeaf)
             {
-                QueryCubicRange(queryBounds, node.Children[i]);
+                meshes.Add(node.mesh);
+            }
+            else
+            {
+                // Recursively query child nodes that might be within the range
+                for (int i = 0; i < 8; i++)
+                {
+                    QueryCubicRange(queryBounds, node.Children[i], meshes);
+                }
             }
         }
+
     }
 
     private void UpdateMeshForVoxel(Voxel voxel)

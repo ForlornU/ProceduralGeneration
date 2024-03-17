@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d0bbdbb48c86b1408885b67d5b1f515, type: 3}
   m_Name: PlayerMoveSettings
   m_EditorClassIdentifier: 
-  movespeed: 6
+  movespeed: 10
   jumpforce: 12
   airJumps: 1
   groundColliderSize: 0.36

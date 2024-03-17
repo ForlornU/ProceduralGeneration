@@ -11,7 +11,7 @@ public class OctreeNode
     public OctreeNode[] Children { get; private set; }
     int capacity;
     const float minBoundsSize = 5.0f;
-    OctreeMesh mesh;
+    public OctreeMesh mesh;
     const int maxCapacity = 5000;
     Octree tree;
 
