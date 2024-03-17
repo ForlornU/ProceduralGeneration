@@ -14,8 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startBlockSize: 1
   inflationPasses: 4
-  voxelsToCreate: 50000
-  creationSpeed: 0
+  voxelsToCreate: 6000
+  creationSpeed: 0.02
   noise: 0.396
+  radialBias: 0.1
+  branchChance: 0.5
   torchesDistribution: 0.004
   debug: 0

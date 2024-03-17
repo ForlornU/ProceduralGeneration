@@ -47,7 +47,7 @@ public class VoxelGenerator : MonoBehaviour
             // Perform random walk step
             Vector3 newDirection = RandomWalkDirection();
             Vector3 newPosition = currentVoxel.position + newDirection;
-            if (!tree.VoxelAtPos(newPosition))
+            if (!tree.VoxelAtPos(newPosition)) //|| Random.value > settings.branchChance)
             {
                 currentVoxel = new Voxel(newPosition, VoxelType.Stone);
                 AddVoxel(currentVoxel);
@@ -184,8 +184,10 @@ public class VoxelGenerator : MonoBehaviour
 
     private Vector3 RandomWalkDirection()
     {
-        int d = Random.Range(0,6);
+        int d = Random.Range(0, 6);
+
         Vector3 result = Vector3.forward;
+        Vector3 radial = RadialBias();
 
         switch (d)
         {
@@ -197,7 +199,38 @@ public class VoxelGenerator : MonoBehaviour
             case 5: result = Vector3.back; break;
         }
 
+        if (Random.value < settings.radialBias)
+            result = radial;
+
         return result;
+    }
+
+    private Vector3 RadialBias()
+    {
+        //Bias test
+        Vector3 dirFromCenter = (currentVoxel.position - Vector3.zero).normalized;
+
+        float[] dotProducts = new float[6];
+        dotProducts[0] = Vector3.Dot(dirFromCenter, Vector3.forward);
+        dotProducts[1] = Vector3.Dot(dirFromCenter, Vector3.right);
+        dotProducts[2] = Vector3.Dot(dirFromCenter, Vector3.up);
+        dotProducts[3] = Vector3.Dot(dirFromCenter, Vector3.left);
+        dotProducts[4] = Vector3.Dot(dirFromCenter, Vector3.back);
+        dotProducts[5] = Vector3.Dot(dirFromCenter, Vector3.down);
+
+        int closestIndex = Mathf.FloorToInt(Mathf.Max(dotProducts));//Mathf.RoundToInt(Mathf.Max(dotProducts));
+        Vector3 closestDirection = closestIndex switch
+        {
+            0 => Vector3.forward,
+            1 => Vector3.right,
+            2 => Vector3.up,
+            3 => Vector3.left,
+            4 => Vector3.back,
+            5 => Vector3.down,
+            _ => throw new System.NotImplementedException(),
+        };
+
+        return closestDirection;
     }
 
     public void Clear()
