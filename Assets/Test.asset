@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Test
   m_EditorClassIdentifier: 
   startBlockSize: 1
-  inflationPasses: 4
-  voxelsToCreate: 6000
-  creationSpeed: 0.02
-  noise: 0.396
-  radialBias: 0.1
+  inflationPasses: 8
+  voxelsToCreate: 2000
+  creationSpeed: 0
+  noise: 0.4
+  radialBias: 0.02
   branchChance: 0.5
   torchesDistribution: 0.004
   debug: 0

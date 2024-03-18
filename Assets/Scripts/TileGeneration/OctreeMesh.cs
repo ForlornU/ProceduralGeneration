@@ -17,41 +17,36 @@ public class OctreeMesh : MonoBehaviour
 
     public void DrawVoxels(Dictionary<Vector3, Voxel> voxels)
     {
+        transform.position = new Vector3(-0.5f, -0.5f, -0.5f); //Account for voxel 0.5f offset, temp fix?
         meshVoxels = voxels; //This just points to the same collection, reference
-
         CheckComponents();
+        DrawSection();
+        meshRenderer.material = World.Instance.globalTestMaterial;
+        drawn = true;
+    }
+
+    public void DrawSection()
+    {
         ClearMesh();
         ProcessVoxels();
-
-        transform.position = new Vector3 (-0.5f, -0.5f, -0.5f); //Account for voxel 0.5f offset, temp fix?
         Mesh mesh = new Mesh();
         mesh.name = "VoxelMesh";
-        if (vertices.Count > 65536)//mesh.vertexCount > 65536)
+        if (vertices.Count > 65536 && mesh.indexFormat == UnityEngine.Rendering.IndexFormat.UInt16)
         {
             Debug.Log("Verticies above limit! - " + vertices.Count + ". Switching to uint32");
             mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         }
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
-
         mesh.triangles = mesh.triangles.Reverse().ToArray();
         mesh.uv = uvs.ToArray();
+
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
         mesh.RecalculateTangents();
 
         meshFilter.mesh = mesh;
         meshCollider.sharedMesh = mesh;
-
-        meshRenderer.material = World.Instance.globalTestMaterial;
-        drawn = true;
-    }
-
-
-
-    public void DrawSection()
-    {
-
     }
 
     private void ClearMesh()

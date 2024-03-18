@@ -40,7 +40,7 @@ public class VoxelGenerator : MonoBehaviour
         Vector3 veryFirstVoxelPosition = new Vector3(0.5f,0.5f,0.5f);
         CreateNeighbors(veryFirstVoxelPosition, true, settings.startBlockSize, true);         //Create a 9x9 square starting point
         currentVoxel.position = veryFirstVoxelPosition;
-        int failCounter = 0;
+        int attempts = 0;
 
         while (canSpawn)
         {
@@ -53,14 +53,14 @@ public class VoxelGenerator : MonoBehaviour
                 AddVoxel(currentVoxel);
 
                 voxelWalker.position = currentVoxel.position;
-                failCounter = 0;
+                attempts = 0;
             }
             else
             {
-                failCounter++;
-                if (failCounter >= 5)
+                attempts++;
+                if (attempts >= 5)
                 {
-                    failCounter = 0;
+                    attempts = 0;
                     tree.FindVoxel(previousPositions[Random.Range(0, previousPositions.Count - 1)], out currentVoxel);
                 }
             }
@@ -73,7 +73,8 @@ public class VoxelGenerator : MonoBehaviour
         world.DrawWorld();
         if(!settings.debug)
             previousPositions.Clear();
-        Invoke("SetPlayer", 2f);
+        Invoke("SetPlayer", 1f);
+        voxelWalker.gameObject.SetActive(false);
     }
 
     private void SetPlayer()

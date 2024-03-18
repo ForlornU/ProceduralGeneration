@@ -52,13 +52,7 @@ public class Octree
     internal void RemoveVoxel(Vector3 pos)
     {
         root.RemoveAt(pos);
-        //DrawAllNodes();
     }
-    //public void InsertAndDraw(Voxel voxel)
-    //{
-    //    root.Insert(voxel);
-    //    //Draw the surrounding area?
-    //}
 
     public void InsertVoxelRange(List<Voxel> voxels)
     {
@@ -79,11 +73,9 @@ public class Octree
         foreach (OctreeMesh mesh in list)
         {
             mesh.DrawSection();
-            Debug.Log($"Intersected {list.Count} meshes, redrawing");
         }
-
-
     }
+
     private void QueryCubicRange(Bounds queryBounds, OctreeNode node, List<OctreeMesh> meshes)
     {
 

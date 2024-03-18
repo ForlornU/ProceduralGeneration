@@ -50,10 +50,8 @@ public class World : MonoBehaviour
 
     public void InitOctoTree()
     {
-        //Bounds must always be even
-        int boundsSize = 352;
-        if (boundsSize % 2 != 0)
-            boundsSize++;
+        //Bounds must always be power of 2 = 64/128/256/512/1024
+        int boundsSize = 256;
 
         if (tree == null)
             tree = new Octree(new Bounds(Vector3.zero, Vector3.one * boundsSize));

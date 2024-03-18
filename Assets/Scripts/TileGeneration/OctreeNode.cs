@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.EventSystems.EventTrigger;
 
 public class OctreeNode
 {
@@ -10,7 +9,7 @@ public class OctreeNode
     public Dictionary<Vector3, Voxel> voxels;
     public OctreeNode[] Children { get; private set; }
     int capacity;
-    const float minBoundsSize = 5.0f;
+    const float minBoundsSize = 7.0f;
     public OctreeMesh mesh;
     const int maxCapacity = 5000;
     Octree tree;
@@ -21,6 +20,7 @@ public class OctreeNode
         mesh.name = mesh.name + "_" + depth;
 
         this.bounds = bounds;
+
         IsLeaf = true;
         Children = null;
         voxels = new Dictionary<Vector3, Voxel>();
@@ -52,41 +52,11 @@ public class OctreeNode
         // Create child nodes
         for (int i = 0; i < 8; i++)
         {
-            //Vector3 childCenter = new Vector3(
-            //    center.x + (i & 4) > 0 ? quarterSize : -quarterSize, // Correct x-axis offset
-            //    center.y + (i & 2) > 0 ? quarterSize : -quarterSize, // Correct y-axis offset
-            //    center.z + (i & 1) > 0 ? quarterSize : -quarterSize); // Correct z-axis offset
             Vector3 childCenter = bounds.center;
 
             childCenter.x += (i & 4) > 0 ? quarterSize : -quarterSize;
             childCenter.y += (i & 2) > 0 ? quarterSize : -quarterSize;
             childCenter.z += (i & 1) > 0 ? quarterSize : -quarterSize;
-            //if ((i & 4) > 0) // Positive X
-            //{
-            //    childCenter.x += quarterSize;
-            //}
-            //else // Negative X
-            //{
-            //    childCenter.x -= quarterSize;
-            //}
-
-            //if ((i & 2) > 0) // Positive Y
-            //{
-            //    childCenter.y += quarterSize;
-            //}
-            //else // Negative Y
-            //{
-            //    childCenter.y -= quarterSize;
-            //}
-
-            //if ((i & 1) > 0) // Positive Z
-            //{
-            //    childCenter.z += quarterSize;
-            //}
-            //else // Negative Z
-            //{
-            //    childCenter.z -= quarterSize;
-            //}
 
             Children[i] = new OctreeNode(new Bounds(childCenter, new Vector3(halfSize, halfSize, halfSize)), depth + 1, tree);
         }
@@ -129,13 +99,7 @@ public class OctreeNode
             }
             else
             {
-                if (voxels.TryAdd(voxel.position, voxel))
-                {
-                    if (mesh.drawn)
-                        mesh.DrawVoxels(voxels);
-                }
-                else
-                    Debug.Log("Already a voxel at pos");
+                voxels.TryAdd(voxel.position, voxel);
             }
         }
         else
@@ -153,8 +117,6 @@ public class OctreeNode
             if (voxels.ContainsKey(position))
             {
                 voxels.Remove(position);
-                if (mesh.drawn)
-                    mesh.DrawVoxels(voxels);
             }
         }
         else
