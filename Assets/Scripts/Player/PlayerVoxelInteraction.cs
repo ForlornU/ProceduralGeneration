@@ -19,17 +19,36 @@ public class PlayerVoxelInteraction : MonoBehaviour
             normalCursor.SetActive(true);
             targetVoxelCursor.SetActive(true);
 
+
+            bool insideWorld = World.Instance.invertedWorld;
             //Centre of hit voxel
-            hitVoxelPosition = hitInfo.point - hitInfo.normal * 0.5f; 
-            hitVoxelPosition = snap(hitVoxelPosition);
+            if(insideWorld)
+            {
+                hitVoxelPosition = hitInfo.point - hitInfo.normal * 0.5f;
+                hitVoxelPosition = snap(hitVoxelPosition);
 
-            //Centre of potential neighbor voxel
-            neighborVoxelPosition = hitInfo.point + hitInfo.normal * 0.5f;
-            neighborVoxelPosition = snap(neighborVoxelPosition);
+                //Centre of potential neighbor voxel
+                neighborVoxelPosition = hitInfo.point + hitInfo.normal * 0.5f;
+                neighborVoxelPosition = snap(neighborVoxelPosition);
 
-            targetVoxelCursor.transform.position = hitVoxelPosition;
-            normalCursor.transform.position = neighborVoxelPosition;
-            normalCursor.transform.rotation = Quaternion.LookRotation(hitInfo.normal, Vector3.up);
+                targetVoxelCursor.transform.position = hitVoxelPosition;
+                normalCursor.transform.position = neighborVoxelPosition;
+                normalCursor.transform.rotation = Quaternion.LookRotation(hitInfo.normal, Vector3.up);
+            }
+            else
+            {
+                hitVoxelPosition = hitInfo.point + hitInfo.normal * 0.5f;
+                hitVoxelPosition = snap(hitVoxelPosition);
+
+                //Centre of potential neighbor voxel
+                neighborVoxelPosition = hitInfo.point - hitInfo.normal * 0.5f;
+                neighborVoxelPosition = snap(neighborVoxelPosition);
+
+                targetVoxelCursor.transform.position = hitVoxelPosition;
+                normalCursor.transform.position = neighborVoxelPosition;
+                normalCursor.transform.rotation = Quaternion.LookRotation(hitInfo.normal, Vector3.up);
+            }
+
         }
         else
         {
@@ -55,6 +74,7 @@ public class PlayerVoxelInteraction : MonoBehaviour
             tree.CubicQuery(hitVoxelPosition);
         }
     }
+
 
     private Vector3 snap(Vector3 pos)
     {

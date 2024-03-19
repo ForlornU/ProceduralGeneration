@@ -5,9 +5,9 @@ public class Octree
 {
     private readonly OctreeNode root;
 
-    public Octree(Bounds worldBounds, bool normals)
+    public Octree(Bounds worldBounds)
     {
-        root = new OctreeNode(worldBounds, 0, this, normals);
+        root = new OctreeNode(worldBounds, 0, this);
     }
 
     //Test, draw the octree

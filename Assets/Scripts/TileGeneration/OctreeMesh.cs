@@ -14,9 +14,8 @@ public class OctreeMesh : MonoBehaviour
     private MeshRenderer meshRenderer;
     private MeshCollider meshCollider;
     public bool drawn = false;
-    bool invert = false;
 
-    public void DrawVoxels(Dictionary<Vector3, Voxel> voxels, bool invert)
+    public void DrawVoxels(Dictionary<Vector3, Voxel> voxels)
     {
         transform.position = new Vector3(-0.5f, -0.5f, -0.5f); //Account for voxel 0.5f offset, temp fix?
         meshVoxels = voxels; //This just points to the same collection, reference
@@ -24,7 +23,6 @@ public class OctreeMesh : MonoBehaviour
         DrawSection();
         meshRenderer.material = World.Instance.globalTestMaterial;
         drawn = true;
-        this.invert = invert;
     }
 
     public void DrawSection()
@@ -40,7 +38,7 @@ public class OctreeMesh : MonoBehaviour
         }
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
-        if(invert)
+        if(World.Instance.invertedWorld)
             mesh.triangles = mesh.triangles.Reverse().ToArray();
         mesh.uv = uvs.ToArray();
 

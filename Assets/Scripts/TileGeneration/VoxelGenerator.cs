@@ -23,7 +23,7 @@ public class VoxelGenerator : MonoBehaviour
         if (world == null)
             world = new GameObject("World").AddComponent<World>();
 
-        world.InitOctoTree(settings.invertedNormals);
+        world.InitOctoTree(settings.InsideWorld);
         tree = world.treeReference;
 
         Player.gameObject.SetActive(false);
@@ -70,7 +70,12 @@ public class VoxelGenerator : MonoBehaviour
         }
 
         Inflate();
-        PlaceTorches();
+
+        if (settings.InsideWorld)
+            PlaceTorchesInside();
+        else
+            PlaceTorchesOutside();
+
         world.DrawWorld();
         if(!settings.debug)
             previousPositions.Clear();
@@ -94,7 +99,7 @@ public class VoxelGenerator : MonoBehaviour
         }
     }
 
-    void PlaceTorches()
+    void PlaceTorchesInside()
     {
         int numTorches = Mathf.RoundToInt(previousPositions.Count * settings.torchesDistribution) + 1;
         Vector3 lastPosition = Vector3.zero;
@@ -115,6 +120,43 @@ public class VoxelGenerator : MonoBehaviour
 
             // Look down until we reach floor
             while (tree.VoxelAtPos(floor))
+            {
+                floor.y--;
+                verticalChange--;
+            }
+
+            if (verticalChange < 0) //If we moved too far, skip
+                continue;
+
+            targetPosition = floor;
+            targetPosition.y++;
+            lastPosition = targetPosition;
+
+            Instantiate(Resources.Load<GameObject>("Torch"), targetPosition, Quaternion.identity);
+        }
+    }
+
+    void PlaceTorchesOutside()
+    {
+        int numTorches = Mathf.RoundToInt(previousPositions.Count * settings.torchesDistribution) + 1;
+        Vector3 lastPosition = Vector3.zero;
+
+        for (int i = 0; i < numTorches; i++)
+        {
+            int verticalChange = 10;
+            int randomIndex = Random.Range(0, previousPositions.Count - 1);
+            Vector3 targetPosition = previousPositions[randomIndex];
+            Vector3 floor = targetPosition;
+            floor.y += verticalChange;
+
+            if (Vector3.Distance(targetPosition, lastPosition) < verticalChange * 1.5f)
+                continue;
+
+            if (settings.debug)
+                Instantiate(Resources.Load<GameObject>("TorchStartCube"), targetPosition, Quaternion.identity);
+
+            // Look down until we reach floor
+            while (!tree.VoxelAtPos(floor))
             {
                 floor.y--;
                 verticalChange--;
