@@ -23,10 +23,12 @@ public class VoxelGenerator : MonoBehaviour
         if (world == null)
             world = new GameObject("World").AddComponent<World>();
 
-        world.InitOctoTree();
+        world.InitOctoTree(settings.invertedNormals);
         tree = world.treeReference;
 
         Player.gameObject.SetActive(false);
+
+        StartGeneration();
     }
 
     public void StartGeneration()
@@ -45,9 +47,8 @@ public class VoxelGenerator : MonoBehaviour
         while (canSpawn)
         {
             // Perform random walk step
-            Vector3 newDirection = RandomWalkDirection();
-            Vector3 newPosition = currentVoxel.position + newDirection;
-            if (!tree.VoxelAtPos(newPosition)) //|| Random.value > settings.branchChance)
+            Vector3 newPosition = currentVoxel.position + RandomWalkDirection();
+            if (!tree.VoxelAtPos(newPosition))
             {
                 currentVoxel = new Voxel(newPosition, VoxelType.Stone);
                 AddVoxel(currentVoxel);

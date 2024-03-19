@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,9 +5,9 @@ public class Octree
 {
     private readonly OctreeNode root;
 
-    public Octree(Bounds worldBounds)
+    public Octree(Bounds worldBounds, bool normals)
     {
-        root = new OctreeNode(worldBounds, 0, this);
+        root = new OctreeNode(worldBounds, 0, this, normals);
     }
 
     //Test, draw the octree

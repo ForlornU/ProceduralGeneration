@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4d406b707740499478a9d7e547ce12d5, type: 3}
-  m_Name: Test
+  m_Name: Inside
   m_EditorClassIdentifier: 
-  startBlockSize: 1
-  inflationPasses: 8
-  voxelsToCreate: 2000
+  startBlockSize: 0
+  inflationPasses: 7
+  voxelsToCreate: 12000
   creationSpeed: 0
   noise: 0.4
   radialBias: 0.02

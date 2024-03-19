@@ -13,8 +13,9 @@ public class OctreeNode
     public OctreeMesh mesh;
     const int maxCapacity = 5000;
     Octree tree;
+    bool invertNormals;
 
-    public OctreeNode(Bounds bounds, int depth, Octree tree)
+    public OctreeNode(Bounds bounds, int depth, Octree tree, bool invertNormals)
     {
         mesh = World.CreateNodeMesh().GetComponent<OctreeMesh>();
         mesh.name = mesh.name + "_" + depth;
@@ -28,6 +29,7 @@ public class OctreeNode
         //Debug.Log("New quadrant with size : " + capacity);
         this.depth = depth;
         this.tree = tree;
+        this.invertNormals = invertNormals;
     }
 
     bool CanSubdivide()
@@ -58,7 +60,7 @@ public class OctreeNode
             childCenter.y += (i & 2) > 0 ? quarterSize : -quarterSize;
             childCenter.z += (i & 1) > 0 ? quarterSize : -quarterSize;
 
-            Children[i] = new OctreeNode(new Bounds(childCenter, new Vector3(halfSize, halfSize, halfSize)), depth + 1, tree);
+            Children[i] = new OctreeNode(new Bounds(childCenter, new Vector3(halfSize, halfSize, halfSize)), depth + 1, tree, invertNormals);
         }
 
         // Redistribute existing voxels among child nodes
@@ -206,7 +208,7 @@ public class OctreeNode
     {
         if (IsLeaf)
         {
-            mesh.DrawVoxels(voxels);
+            mesh.DrawVoxels(voxels, invertNormals);
         }
         else
         {

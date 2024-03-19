@@ -48,13 +48,13 @@ public class World : MonoBehaviour
         tree.DrawAllNodes();
     }
 
-    public void InitOctoTree()
+    public void InitOctoTree(bool normals)
     {
         //Bounds must always be power of 2 = 64/128/256/512/1024
         int boundsSize = 256;
 
         if (tree == null)
-            tree = new Octree(new Bounds(Vector3.zero, Vector3.one * boundsSize));
+            tree = new Octree(new Bounds(Vector3.zero, Vector3.one * boundsSize), normals);
     }
 
     public bool FindInTree(Vector3 pos, out Voxel voxel)
