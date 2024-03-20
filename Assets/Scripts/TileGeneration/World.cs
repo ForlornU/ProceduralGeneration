@@ -6,6 +6,7 @@ public class World : MonoBehaviour
     public Octree treeReference => tree;
 
     public static World Instance { get; private set; }
+    public int worldSize;
     public bool invertedWorld = false;
     public Material globalTestMaterial;
 
@@ -49,14 +50,14 @@ public class World : MonoBehaviour
         tree.DrawAllNodes();
     }
 
-    public void InitOctoTree(bool normals)
+    public void InitOctoTree(bool normals, int size)
     {
         //Bounds must always be power of 2 = 64/128/256/512/1024
-        int boundsSize = 512;
+        worldSize = size;
         invertedWorld = normals;
 
         if (tree == null)
-            tree = new Octree(new Bounds(Vector3.zero, Vector3.one * boundsSize));
+            tree = new Octree(new Bounds(Vector3.zero, Vector3.one * worldSize));
     }
 
     public bool FindInTree(Vector3 pos, out Voxel voxel)

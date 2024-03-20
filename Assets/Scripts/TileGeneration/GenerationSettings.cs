@@ -4,14 +4,15 @@ using UnityEngine;
 
 public class GenerationSettings : ScriptableObject
 {
-    [Header("Generation Settings")]
-    [Tooltip("value + 3 ^ 3 is the starting block of voxels where the player spawns. 1 = 27, 2 = 125, 3 = 216.. This is also affected by inflation")]
+    [Header("World")]
+    [Tooltip("Power of 2 values only, 64, 128, 512, 1024 etc.")] public int OctreeSize = 512;
+    public int voxelsToCreate = 5000;
+    [Range(0f, 1f)] public float creationSpeed = 0.01f;
+
+    [Tooltip("Size of block +1. For example 12: 13^3 = 2197 Voxels in a cube. This is also affected by inflation")]
     public int startBlockSize = 1;
     public int inflationPasses = 2;
     public bool InsideWorld = false;
-
-    public int voxelsToCreate = 5000;
-    [Range(0f, 1f)]public float creationSpeed = 0.01f;
 
     [Header("Randomness")]
     [Range(0f, 1f)] public float noise = 0.2f;
@@ -20,6 +21,7 @@ public class GenerationSettings : ScriptableObject
 
     [Header("Torches")]
     [Range(0.001f, 0.1f)] public float torchesDistribution = 0.02f;
+    [Range(0f, 128f)] public int maxTorches = 64;
 
     [Header("Debug")]
     public bool debug = true;

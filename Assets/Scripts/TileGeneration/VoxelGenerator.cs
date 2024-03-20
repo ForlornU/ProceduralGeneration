@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using static Voxel;
 
@@ -23,7 +22,7 @@ public class VoxelGenerator : MonoBehaviour
         if (world == null)
             world = new GameObject("World").AddComponent<World>();
 
-        world.InitOctoTree(settings.InsideWorld);
+        world.InitOctoTree(settings.InsideWorld, settings.OctreeSize);
         tree = world.treeReference;
 
         Player.gameObject.SetActive(false);
@@ -102,6 +101,7 @@ public class VoxelGenerator : MonoBehaviour
     void PlaceTorchesInside()
     {
         int numTorches = Mathf.RoundToInt(previousPositions.Count * settings.torchesDistribution) + 1;
+        numTorches = Mathf.Clamp(numTorches, 0, settings.maxTorches);
         Vector3 lastPosition = Vector3.zero;
 
         for (int i = 0; i < numTorches; i++)
@@ -139,6 +139,7 @@ public class VoxelGenerator : MonoBehaviour
     void PlaceTorchesOutside()
     {
         int numTorches = Mathf.RoundToInt(previousPositions.Count * settings.torchesDistribution) + 1;
+        numTorches = Mathf.Clamp(numTorches, 0, settings.maxTorches);
         Vector3 lastPosition = Vector3.zero;
 
         for (int i = 0; i < numTorches; i++)
