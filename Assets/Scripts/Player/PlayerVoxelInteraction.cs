@@ -5,8 +5,8 @@ public class PlayerVoxelInteraction : MonoBehaviour
     Octree tree;
     [SerializeField] GameObject targetVoxelCursor;
     [SerializeField] GameObject normalCursor;
-    bool canAlter = false;
     [SerializeField] LayerMask hitMask;
+    bool canAlter = false;
     Vector3 hitVoxelPosition;
     Vector3 neighborVoxelPosition;
 
@@ -15,70 +15,38 @@ public class PlayerVoxelInteraction : MonoBehaviour
     {
         if(Physics.Raycast(transform.position, transform.forward, out RaycastHit hitInfo, 3f, hitMask))
         {
+            if (tree == null)
+                tree = World.Instance.treeReference;
+
             canAlter = true;
             normalCursor.SetActive(true);
             targetVoxelCursor.SetActive(true);
+            PositionCursors(hitInfo);
 
-
-            bool insideWorld = World.Instance.invertedWorld;
-
-            //Centre of hit voxel
-            if(insideWorld)
+            if (World.Instance.invertedWorld == true)
             {
-                hitVoxelPosition = hitInfo.point - hitInfo.normal * 0.5f;
-                hitVoxelPosition = snap(hitVoxelPosition);
-
-                //Centre of potential neighbor voxel
-                neighborVoxelPosition = hitInfo.point + hitInfo.normal * 0.5f;
-                neighborVoxelPosition = snap(neighborVoxelPosition);
-
-                targetVoxelCursor.transform.position = hitVoxelPosition;
-                normalCursor.transform.position = neighborVoxelPosition;
-                normalCursor.transform.rotation = Quaternion.LookRotation(hitInfo.normal, Vector3.up);
-
-                //Adding a voxel (by removing)
                 if (Input.GetMouseButtonDown(0) && canAlter)
                 {
-                    if (tree == null)
-                        tree = World.Instance.treeReference;
                     tree.RemoveVoxel(neighborVoxelPosition);
                     tree.CubicQuery(neighborVoxelPosition);
                 }
                 //Removing a voxel (by adding one)
                 else if (Input.GetMouseButton(1) && canAlter)
                 {
-                    if (tree == null)
-                        tree = World.Instance.treeReference;
                     tree.InsertVoxel(new Voxel(hitVoxelPosition, Voxel.VoxelType.Stone));
                     tree.CubicQuery(hitVoxelPosition);
                 }
             }
             else
             {
-                neighborVoxelPosition = hitInfo.point + hitInfo.normal * 0.5f;
-                hitVoxelPosition = hitInfo.point - hitInfo.normal * 0.5f;
-
-                hitVoxelPosition = snap(hitVoxelPosition);
-                neighborVoxelPosition = snap(neighborVoxelPosition);
-
-                targetVoxelCursor.transform.position = hitVoxelPosition;
-                normalCursor.transform.position = neighborVoxelPosition;
-                normalCursor.transform.rotation = Quaternion.LookRotation(hitInfo.normal, Vector3.up);
-
-                //Adding a voxel (by removing)
                 if (Input.GetMouseButtonDown(0) && canAlter)
                 {
-                    if (tree == null)
-                        tree = World.Instance.treeReference;
                     tree.InsertVoxel(new Voxel(neighborVoxelPosition, Voxel.VoxelType.Stone));
                     tree.CubicQuery(neighborVoxelPosition);
-
                 }
                 //Removing a voxel (by adding one)
                 else if (Input.GetMouseButton(1) && canAlter)
                 {
-                    if (tree == null)
-                        tree = World.Instance.treeReference;
                     tree.RemoveVoxel(hitVoxelPosition);
                     tree.CubicQuery(hitVoxelPosition);
                 }
@@ -91,10 +59,23 @@ public class PlayerVoxelInteraction : MonoBehaviour
             targetVoxelCursor.SetActive(false);
             canAlter = false;
         }
-
-
     }
 
+    void PositionCursors(RaycastHit hitInfo)
+    {
+        Vector3 intoVoxel = hitInfo.point - hitInfo.normal * 0.5f;
+        intoVoxel = snap(intoVoxel);
+
+        Vector3 outOfVoxel = hitInfo.point + hitInfo.normal * 0.5f;
+        outOfVoxel = snap(outOfVoxel);
+
+        hitVoxelPosition = intoVoxel;
+        neighborVoxelPosition = outOfVoxel;
+
+        targetVoxelCursor.transform.position = intoVoxel;
+        normalCursor.transform.position = outOfVoxel;
+        normalCursor.transform.rotation = Quaternion.LookRotation(hitInfo.normal, Vector3.up);
+    }
 
     private Vector3 snap(Vector3 pos)
     {
