@@ -21,6 +21,7 @@ public class PlayerVoxelInteraction : MonoBehaviour
 
 
             bool insideWorld = World.Instance.invertedWorld;
+
             //Centre of hit voxel
             if(insideWorld)
             {
@@ -34,19 +35,53 @@ public class PlayerVoxelInteraction : MonoBehaviour
                 targetVoxelCursor.transform.position = hitVoxelPosition;
                 normalCursor.transform.position = neighborVoxelPosition;
                 normalCursor.transform.rotation = Quaternion.LookRotation(hitInfo.normal, Vector3.up);
+
+                //Adding a voxel (by removing)
+                if (Input.GetMouseButtonDown(0) && canAlter)
+                {
+                    if (tree == null)
+                        tree = World.Instance.treeReference;
+                    tree.RemoveVoxel(neighborVoxelPosition);
+                    tree.CubicQuery(neighborVoxelPosition);
+                }
+                //Removing a voxel (by adding one)
+                else if (Input.GetMouseButton(1) && canAlter)
+                {
+                    if (tree == null)
+                        tree = World.Instance.treeReference;
+                    tree.InsertVoxel(new Voxel(hitVoxelPosition, Voxel.VoxelType.Stone));
+                    tree.CubicQuery(hitVoxelPosition);
+                }
             }
             else
             {
-                hitVoxelPosition = hitInfo.point + hitInfo.normal * 0.5f;
-                hitVoxelPosition = snap(hitVoxelPosition);
+                neighborVoxelPosition = hitInfo.point + hitInfo.normal * 0.5f;
+                hitVoxelPosition = hitInfo.point - hitInfo.normal * 0.5f;
 
-                //Centre of potential neighbor voxel
-                neighborVoxelPosition = hitInfo.point - hitInfo.normal * 0.5f;
+                hitVoxelPosition = snap(hitVoxelPosition);
                 neighborVoxelPosition = snap(neighborVoxelPosition);
 
                 targetVoxelCursor.transform.position = hitVoxelPosition;
                 normalCursor.transform.position = neighborVoxelPosition;
                 normalCursor.transform.rotation = Quaternion.LookRotation(hitInfo.normal, Vector3.up);
+
+                //Adding a voxel (by removing)
+                if (Input.GetMouseButtonDown(0) && canAlter)
+                {
+                    if (tree == null)
+                        tree = World.Instance.treeReference;
+                    tree.InsertVoxel(new Voxel(neighborVoxelPosition, Voxel.VoxelType.Stone));
+                    tree.CubicQuery(neighborVoxelPosition);
+
+                }
+                //Removing a voxel (by adding one)
+                else if (Input.GetMouseButton(1) && canAlter)
+                {
+                    if (tree == null)
+                        tree = World.Instance.treeReference;
+                    tree.RemoveVoxel(hitVoxelPosition);
+                    tree.CubicQuery(hitVoxelPosition);
+                }
             }
 
         }
@@ -57,22 +92,7 @@ public class PlayerVoxelInteraction : MonoBehaviour
             canAlter = false;
         }
 
-        //Adding a voxel (by removing)
-        if (Input.GetMouseButtonDown(0) && canAlter)
-        {
-            if (tree == null)
-                tree = World.Instance.treeReference;
-            tree.RemoveVoxel(neighborVoxelPosition);
-            tree.CubicQuery(neighborVoxelPosition);
-        }
-        //Removing a voxel (by adding one)
-        else if (Input.GetMouseButton(1) && canAlter)
-        {
-            if (tree == null)
-                tree = World.Instance.treeReference;
-            tree.InsertVoxel(new Voxel(hitVoxelPosition, Voxel.VoxelType.Stone));
-            tree.CubicQuery(hitVoxelPosition);
-        }
+
     }
 
 
