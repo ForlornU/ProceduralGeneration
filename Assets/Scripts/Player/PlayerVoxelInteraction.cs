@@ -6,7 +6,8 @@ public class PlayerVoxelInteraction : MonoBehaviour
     [SerializeField] GameObject targetVoxelCursor;
     [SerializeField] GameObject normalCursor;
     [SerializeField] LayerMask hitMask;
-    bool canAlter = false;
+    [SerializeField] ParticleSystem blockBreak;
+
     Vector3 hitVoxelPosition;
     Vector3 neighborVoxelPosition;
 
@@ -18,38 +19,17 @@ public class PlayerVoxelInteraction : MonoBehaviour
             if (tree == null)
                 tree = World.Instance.treeReference;
 
-            canAlter = true;
             normalCursor.SetActive(true);
             targetVoxelCursor.SetActive(true);
             PositionCursors(hitInfo);
 
             if (World.Instance.invertedWorld == true)
             {
-                if (Input.GetMouseButtonDown(0) && canAlter)
-                {
-                    tree.RemoveVoxel(neighborVoxelPosition);
-                    tree.CubicQuery(neighborVoxelPosition);
-                }
-                //Removing a voxel (by adding one)
-                else if (Input.GetMouseButton(1) && canAlter)
-                {
-                    tree.InsertVoxel(new Voxel(hitVoxelPosition, Voxel.VoxelType.Stone));
-                    tree.CubicQuery(hitVoxelPosition);
-                }
+                Click(hitVoxelPosition, neighborVoxelPosition, 0, 1);
             }
             else
             {
-                if (Input.GetMouseButtonDown(0) && canAlter)
-                {
-                    tree.InsertVoxel(new Voxel(neighborVoxelPosition, Voxel.VoxelType.Stone));
-                    tree.CubicQuery(neighborVoxelPosition);
-                }
-                //Removing a voxel (by adding one)
-                else if (Input.GetMouseButton(1) && canAlter)
-                {
-                    tree.RemoveVoxel(hitVoxelPosition);
-                    tree.CubicQuery(hitVoxelPosition);
-                }
+                Click(neighborVoxelPosition, hitVoxelPosition, 1, 0);
             }
 
         }
@@ -57,7 +37,6 @@ public class PlayerVoxelInteraction : MonoBehaviour
         {
             normalCursor.SetActive(false);
             targetVoxelCursor.SetActive(false);
-            canAlter = false;
         }
     }
 
@@ -83,5 +62,26 @@ public class PlayerVoxelInteraction : MonoBehaviour
         pos.y = Mathf.Floor(pos.y) + 0.5f;
         pos.z = Mathf.Floor(pos.z) + 0.5f;
         return pos;
+    }
+
+    void Click(Vector3 add, Vector3 remove, int button1, int button2)
+    {
+        if (Input.GetMouseButtonDown(button1))
+        {
+            tree.RemoveVoxel(remove);
+            tree.CubicQuery(remove);
+
+            blockBreak.transform.position = remove;
+            blockBreak.Play();
+        }
+        //Removing a voxel (by adding one)
+        else if (Input.GetMouseButtonDown(button2))
+        {
+            tree.InsertVoxel(new Voxel(add, Voxel.VoxelType.Stone));
+            tree.CubicQuery(add);
+
+            blockBreak.transform.position = add;
+            blockBreak.Play();
+        }
     }
 }

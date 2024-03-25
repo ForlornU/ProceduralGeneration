@@ -12,12 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d406b707740499478a9d7e547ce12d5, type: 3}
   m_Name: Inside
   m_EditorClassIdentifier: 
-  startBlockSize: 0
-  inflationPasses: 7
-  voxelsToCreate: 12000
+  OctreeSize: 512
+  voxelsToCreate: 250
   creationSpeed: 0
+  startBlockSize: 3
+  inflationPasses: 2
+  InsideWorld: 1
   noise: 0.4
   radialBias: 0.02
   branchChance: 0.5
   torchesDistribution: 0.004
+  maxTorches: 32
   debug: 0
+  continueDrawing: 1

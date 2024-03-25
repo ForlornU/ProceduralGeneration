@@ -86,7 +86,7 @@ public class Octree
         {
 
             // If it's a leaf node, check the voxel and update mesh if needed
-            if (node.IsLeaf)
+            if (node.IsLeaf && node.mesh != null && node.mesh.drawn)
             {
                 meshes.Add(node.mesh);
             }
@@ -99,16 +99,7 @@ public class Octree
                 }
             }
         }
-
     }
-
-    private void UpdateMeshForVoxel(Voxel voxel)
-    {
-        // Implement your logic here to update the mesh based on the affected voxel
-        // This might involve recalculating neighboring voxels, identifying affected faces,
-        // and updating vertex/triangle/UV data in the OctreeMesh script.
-    }
-
 
     public bool FindVoxel(Vector3 position, out Voxel foundVoxel)
     {

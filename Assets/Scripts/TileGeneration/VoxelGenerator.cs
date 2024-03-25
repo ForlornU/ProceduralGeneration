@@ -15,7 +15,8 @@ public class VoxelGenerator : MonoBehaviour
     private Voxel currentVoxel;
     List<Vector3> previousPositions = new List<Vector3>();
     
-    public bool canSpawn { get { return previousPositions.Count < settings.voxelsToCreate; } }
+    public bool canSpawn { get { return previousPositions.Count < count; } }//{ get { return previousPositions.Count < settings.voxelsToCreate; } }
+    int count = 500;
 
     private void Start()
     {
@@ -26,6 +27,7 @@ public class VoxelGenerator : MonoBehaviour
         tree = world.treeReference;
 
         Player.gameObject.SetActive(false);
+        count = settings.voxelsToCreate; //test
 
         StartGeneration();
     }
@@ -38,7 +40,7 @@ public class VoxelGenerator : MonoBehaviour
 
     IEnumerator Generate()
     {
-        Vector3 veryFirstVoxelPosition = new Vector3(0.5f,0.5f,0.5f);
+        Vector3 veryFirstVoxelPosition = new Vector3(0.5f, 0.5f, 0.5f);
         CreateNeighbors(veryFirstVoxelPosition, true, settings.startBlockSize, true);         //Create a 9x9 square starting point
         currentVoxel.position = veryFirstVoxelPosition;
         int attempts = 0;
@@ -75,18 +77,19 @@ public class VoxelGenerator : MonoBehaviour
         else
             PlaceTorchesOutside();
 
-        world.DrawWorld();
-        if(!settings.debug)
+        if (!settings.debug)
             previousPositions.Clear();
-        Invoke("SetPlayer", 1f);
+
         voxelWalker.gameObject.SetActive(false);
+        Invoke("SetPlayer", 1f);
+        world.DrawWorld();
     }
 
     private void SetPlayer()
     {
-        Player.gameObject.SetActive(true);
         Player.position = new Vector3(0.5f, 1f, 0.5f);
         Player.GetComponent<PlayerController>().ResetMovement();
+        Player.gameObject.SetActive(true);
     }
 
     void Inflate()
@@ -106,7 +109,7 @@ public class VoxelGenerator : MonoBehaviour
 
         for (int i = 0; i < numTorches; i++)
         {
-            int verticalChange = 10;
+            int verticalChange = 15;
             int randomIndex = Random.Range(0, previousPositions.Count - 1);
             Vector3 targetPosition = previousPositions[randomIndex];
             Vector3 floor = targetPosition;
@@ -144,7 +147,7 @@ public class VoxelGenerator : MonoBehaviour
 
         for (int i = 0; i < numTorches; i++)
         {
-            int verticalChange = 10;
+            int verticalChange = 15;
             int randomIndex = Random.Range(0, previousPositions.Count - 1);
             Vector3 targetPosition = previousPositions[randomIndex];
             Vector3 floor = targetPosition;
@@ -156,19 +159,18 @@ public class VoxelGenerator : MonoBehaviour
             if (settings.debug)
                 Instantiate(Resources.Load<GameObject>("TorchStartCube"), targetPosition, Quaternion.identity);
 
-            // Look down until we reach floor
-            while (!tree.VoxelAtPos(floor))
+            // Look up until we reach air
+            while (tree.VoxelAtPos(floor) && verticalChange > 0)
             {
-                floor.y--;
+                floor.y++;
                 verticalChange--;
             }
 
-            if (verticalChange < 0) //If we moved too far, skip
+            if (verticalChange <= 0) //If we moved too far, skip
                 continue;
 
             targetPosition = floor;
-            targetPosition.y++;
-            lastPosition = targetPosition;
+            lastPosition = floor;
 
             Instantiate(Resources.Load<GameObject>("Torch"), targetPosition, Quaternion.identity);
         }
@@ -222,7 +224,6 @@ public class VoxelGenerator : MonoBehaviour
 
         foreach (Vector3 pos in previousPositions)
         {
-            //Gizmos.DrawCube(pos, Vector3.one);
             Gizmos.DrawWireCube(pos, Vector3.one);
         }
     }

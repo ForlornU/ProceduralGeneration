@@ -398,6 +398,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1678322460467122035, guid: 7c607ff805b49be4bb6fdd6ca341ce8d,
+        type: 3}
+      propertyPath: blockBreak
+      value: 
+      objectReference: {fileID: 6026180740595547037}
     - target: {fileID: 7446111940449662989, guid: 7c607ff805b49be4bb6fdd6ca341ce8d,
         type: 3}
       propertyPath: m_Name
@@ -408,6 +413,12 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7c607ff805b49be4bb6fdd6ca341ce8d, type: 3}
+--- !u!198 &6026180740595547037 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 4295841301769861039, guid: 7c607ff805b49be4bb6fdd6ca341ce8d,
+    type: 3}
+  m_PrefabInstance: {fileID: 6026180740595547036}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
