@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Inside
   m_EditorClassIdentifier: 
   OctreeSize: 512
-  voxelsToCreate: 250
+  voxelsToCreate: 14000
   creationSpeed: 0
   startBlockSize: 3
-  inflationPasses: 2
+  inflationPasses: 3
   InsideWorld: 1
   noise: 0.4
   radialBias: 0.02
@@ -24,4 +24,3 @@ MonoBehaviour:
   torchesDistribution: 0.004
   maxTorches: 32
   debug: 0
-  continueDrawing: 1
