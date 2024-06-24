@@ -230,10 +230,11 @@ public class VoxelGenerator : MonoBehaviour
 
     private Vector3 RandomWalkDirection()
     {
+        if (Random.value < settings.radialBias)
+            return RadialBias();
+        
         int d = Random.Range(0, 6);
-
         Vector3 result = Vector3.forward;
-        Vector3 radial = RadialBias();
 
         switch (d)
         {
@@ -244,9 +245,6 @@ public class VoxelGenerator : MonoBehaviour
             case 4: result = Vector3.forward; break;
             case 5: result = Vector3.back; break;
         }
-
-        if (Random.value < settings.radialBias)
-            result = radial;
 
         return result;
     }
