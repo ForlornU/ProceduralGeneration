@@ -14,15 +14,17 @@ public class PlayerVoxelInteraction : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Physics.Raycast(transform.position, transform.forward, out RaycastHit hitInfo, 3f, hitMask))
+        ActivateCursors(false);
+
+        if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hitInfo, 3f, hitMask))
         {
             if (tree == null)
                 tree = World.Instance.treeReference;
 
-            normalCursor.SetActive(true);
-            targetVoxelCursor.SetActive(true);
+            ActivateCursors(true);
             PositionCursors(hitInfo);
 
+            //Change Behaviour depending on outer/inner generation
             if (World.Instance.invertedWorld == true)
             {
                 Click(hitVoxelPosition, neighborVoxelPosition, 0, 1);
@@ -31,13 +33,13 @@ public class PlayerVoxelInteraction : MonoBehaviour
             {
                 Click(neighborVoxelPosition, hitVoxelPosition, 1, 0);
             }
+        }
+    }
 
-        }
-        else
-        {
-            normalCursor.SetActive(false);
-            targetVoxelCursor.SetActive(false);
-        }
+    void ActivateCursors(bool value)
+    {
+        normalCursor.SetActive(value);
+        targetVoxelCursor.SetActive(value);
     }
 
     void PositionCursors(RaycastHit hitInfo)
