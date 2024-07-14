@@ -11,7 +11,6 @@ public class PlayerVoxelInteraction : MonoBehaviour
     Vector3 hitVoxelPosition;
     Vector3 neighborVoxelPosition;
 
-    // Update is called once per frame
     void Update()
     {
         ActivateCursors(false);
@@ -23,7 +22,6 @@ public class PlayerVoxelInteraction : MonoBehaviour
 
             ActivateCursors(true);
             PositionCursors(hitInfo);
-
             //Change Behaviour depending on outer/inner generation
             if (World.Instance.invertedWorld == true)
             {
@@ -44,21 +42,21 @@ public class PlayerVoxelInteraction : MonoBehaviour
 
     void PositionCursors(RaycastHit hitInfo)
     {
-        Vector3 intoVoxel = hitInfo.point - hitInfo.normal * 0.5f;
-        intoVoxel = snap(intoVoxel);
+        Vector3 targetVoxel = hitInfo.point - hitInfo.normal * 0.5f;
+        targetVoxel = SnapToGrid(targetVoxel);
 
-        Vector3 outOfVoxel = hitInfo.point + hitInfo.normal * 0.5f;
-        outOfVoxel = snap(outOfVoxel);
+        Vector3 adjacentVoxel = hitInfo.point + hitInfo.normal * 0.5f;
+        adjacentVoxel = SnapToGrid(adjacentVoxel);
 
-        hitVoxelPosition = intoVoxel;
-        neighborVoxelPosition = outOfVoxel;
+        hitVoxelPosition = targetVoxel;
+        neighborVoxelPosition = adjacentVoxel;
 
-        targetVoxelCursor.transform.position = intoVoxel;
-        normalCursor.transform.position = outOfVoxel;
+        targetVoxelCursor.transform.position = targetVoxel;
+        normalCursor.transform.position = adjacentVoxel;
         normalCursor.transform.rotation = Quaternion.LookRotation(hitInfo.normal, Vector3.up);
     }
 
-    private Vector3 snap(Vector3 pos)
+    private Vector3 SnapToGrid(Vector3 pos)
     {
         pos.x = Mathf.Floor(pos.x) + 0.5f;
         pos.y = Mathf.Floor(pos.y) + 0.5f;
