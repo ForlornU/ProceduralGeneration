@@ -403,6 +403,16 @@ PrefabInstance:
       propertyPath: blockBreak
       value: 
       objectReference: {fileID: 6026180740595547037}
+    - target: {fileID: 7302901018355474274, guid: 7c607ff805b49be4bb6fdd6ca341ce8d,
+        type: 3}
+      propertyPath: MaxFOV
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 7302901018355474274, guid: 7c607ff805b49be4bb6fdd6ca341ce8d,
+        type: 3}
+      propertyPath: MinFOV
+      value: 15
+      objectReference: {fileID: 0}
     - target: {fileID: 7446111940449662989, guid: 7c607ff805b49be4bb6fdd6ca341ce8d,
         type: 3}
       propertyPath: m_Name
