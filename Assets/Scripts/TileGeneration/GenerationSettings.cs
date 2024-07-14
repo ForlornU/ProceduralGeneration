@@ -12,7 +12,7 @@ public class GenerationSettings : ScriptableObject
     [Tooltip("Size of block +1. For example 12: 13^3 = 2197 Voxels in a cube. This is also affected by inflation")]
     public int startBlockSize = 1;
     public int inflationPasses = 2;
-    public bool InsideWorld = false;
+    public bool isInsideWorld = false;
 
     [Header("Randomness")]
     [Range(0f, 1f)] public float noise = 0.2f;

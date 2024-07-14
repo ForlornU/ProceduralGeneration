@@ -21,7 +21,7 @@ public class OctreeMesh : MonoBehaviour
         meshVoxels = voxels; //This just points to the same collection, reference
         CheckComponents();
         DrawSection();
-        meshRenderer.material = World.Instance.globalTestMaterial;
+        meshRenderer.material = World.Instance.VoxelMaterial;
         drawn = true;
     }
 

@@ -8,7 +8,7 @@ public class World : MonoBehaviour
     public static World Instance { get; private set; }
     public int worldSize;
     public bool invertedWorld = false;
-    public Material globalTestMaterial;
+    public Material VoxelMaterial;
 
     void Awake()
     {
@@ -17,7 +17,7 @@ public class World : MonoBehaviour
         else
             Destroy(gameObject);
 
-        globalTestMaterial = Resources.Load("test") as Material;
+        VoxelMaterial = Resources.Load("test") as Material;
     }
 
     public static GameObject CreateNodeMesh()

@@ -15,34 +15,31 @@ public class VoxelGenerator : MonoBehaviour
     private Voxel currentVoxel;
     List<Vector3> previousPositions = new List<Vector3>();
     
-    public bool canSpawn { get { return previousPositions.Count < count; } }//{ get { return previousPositions.Count < settings.voxelsToCreate; } }
-    int count = 500;
+    public bool canSpawn { get { return previousPositions.Count < settings.voxelsToCreate; } }
 
     private void Start()
     {
         if (world == null)
             world = new GameObject("World").AddComponent<World>();
 
-        world.InitOctoTree(settings.InsideWorld, settings.OctreeSize);
+        world.InitOctoTree(settings.isInsideWorld, settings.OctreeSize);
         tree = world.treeReference;
-
-        Player.gameObject.SetActive(false);
-        count = settings.voxelsToCreate; //test
 
         StartGeneration();
     }
 
     public void StartGeneration()
     {
+        Player.gameObject.SetActive(false);
         Clear();
         StartCoroutine(Generate());
     }
 
     IEnumerator Generate()
     {
-        Vector3 veryFirstVoxelPosition = new Vector3(0.5f, 0.5f, 0.5f);
-        CreateNeighbors(veryFirstVoxelPosition, true, settings.startBlockSize, true);         //Create a 9x9 square starting point
-        currentVoxel.position = veryFirstVoxelPosition;
+        Vector3 firstVoxelPosition = new Vector3(0.5f, 0.5f, 0.5f);
+        CreateNeighbors(firstVoxelPosition, true, settings.startBlockSize, true); //Create a 9x9 square starting point
+        currentVoxel.position = firstVoxelPosition;
         int attempts = 0;
 
         while (canSpawn)
@@ -72,7 +69,7 @@ public class VoxelGenerator : MonoBehaviour
 
         Inflate();
 
-        if (settings.InsideWorld)
+        if (settings.isInsideWorld)
             PlaceTorchesInside();
         else
             PlaceTorchesOutside();
@@ -233,10 +230,10 @@ public class VoxelGenerator : MonoBehaviour
         if (Random.value < settings.radialBias)
             return RadialBias();
         
-        int d = Random.Range(0, 6);
+        int randomDirection = Random.Range(0, 6);
         Vector3 result = Vector3.forward;
 
-        switch (d)
+        switch (randomDirection)
         {
             case 0: result = Vector3.right; break;
             case 1: result = Vector3.up; break;
