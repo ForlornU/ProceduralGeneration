@@ -25,7 +25,6 @@ public class OctreeNode
         Children = null;
         voxels = new Dictionary<Vector3, Voxel>();
         capacity = (int)Mathf.Clamp((bounds.size.x * bounds.size.x * bounds.size.x) / 3, minBoundsSize, maxCapacity);
-        //Debug.Log("New quadrant with size : " + capacity);
         this.depth = depth;
         this.tree = tree;
     }
@@ -157,32 +156,6 @@ public class OctreeNode
 
         return found;
     }
-
-    //public List<Voxel> Query(Bounds range)
-    //{
-    //    List<Voxel> voxels = new List<Voxel>();
-    //    if (bounds.Intersects(range))
-    //    {
-    //        if (IsLeaf)
-    //        {
-    //            //if (Voxel != null && range.Contains(Voxel.Position))
-    //            //{
-    //            //    voxels.Add(Voxel);
-    //            //}
-    //        }
-    //        else
-    //        {
-    //            for (int i = 0; i < 8; i++)
-    //            {
-    //                if (Children[i].bounds.Intersects(range))
-    //                {
-    //                    voxels.AddRange(Children[i].Query(range));
-    //                }
-    //            }
-    //        }
-    //    }
-    //    return voxels;
-    //}
 
     public void Clear()
     {

@@ -4,7 +4,6 @@ public class World : MonoBehaviour
 {
     Octree tree;
     public Octree treeReference => tree;
-
     public static World Instance { get; private set; }
     public int worldSize;
     public bool invertedWorld = false;

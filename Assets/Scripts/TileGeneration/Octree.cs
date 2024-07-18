@@ -10,7 +10,7 @@ public class Octree
         root = new OctreeNode(worldBounds, 0, this);
     }
 
-    //Test, draw the octree
+    #region BoundingBox Drawing
     public List<Bounds> getAllBounds()
     {
         List<Bounds> bounds = new List<Bounds>();
@@ -35,9 +35,9 @@ public class Octree
             }
         }
     }
-    //EndTest
+    #endregion
 
-    //Render all the voxels
+    //Render the entire tree
     public void DrawAllNodes()
     {
         root.Draw();
@@ -59,6 +59,7 @@ public class Octree
             InsertVoxel(voxel);
     }
 
+    //Finds overlapping octants
     public void CubicQuery(Vector3 position)
     {
         Bounds queryBounds = new Bounds(position, new Vector3(3, 3, 3));
@@ -117,16 +118,12 @@ public class Octree
             return false;
     }
 
-    //public List<Voxel> QueryRange(Bounds range)
-    //{
-    //    return root.Query(range);
-    //}
-
     public void Clear()
     {
         root.Clear();
     }
 
+    //Dynamically grow or shrink the tree, need to redraw entire tree?
     public void Grow()
     {
         //List<Voxel> voxels = new List<Voxel>();
@@ -139,19 +136,10 @@ public class Octree
         //Redraw entire octree
     }
 
-    void GetAllVoxels(OctreeNode node, List<Voxel> newVoxels)
+    public void Shrink()
     {
-        if (node == null)
-            return;
-
-        newVoxels.AddRange(node.voxels.Values);
-
-        foreach (var child in node.Children)
-        {
-            GetAllVoxels(child, newVoxels);
-        }
-        
+        /*
+         * Recreate the tree with a smaller size
+         */
     }
-
-
 }

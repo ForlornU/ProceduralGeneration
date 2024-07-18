@@ -68,8 +68,6 @@ public class OctreeMesh : MonoBehaviour
         int nrOfFaces = 6;
         foreach (Voxel voxel in meshVoxels.Values)
         {
-            bool voxelIsAir = false;
-
             bool[] facesVisible = new bool[nrOfFaces];
             for (int faceDir = 0; faceDir < nrOfFaces; faceDir++)
             {
@@ -102,17 +100,12 @@ public class OctreeMesh : MonoBehaviour
                 Vector3 neighborPos = new Vector3(voxel.position.x + offsetX, voxel.position.y + offsetY, voxel.position.z + offsetZ);
 
                 // Check if voxel exists and is active
-                bool isFaceVisible = IsFaceVisible(neighborPos);//voxels.TryGetValue(neighborPos, out Voxel neighborVoxel) && neighborVoxel.isActive;
+                bool isFaceVisible = IsFaceVisible(neighborPos);
                 if (!isFaceVisible)
                 {
                     AddFaceData(voxel.position.x, voxel.position.y, voxel.position.z, faceDir);
-                    voxelIsAir= true;
-                }
-                    //AddFaceData((int)voxel.position.x, (int)voxel.position.y, (int)voxel.position.z, faceDir); // Method to add mesh data for the visible face
+                 }
             }
-
-            //if (voxelIsAir)
-            //    voxel.type = Voxel.VoxelType.Air;
         }
     }
 
@@ -126,7 +119,6 @@ public class OctreeMesh : MonoBehaviour
             meshCollider = gameObject.AddComponent<MeshCollider>();
     }
 
-    //private void AddFaceData(int x, int y, int z, int faceIndex)
     private void AddFaceData(float x, float y, float z, int faceIndex)
     {
         // Based on faceIndex, determine vertices and triangles

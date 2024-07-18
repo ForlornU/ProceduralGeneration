@@ -48,7 +48,7 @@ public class VoxelGenerator : MonoBehaviour
             Vector3 newPosition = currentVoxel.position + RandomWalkDirection();
             if (!tree.VoxelAtPos(newPosition))
             {
-                currentVoxel = new Voxel(newPosition, VoxelType.Stone);
+                currentVoxel = new Voxel(newPosition);
                 AddVoxel(currentVoxel);
 
                 voxelWalker.position = currentVoxel.position;
@@ -197,9 +197,9 @@ public class VoxelGenerator : MonoBehaviour
                         }
                     }
                     if (addToPreviousLocations)
-                        AddVoxel(new Voxel(pos, VoxelType.Stone));
+                        AddVoxel(new Voxel(pos));
                     else
-                        tree.InsertVoxel(new Voxel(pos, VoxelType.Stone));
+                        tree.InsertVoxel(new Voxel(pos));
                 }
             }
         }

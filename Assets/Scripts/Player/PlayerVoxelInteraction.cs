@@ -77,7 +77,7 @@ public class PlayerVoxelInteraction : MonoBehaviour
         //Removing a voxel (by adding one)
         else if (Input.GetMouseButtonDown(button2))
         {
-            tree.InsertVoxel(new Voxel(add, Voxel.VoxelType.Stone));
+            tree.InsertVoxel(new Voxel(add));
             tree.CubicQuery(add);
 
             blockBreak.transform.position = add;

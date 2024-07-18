@@ -17,7 +17,7 @@ MonoBehaviour:
   creationSpeed: 0
   startBlockSize: 2
   inflationPasses: 2
-  InsideWorld: 1
+  isInsideWorld: 1
   noise: 0.4
   radialBias: 0.02
   branchChance: 0.5
