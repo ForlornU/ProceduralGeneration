@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Outside
   m_EditorClassIdentifier: 
   OctreeSize: 512
-  voxelsToCreate: 8000
+  voxelsToCreate: 3000
   creationSpeed: 0
   startBlockSize: 5
   inflationPasses: 2
-  InsideWorld: 0
+  isInsideWorld: 0
   noise: 0.2
   radialBias: -0.011
   branchChance: 0.1
